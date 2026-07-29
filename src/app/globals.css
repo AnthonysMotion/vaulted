@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #070b14;
+  --color-surface: #0d1424;
+  --color-surface-2: #131c31;
+  --color-border: #1e2a44;
+  --color-primary: #facc15;
+  --color-primary-dark: #ca8a04;
+  --color-accent: #38bdf8;
+  --color-foreground: #e6ecf7;
+  --color-muted: #8b98b3;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(56, 189, 248, 0.09), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(250, 204, 21, 0.06), transparent 60%),
+    #070b14;
+  color: #e6ecf7;
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(250, 204, 21, 0.35);
+}
+
+/* ------------------------------------------------------------------ */
+/* Rarity glows (tier 0-6)                                            */
+/* ------------------------------------------------------------------ */
+
+.glow-tier-3 {
+  box-shadow: 0 0 18px 2px rgba(56, 189, 248, 0.45);
+}
+.glow-tier-4 {
+  box-shadow: 0 0 24px 4px rgba(168, 85, 247, 0.55);
+}
+.glow-tier-5 {
+  box-shadow: 0 0 30px 6px rgba(250, 204, 21, 0.55);
+}
+.glow-tier-6 {
+  box-shadow:
+    0 0 34px 8px rgba(244, 114, 182, 0.55),
+    0 0 60px 16px rgba(250, 204, 21, 0.3);
+  animation: chase-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes chase-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 34px 8px rgba(244, 114, 182, 0.55),
+      0 0 60px 16px rgba(250, 204, 21, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 44px 12px rgba(244, 114, 182, 0.75),
+      0 0 80px 24px rgba(250, 204, 21, 0.45);
+  }
+}
+
+/* Holo shimmer sweep for reverse holos and better */
+.holo-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.holo-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 45%,
+    rgba(56, 189, 248, 0.14) 50%,
+    rgba(244, 114, 182, 0.14) 55%,
+    transparent 70%
+  );
+  background-size: 250% 250%;
+  animation: shimmer 3.2s linear infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 120% 120%;
+  }
+  100% {
+    background-position: -60% -60%;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1424;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2a44;
+  border-radius: 6px;
+}
