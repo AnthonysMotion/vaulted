@@ -232,9 +232,6 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
             <LinkButton href="/sets" variant="primary" className="h-14 px-12 text-lg font-bold text-black">
               Explore Sets
             </LinkButton>
-            <Link href="/sets/sv3pt5" className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors border-b border-zinc-900 pb-2">
-              Jump to 151
-            </Link>
           </div>
         </div>
       </section>
