@@ -42,10 +42,10 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-3xl font-black">
-            Welcome back, <span className="text-primary">{profile.username}</span>
+          <h1 className="title-m">
+            Welcome back, <span className="text-anthracite">{profile.username}</span>
           </h1>
-          <p className="mt-1 text-muted">
+          <p className="mt-2 text-muted">
             {packsLeft > 0
               ? `You have ${packsLeft} pack${packsLeft === 1 ? "" : "s"} to open today.`
               : `All packs opened — resets in ${hoursToReset}h ${minsToReset}m.`}

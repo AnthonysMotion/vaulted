@@ -1,49 +1,120 @@
 @import "tailwindcss";
 
+/*
+  Visual language inspired by Made With GSAP (madewithgsap.com):
+  paper canvas, anthracite type, lime accent, geometric grotesk + mono labels.
+*/
+
 @theme inline {
-  --color-background: #070b14;
-  --color-surface: #0d1424;
-  --color-surface-2: #131c31;
-  --color-border: #1e2a44;
-  --color-primary: #facc15;
-  --color-primary-dark: #ca8a04;
-  --color-accent: #38bdf8;
-  --color-foreground: #e6ecf7;
-  --color-muted: #8b98b3;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: #f1f1f1;
+  --color-surface: #ffffff;
+  --color-surface-2: #f3f3f3;
+  --color-border: #e4e4e4;
+  --color-primary: #c9fe6e;
+  --color-primary-dark: #a8e048;
+  --color-accent: #28df7d;
+  --color-ink: #0a0a0b;
+  --color-foreground: #121212;
+  --color-muted: #777777;
+  --color-anthracite: #232323;
+  --color-dark-grey: #323232;
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono-label);
+  --radius-s: 4px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(56, 189, 248, 0.09), transparent 60%),
-    radial-gradient(900px 500px at 10% 110%, rgba(250, 204, 21, 0.06), transparent 60%),
-    #070b14;
-  color: #e6ecf7;
+  background: var(--color-background);
+  color: var(--color-foreground);
   min-height: 100vh;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(250, 204, 21, 0.35);
+  background: rgba(201, 254, 110, 0.55);
+  color: #0a0a0b;
 }
 
 /* ------------------------------------------------------------------ */
-/* Rarity glows (tier 0-6)                                            */
+/* Type scale (MWG-inspired)                                          */
+/* ------------------------------------------------------------------ */
+
+.mwg-label {
+  font-family: var(--font-mono-label), ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.mwg-label-s {
+  font-family: var(--font-mono-label), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.title-xl {
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+
+.title-l {
+  font-size: clamp(2.25rem, 5.5vw, 4rem);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+
+.title-m {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.title-s {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Rarity glows (readable on light canvas)                             */
 /* ------------------------------------------------------------------ */
 
 .glow-tier-3 {
-  box-shadow: 0 0 18px 2px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 0 2px rgba(25, 117, 255, 0.35), 0 8px 28px rgba(25, 117, 255, 0.2);
 }
 .glow-tier-4 {
-  box-shadow: 0 0 24px 4px rgba(168, 85, 247, 0.55);
+  box-shadow: 0 0 0 2px rgba(40, 223, 125, 0.45), 0 8px 28px rgba(40, 223, 125, 0.22);
 }
 .glow-tier-5 {
-  box-shadow: 0 0 30px 6px rgba(250, 204, 21, 0.55);
+  box-shadow: 0 0 0 2px rgba(201, 254, 110, 0.7), 0 10px 32px rgba(201, 254, 110, 0.35);
 }
 .glow-tier-6 {
   box-shadow:
-    0 0 34px 8px rgba(244, 114, 182, 0.55),
-    0 0 60px 16px rgba(250, 204, 21, 0.3);
+    0 0 0 2px rgba(252, 76, 59, 0.55),
+    0 12px 36px rgba(201, 254, 110, 0.35);
   animation: chase-pulse 1.6s ease-in-out infinite;
 }
 
@@ -51,17 +122,16 @@ body {
   0%,
   100% {
     box-shadow:
-      0 0 34px 8px rgba(244, 114, 182, 0.55),
-      0 0 60px 16px rgba(250, 204, 21, 0.3);
+      0 0 0 2px rgba(252, 76, 59, 0.55),
+      0 12px 36px rgba(201, 254, 110, 0.35);
   }
   50% {
     box-shadow:
-      0 0 44px 12px rgba(244, 114, 182, 0.75),
-      0 0 80px 24px rgba(250, 204, 21, 0.45);
+      0 0 0 3px rgba(252, 76, 59, 0.75),
+      0 16px 44px rgba(201, 254, 110, 0.5);
   }
 }
 
-/* Holo shimmer sweep for reverse holos and better */
 .holo-shimmer {
   position: relative;
   overflow: hidden;
@@ -73,9 +143,9 @@ body {
   background: linear-gradient(
     115deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.18) 45%,
-    rgba(56, 189, 248, 0.14) 50%,
-    rgba(244, 114, 182, 0.14) 55%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(188, 239, 255, 0.25) 50%,
+    rgba(201, 254, 110, 0.2) 55%,
     transparent 70%
   );
   background-size: 250% 250%;
@@ -93,15 +163,46 @@ body {
   }
 }
 
-/* Scrollbar */
+/* ------------------------------------------------------------------ */
+/* Nav link roll (vertical text swap on hover)                         */
+/* ------------------------------------------------------------------ */
+
+.nav-roll {
+  display: inline-flex;
+  height: 1.25em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.nav-roll > span {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.9, 0, 0.1, 1);
+}
+.nav-roll > span > span {
+  display: block;
+  height: 1.25em;
+  line-height: 1.25em;
+}
+.group:hover .nav-roll > span,
+a:hover .nav-roll > span {
+  transform: translateY(-50%);
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbar                                                           */
+/* ------------------------------------------------------------------ */
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d1424;
+  background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e2a44;
+  background: #d4d4d4;
   border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8b8b8;
 }

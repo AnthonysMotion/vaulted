@@ -54,21 +54,22 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-md">
+    <div className="mx-auto mt-10 w-full max-w-md">
       <Card>
-        <h1 className="text-2xl font-bold">
+        <p className="mwg-label text-muted">Account</p>
+        <h1 className="title-s mt-2">
           {mode === "signin" ? "Welcome back, trainer" : "Start your journey"}
         </h1>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-2 text-sm text-muted">
           {mode === "signin"
             ? "Sign in to open today's packs."
             : "Create a free account to build a permanent collection."}
         </p>
 
-        <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
+        <form onSubmit={submit} className="mt-8 flex flex-col gap-4">
           {mode === "signup" && (
             <label className="flex flex-col gap-1.5 text-sm">
-              Username
+              <span className="mwg-label-s text-muted">Username</span>
               <input
                 required
                 minLength={3}
@@ -77,23 +78,23 @@ function LoginForm() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="ash_ketchum"
-                className="rounded-xl border border-border bg-surface-2 px-3 py-2 outline-none focus:border-primary"
+                className="h-12 rounded-full border border-border bg-surface-2 px-4 outline-none transition-colors focus:border-anthracite focus:bg-white"
               />
             </label>
           )}
           <label className="flex flex-col gap-1.5 text-sm">
-            Email
+            <span className="mwg-label-s text-muted">Email</span>
             <input
               required
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="rounded-xl border border-border bg-surface-2 px-3 py-2 outline-none focus:border-primary"
+              className="h-12 rounded-full border border-border bg-surface-2 px-4 outline-none transition-colors focus:border-anthracite focus:bg-white"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
-            Password
+            <span className="mwg-label-s text-muted">Password</span>
             <input
               required
               type="password"
@@ -101,21 +102,21 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="rounded-xl border border-border bg-surface-2 px-3 py-2 outline-none focus:border-primary"
+              className="h-12 rounded-full border border-border bg-surface-2 px-4 outline-none transition-colors focus:border-anthracite focus:bg-white"
             />
           </label>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          {info && <p className="text-sm text-emerald-400">{info}</p>}
+          {error && <p className="text-sm text-[#fc4c3b]">{error}</p>}
+          {info && <p className="text-sm text-[#0f9a52]">{info}</p>}
 
-          <Button type="submit" disabled={loading}>
-            {loading ? "..." : mode === "signin" ? "Sign in" : "Create account"}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "..." : mode === "signin" ? "Sign in →" : "Create account →"}
           </Button>
         </form>
 
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-4 text-sm text-muted underline hover:text-foreground cursor-pointer"
+          className="mwg-label-s mt-5 text-muted underline decoration-primary underline-offset-4 hover:text-foreground cursor-pointer"
         >
           {mode === "signin"
             ? "New here? Create an account"
@@ -123,9 +124,9 @@ function LoginForm() {
         </button>
       </Card>
 
-      <p className="mt-4 text-center text-xs text-muted">
+      <p className="mwg-label-s mt-6 text-center text-muted">
         Just want to rip packs?{" "}
-        <Link href="/open-pack?mode=sandbox" className="underline">
+        <Link href="/open-pack?mode=sandbox" className="underline underline-offset-4">
           Sandbox mode
         </Link>{" "}
         needs no account.

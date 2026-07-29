@@ -31,43 +31,44 @@ export default async function OpenPackPage({
     profile && profile.lastPackDate === today ? profile.packsOpenedToday : 0;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black">Choose a booster pack</h1>
-          <p className="mt-1 text-muted">
+          <p className="mwg-label text-muted">Choose your booster</p>
+          <h1 className="title-l mt-3">Open packs</h1>
+          <p className="mt-3 max-w-md text-muted">
             {mode === "sandbox"
-              ? "Sandbox mode — unlimited packs, nothing is saved."
-              : `Trainer mode — ${Math.max(0, DAILY_PACK_LIMIT - packsUsed)} of ${DAILY_PACK_LIMIT} packs left today. Cards are saved forever.`}
+              ? "Sandbox — unlimited packs, nothing is saved."
+              : `Trainer — ${Math.max(0, DAILY_PACK_LIMIT - packsUsed)} of ${DAILY_PACK_LIMIT} packs left today. Cards are saved forever.`}
           </p>
         </div>
-        <div className="flex rounded-xl border border-border bg-surface p-1">
+        <div className="flex rounded-full bg-surface p-1 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
           <Link
             href="/open-pack?mode=sandbox"
-            className={`rounded-lg px-4 py-2 text-sm font-medium ${mode === "sandbox" ? "bg-primary text-slate-900" : "text-muted hover:text-foreground"}`}
+            className={`mwg-label rounded-full px-5 py-3 ${mode === "sandbox" ? "bg-primary text-ink" : "text-muted hover:text-foreground"}`}
           >
-            🏖️ Sandbox
+            Sandbox
           </Link>
           <Link
             href={profile ? "/open-pack?mode=trainer" : "/login?next=/open-pack%3Fmode%3Dtrainer"}
-            className={`rounded-lg px-4 py-2 text-sm font-medium ${mode === "trainer" ? "bg-primary text-slate-900" : "text-muted hover:text-foreground"}`}
+            className={`mwg-label rounded-full px-5 py-3 ${mode === "trainer" ? "bg-primary text-ink" : "text-muted hover:text-foreground"}`}
           >
-            🏆 Trainer
+            Trainer
           </Link>
         </div>
       </div>
 
       {[...bySeries.entries()].map(([series, seriesSets]) => (
         <section key={series}>
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
-            {series} <Badge>{seriesSets.length} sets</Badge>
+          <h2 className="mb-4 flex items-center gap-3 title-s">
+            {series} <Badge>{seriesSets.length}</Badge>
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {seriesSets.map((s) => (
               <Link
                 key={s.id}
                 href={`/open-pack/${s.id}?mode=${mode}`}
-                className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-all hover:border-primary/50 hover:shadow-[0_0_24px_rgba(250,204,21,0.12)]"
+                className="group flex flex-col items-center gap-3 rounded-[20px] border border-border bg-surface p-5 transition-all hover:bg-white hover:shadow-[0_12px_40px_rgba(10,10,11,0.06)]"
               >
                 <div className="grid h-16 w-full place-items-center">
                   {s.logoUrl ? (

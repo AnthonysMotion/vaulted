@@ -249,14 +249,14 @@ export function PackOpener({
       {/* ------------------------------------------------ session history */}
       {history.length > 0 && phase !== "revealing" && (
         <div className="mt-8 w-full">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+          <h3 className="mwg-label mb-3 text-muted">
             Session history · {history.length} pack{history.length === 1 ? "" : "s"}
           </h3>
           <div className="flex flex-col gap-3">
             {history.map((h, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 overflow-x-auto rounded-xl border border-border bg-surface p-2"
+                className="flex items-center gap-2 overflow-x-auto rounded-[20px] border border-border bg-surface p-3"
               >
                 {h.cards.map((c, j) => (
                   <img
@@ -306,24 +306,24 @@ function BoosterPackArt({
       className="relative h-80 w-56 select-none"
       style={{ perspective: 800 }}
     >
-      <div className="absolute inset-0 rounded-xl border border-border bg-gradient-to-b from-surface-2 via-surface to-surface-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+      <div className="absolute inset-0 overflow-hidden rounded-[20px] border border-border bg-anthracite shadow-[0_24px_60px_rgba(10,10,11,0.25)]">
         {/* crimp */}
-        <div className="absolute inset-x-0 top-0 h-6 rounded-t-xl bg-gradient-to-b from-slate-500/40 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
-        <div className="absolute inset-x-0 bottom-0 h-6 rounded-b-xl bg-gradient-to-t from-slate-500/40 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
+        <div className="absolute inset-x-0 top-0 h-6 rounded-t-[20px] bg-gradient-to-b from-white/15 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
+        <div className="absolute inset-x-0 bottom-0 h-6 rounded-b-[20px] bg-gradient-to-t from-white/15 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
         <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
           {set.logoUrl ? (
-            <img src={set.logoUrl} alt={set.name} className="max-h-24 w-full object-contain" />
+            <img src={set.logoUrl} alt={set.name} className="max-h-24 w-full object-contain brightness-110" />
           ) : (
-            <div className="text-center text-lg font-black">{set.name}</div>
+            <div className="text-center text-lg font-bold text-white">{set.name}</div>
           )}
-          <div className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-red-500 via-white to-white shadow-[0_0_30px_rgba(239,68,68,0.35)]">
-            <div className="h-6 w-6 rounded-full border-4 border-slate-800 bg-white" />
+          <div className="grid h-20 w-20 place-items-center rounded-full bg-primary shadow-[0_0_30px_rgba(201,254,110,0.35)]">
+            <div className="h-6 w-6 rounded-full border-4 border-ink bg-white" />
           </div>
           {set.symbolUrl && (
-            <img src={set.symbolUrl} alt="" className="h-6 opacity-70" />
+            <img src={set.symbolUrl} alt="" className="h-6 opacity-80 brightness-200" />
           )}
         </div>
-        <div className="holo-shimmer absolute inset-0 rounded-xl" />
+        <div className="holo-shimmer absolute inset-0 rounded-[20px]" />
       </div>
     </motion.div>
   );
@@ -350,8 +350,8 @@ function RevealStack({
       {/* face-down stack behind */}
       {cards.length - revealIndex > 1 && (
         <>
-          <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-xl border border-border bg-surface-2" />
-          <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-xl border border-border bg-surface" />
+          <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-[20px] border border-border bg-surface-2" />
+          <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-[20px] border border-border bg-surface" />
         </>
       )}
 

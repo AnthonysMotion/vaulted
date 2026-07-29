@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/** Closest widely-available stand-in for MWG's LayGrotesk. */
+const display = Space_Grotesk({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+/** Closest stand-in for PP Neue Montreal Mono (uppercase UI labels). */
+const mono = IBM_Plex_Mono({
+  variable: "--font-mono-label",
   subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -30,21 +34,32 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col bg-background text-foreground">
         <Navbar />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
-        <footer className="border-t border-border py-6 text-center text-xs text-muted">
-          VaultedTCG is a non-profit fan project. Pokémon and Pokémon TCG are trademarks
-          of Nintendo, Creatures Inc. and GAME FREAK inc. Card data via the community{" "}
-          <a
-            href="https://github.com/PokemonTCG/pokemon-tcg-data"
-            className="underline hover:text-foreground"
-          >
-            pokemon-tcg-data
-          </a>{" "}
-          project.
+        <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 pb-20 pt-8 sm:px-8 sm:pt-10">
+          {children}
+        </main>
+        <footer className="border-t border-border bg-surface px-5 py-10 sm:px-8">
+          <div className="mx-auto flex max-w-[1200px] flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-2xl font-bold tracking-tight">VaultedTCG</div>
+              <p className="mt-2 max-w-md text-sm text-muted">
+                Non-profit fan project. Pokémon and Pokémon TCG are trademarks of
+                Nintendo, Creatures Inc. and GAME FREAK inc.
+              </p>
+            </div>
+            <p className="mwg-label-s text-muted">
+              Card data via{" "}
+              <a
+                href="https://github.com/PokemonTCG/pokemon-tcg-data"
+                className="underline decoration-primary underline-offset-4 hover:text-foreground"
+              >
+                pokemon-tcg-data
+              </a>
+            </p>
+          </div>
         </footer>
       </body>
     </html>

@@ -128,7 +128,7 @@ function FeedRow({
           <span className="mr-1">{icon}</span>
           <Link
             href={`/profile/${item.user.username}`}
-            className="font-semibold text-primary hover:underline"
+            className="font-semibold text-anthracite underline decoration-primary underline-offset-2 hover:text-foreground"
           >
             {item.user.username}
           </Link>{" "}
@@ -145,7 +145,7 @@ function FeedRow({
                 disabled={!viewerId}
                 className={`rounded-full border px-2 py-0.5 text-xs transition-colors ${
                   state.mine
-                    ? "border-primary/60 bg-primary/15 text-primary"
+                    ? "border-anthracite bg-anthracite text-white"
                     : "border-border bg-surface-2 text-muted hover:text-foreground"
                 } ${viewerId ? "cursor-pointer" : "cursor-default"}`}
               >
