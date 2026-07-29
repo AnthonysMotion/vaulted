@@ -80,7 +80,14 @@ export async function getUserCollection(userId: string, filters: CollectionFilte
       cardId: userCards.cardId,
       quantity: userCards.quantity,
       firstObtainedAt: userCards.firstObtainedAt,
-      card: cards,
+      card: {
+        id: cards.id,
+        name: cards.name,
+        number: cards.number,
+        rarity: cards.rarity,
+        imageSmall: cards.imageSmall,
+        imageLarge: cards.imageLarge,
+      },
     })
     .from(userCards)
     .innerJoin(cards, eq(userCards.cardId, cards.id))

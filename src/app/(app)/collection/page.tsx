@@ -8,7 +8,7 @@ import {
   getUserCollection,
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
-import { CardTile } from "@/components/card-tile";
+import { CollectionCardGallery } from "@/components/collection-card-gallery";
 import { Badge, Card, EmptyState, ProgressBar, SectionEyebrow } from "@/components/ui";
 
 export const metadata = { title: "My Collection" };
@@ -159,33 +159,19 @@ export default async function CollectionPage({
           <EmptyState icon="🎴" title="Nothing found in the vault" />
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-              {collection.rows.map((row) => (
-                <div key={row.cardId} className="flex flex-col gap-3 group">
-                  <div className="relative aspect-[63/88] w-full transition-transform duration-300 group-hover:-translate-y-1">
-                    <CardTile
-                      card={{
-                        id: row.card.id,
-                        name: row.card.name,
-                        rarity: row.card.rarity,
-                        imageSmall: row.card.imageSmall,
-                        rarityTier: rarityTier(row.card.rarity),
-                        quantity: row.quantity,
-                      }}
-                      size="lg"
-                    />
-                  </div>
-                  <div className="px-1">
-                    <div className="truncate text-xs font-bold text-white mb-1">{row.card.name}</div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
-                        {row.card.id.split("-")[0].toUpperCase()} · #{row.card.number}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <CollectionCardGallery
+              cards={collection.rows.map((row) => ({
+                id: row.card.id,
+                name: row.card.name,
+                rarity: row.card.rarity,
+                imageSmall: row.card.imageSmall,
+                imageLarge: row.card.imageLarge,
+                rarityTier: rarityTier(row.card.rarity),
+                quantity: row.quantity,
+                setCode: row.card.id.split("-")[0].toUpperCase(),
+                number: row.card.number,
+              }))}
+            />
 
             {totalPages > 1 && (
               <div className="mt-20 flex items-center justify-center gap-8 py-10 border-t border-zinc-900">
