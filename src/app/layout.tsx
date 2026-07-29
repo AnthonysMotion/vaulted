@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
-import { SmoothScroll } from "@/components/smooth-scroll";
 
 /** Closest widely-available stand-in for MWG's LayGrotesk. */
 const display = Space_Grotesk({
@@ -38,7 +37,6 @@ export default function RootLayout({
       className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-black pb-24 text-white selection:bg-white selection:text-black md:pb-0">
-        <SmoothScroll />
         <Navbar />
         {children}
         <footer className="border-t border-zinc-900 bg-black px-6 pb-28 pt-12 sm:px-10 md:pb-12">
