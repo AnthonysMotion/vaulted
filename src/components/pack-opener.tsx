@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { SerialisedPack, SerialisedPulledCard } from "@/lib/game/open-pack";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
+import { CardLightbox } from "./card-lightbox";
 
 /**
  * Sound effect placeholder. Wire real audio here later:
@@ -52,6 +53,7 @@ export function PackOpener({
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<SerialisedPack[]>([]);
   const [packsRemaining, setPacksRemaining] = useState(initialPacksRemaining ?? Infinity);
+  const [lightboxCard, setLightboxCard] = useState<SerialisedPulledCard | null>(null);
 
   const bestTier = useMemo(
     () => (pack ? Math.max(...pack.cards.map((c) => c.rarityTier)) : 0),
@@ -110,6 +112,7 @@ export function PackOpener({
     setPack(null);
     setMeta(null);
     setPhase("idle");
+    setLightboxCard(null);
   }, []);
 
   const canOpen = mode === "sandbox" || packsRemaining > 0;
@@ -227,7 +230,7 @@ export function PackOpener({
                   transition={{ delay: i * 0.06 }}
                   className="relative"
                 >
-                  <CardTile card={card} size="sm" />
+                  <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
                   {meta?.newCardIds.includes(card.id) && (
                     <span className="absolute -left-1 -top-1 rounded bg-emerald-500 px-1 text-[9px] font-bold text-white">
                       NEW
@@ -259,19 +262,30 @@ export function PackOpener({
                 className="flex items-center gap-2 overflow-x-auto rounded-[20px] border border-border bg-surface p-3"
               >
                 {h.cards.map((c, j) => (
-                  <img
+                  <button
                     key={`${c.id}-${j}`}
-                    src={c.imageSmall ?? ""}
-                    alt={c.name}
+                    type="button"
+                    onClick={() => setLightboxCard(c)}
+                    className={`shrink-0 overflow-hidden rounded transition-transform hover:-translate-y-0.5 ${
+                      c.rarityTier >= 4 ? "ring-2 ring-primary" : ""
+                    }`}
                     title={`${c.name} · ${c.rarity ?? "?"}`}
-                    className={`h-16 rounded ${c.rarityTier >= 4 ? "ring-2 ring-primary" : ""}`}
-                  />
+                    aria-label={`View ${c.name}`}
+                  >
+                    <img
+                      src={c.imageSmall ?? ""}
+                      alt={c.name}
+                      className="h-16 rounded"
+                    />
+                  </button>
                 ))}
               </div>
             ))}
           </div>
         </div>
       )}
+
+      <CardLightbox card={lightboxCard} onClose={() => setLightboxCard(null)} />
     </div>
   );
 }
