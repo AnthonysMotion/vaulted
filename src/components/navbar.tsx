@@ -9,6 +9,7 @@ const NAV_LINKS = [
 ];
 
 const AUTHED_NAV_LINKS = [
+  { href: "/achievements", label: "Achievements" },
   { href: "/friends", label: "Friends" },
   { href: "/feed", label: "Feed" },
 ];

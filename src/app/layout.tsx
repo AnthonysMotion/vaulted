@@ -42,22 +42,27 @@ export default function RootLayout({
         <Navbar />
         {children}
         <footer className="border-t border-zinc-900 bg-black px-6 pb-28 pt-12 sm:px-10 md:pb-12">
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="text-xl font-bold tracking-tighter text-white">VaultedTCG</div>
-              <p className="mt-4 max-w-sm text-xs leading-relaxed text-zinc-500">
-                Non-profit fan project. Pokémon and Pokémon TCG are trademarks of
-                Nintendo, Creatures Inc. and GAME FREAK inc.
+          <div className="mx-auto flex max-w-[1200px] flex-col gap-8">
+            <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="text-xl font-bold tracking-tighter text-white">VaultedTCG</div>
+                <p className="mt-4 max-w-sm text-xs leading-relaxed text-zinc-500">
+                  Non-profit fan project. Pokémon and Pokémon TCG are trademarks of
+                  Nintendo, Creatures Inc. and GAME FREAK inc.
+                </p>
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                Card data via{" "}
+                <a
+                  href="https://github.com/PokemonTCG/pokemon-tcg-data"
+                  className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
+                >
+                  pokemon-tcg-data
+                </a>
               </p>
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-              Card data via{" "}
-              <a
-                href="https://github.com/PokemonTCG/pokemon-tcg-data"
-                className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
-              >
-                pokemon-tcg-data
-              </a>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">
+              This project is still under development.
             </p>
           </div>
         </footer>

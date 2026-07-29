@@ -2,7 +2,14 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import type { PointerEvent as ReactPointerEvent } from "react";
 
 export type CardTileData = {
   id: string;
@@ -27,12 +34,43 @@ export function CardTile({
   const glow = card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
   const shimmer = card.reverseHolo || card.rarityTier >= 3 ? "holo-shimmer" : "";
   const sizes = { sm: "w-24", md: "w-36", lg: "w-56" };
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springX = useSpring(rotateX, { stiffness: 180, damping: 18, mass: 0.75 });
+  const springY = useSpring(rotateY, { stiffness: 180, damping: 18, mass: 0.75 });
+  const glareX = useTransform(springY, [-10, 10], ["30%", "70%"]);
+  const glareY = useTransform(springX, [-10, 10], ["65%", "35%"]);
+  const glarePosition = useMotionTemplate`${glareX} ${glareY}`;
+
+  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / Math.max(rect.width / 2, 1);
+    const dy = (e.clientY - cy) / Math.max(rect.height / 2, 1);
+    rotateY.set(dx * 10);
+    rotateX.set(-dy * 8);
+  };
+
+  const resetTilt = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
 
   return (
     <motion.div
-      whileHover={{ scale: 1.05, rotate: 0.5 }}
+      whileHover={{ scale: 1.05 }}
       className={`relative ${sizes[size]} shrink-0 ${onClick ? "cursor-pointer" : ""}`}
       onClick={onClick}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={resetTilt}
+      onPointerCancel={resetTilt}
+      style={{
+        rotateX: springX,
+        rotateY: springY,
+        transformPerspective: 900,
+        willChange: "transform",
+      }}
     >
       <div className={`relative aspect-[63/88] overflow-hidden rounded-lg ${glow} ${shimmer}`}>
         {card.imageSmall ? (
@@ -47,6 +85,15 @@ export function CardTile({
             {card.name}
           </div>
         )}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-70 mix-blend-screen"
+          style={{
+            background:
+              "radial-gradient(circle at center, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 22%, rgba(255,255,255,0) 48%)",
+            backgroundPosition: glarePosition,
+          }}
+        />
       </div>
       {card.quantity !== undefined && card.quantity > 1 && (
         <span className="absolute -right-1.5 -top-1.5 grid min-w-6 place-items-center rounded-full border border-border bg-surface px-1 text-xs font-bold text-primary shadow">
