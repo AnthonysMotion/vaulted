@@ -72,11 +72,11 @@ export default async function CollectionPage({
   const totalPages = Math.max(1, Math.ceil(collection.total / collection.pageSize));
 
   return (
-    <div className="flex flex-col gap-16">
-      <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+    <div className="flex flex-col gap-12 md:gap-16">
+      <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
         <div>
           <SectionEyebrow>Vault</SectionEyebrow>
-          <h1 className="text-5xl font-black tracking-tighter text-white mt-4">Your collection.</h1>
+          <h1 className="mt-4 text-4xl font-black tracking-tighter text-white sm:text-5xl">Your collection.</h1>
           <p className="mt-4 text-zinc-500 font-medium">
             {summary.unique.toLocaleString()} unique cards indexed from your packs.
           </p>
@@ -113,9 +113,9 @@ export default async function CollectionPage({
         </div>
       )}
 
-      <div className="sticky top-28 z-20 bg-black/80 backdrop-blur-xl border border-zinc-900 rounded-xl p-6 shadow-2xl">
-        <form className="flex flex-wrap items-center gap-4" action="/collection" method="get">
-          <div className="flex-1 min-w-[200px]">
+      <div className="sticky top-4 z-20 rounded-xl border border-zinc-900 bg-black/80 p-4 shadow-2xl backdrop-blur-xl md:top-28 md:p-6">
+        <form className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4" action="/collection" method="get">
+          <div className="min-w-[200px] flex-1">
             <input
               name="q"
               defaultValue={sp.q ?? ""}
@@ -126,7 +126,7 @@ export default async function CollectionPage({
           <select
             name="set"
             defaultValue={sp.set ?? ""}
-            className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none sm:w-auto"
           >
             <option value="">All Sets</option>
             {allSets.map((s) => (
@@ -136,14 +136,14 @@ export default async function CollectionPage({
           <select
             name="rarity"
             defaultValue={sp.rarity ?? ""}
-            className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none sm:w-auto"
           >
             <option value="">All Rarities</option>
             {RARITY_OPTIONS.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
-          <button className="h-9 px-6 bg-white text-black text-xs font-black uppercase tracking-widest rounded-lg hover:bg-zinc-200 transition-colors cursor-pointer">
+          <button className="h-10 rounded-lg bg-white px-6 text-xs font-black uppercase tracking-widest text-black transition-colors hover:bg-zinc-200 cursor-pointer sm:h-9">
             Filter
           </button>
           {(sp.set || sp.rarity || sp.type || sp.q) && (

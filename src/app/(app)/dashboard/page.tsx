@@ -39,11 +39,11 @@ export default async function DashboardPage() {
   const minsToReset = Math.floor((msToReset % 3_600_000) / 60_000);
 
   return (
-    <div className="flex flex-col gap-16">
-      <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-12 md:gap-16">
+      <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
         <div>
            <SectionEyebrow>Account Overview</SectionEyebrow>
-          <h1 className="text-5xl font-black tracking-tighter text-white mt-4">
+          <h1 className="mt-4 text-4xl font-black tracking-tighter text-white sm:text-5xl">
             Hi, {profile.username}.
           </h1>
           <p className="mt-4 text-zinc-500 font-medium">
@@ -52,34 +52,34 @@ export default async function DashboardPage() {
               : `All packs opened — resets in ${hoursToReset}h ${minsToReset}m.`}
           </p>
         </div>
-        <div className="flex gap-3">
-          <LinkButton href="/open-pack?mode=trainer" variant="primary" className="h-12 px-6">Open Packs</LinkButton>
-          <LinkButton href={`/profile/${profile.username}`} variant="dark" className="h-12 px-6">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <LinkButton href="/open-pack?mode=trainer" variant="primary" className="h-12 px-6 sm:min-w-[150px]">Open Packs</LinkButton>
+          <LinkButton href={`/profile/${profile.username}`} variant="dark" className="h-12 px-6 sm:min-w-[150px]">
             View Profile
           </LinkButton>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden lg:grid-cols-4 shadow-2xl">
-        <div className="bg-black p-8">
+        <div className="bg-black p-5 sm:p-8">
           <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Level</div>
           <div className="text-3xl font-black text-white">Lvl {profile.level}</div>
         </div>
-        <div className="bg-black p-8">
+        <div className="bg-black p-5 sm:p-8">
           <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Streak</div>
           <div className="text-3xl font-black text-white">{profile.currentStreak} Days</div>
         </div>
-        <div className="bg-black p-8">
+        <div className="bg-black p-5 sm:p-8">
           <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Packs</div>
           <div className="text-3xl font-black text-white">{profile.totalPacksOpened.toLocaleString()}</div>
         </div>
-        <div className="bg-black p-8">
+        <div className="bg-black p-5 sm:p-8">
           <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Cards</div>
           <div className="text-3xl font-black text-white">{(summary.copies ?? 0).toLocaleString()}</div>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-8 relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-xl border border-zinc-900 bg-zinc-950 p-5 sm:p-8">
         <div className="absolute inset-0 grid-bg opacity-5 pointer-events-none" />
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-6">
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
+      <div className="grid gap-8 md:gap-12 lg:grid-cols-[1fr_400px]">
         <section>
           <div className="mb-8 flex items-center gap-4">
             <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Recent Collections</h2>
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
                 <Link
                   key={p.set.id}
                   href={`/collection?set=${p.set.id}`}
-                  className="group flex items-center justify-between bg-black p-6 hover:bg-zinc-950 transition-colors"
+                  className="group flex flex-col gap-4 bg-black p-5 transition-colors hover:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between sm:p-6"
                 >
                   <div className="flex flex-col gap-1">
                     <span className="font-bold text-white group-hover:text-white flex items-center gap-2">
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
                       {p.uniqueOwned}/{p.set.total} · {Math.floor((p.uniqueOwned / p.set.total) * 100)}%
                     </span>
                   </div>
-                  <div className="w-32">
+                  <div className="w-full sm:w-32">
                     <ProgressBar className="h-1" value={p.uniqueOwned} max={p.set.total} />
                   </div>
                 </Link>

@@ -55,8 +55,8 @@ export default async function ProfilePage({
               : undefined
           }
         />
-        <div className="flex flex-col gap-4 bg-surface p-6 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-end gap-4">
+        <div className="flex flex-col gap-5 bg-surface p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="-mt-16 grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-surface bg-surface-2 text-4xl shadow-xl">
               {profile.avatarUrl ? (
                 <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -76,19 +76,19 @@ export default async function ProfilePage({
               {profile.bio && <p className="mt-1 max-w-md text-sm">{profile.bio}</p>}
             </div>
           </div>
-          <div className="flex gap-2">
-            <LinkButton href={`/binder/${profile.username}`} variant="secondary">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <LinkButton href={`/binder/${profile.username}`} variant="secondary" className="w-full sm:w-auto">
               View binder
             </LinkButton>
             {!isOwner && viewer && (
-              <LinkButton href={`/friends?add=${profile.username}`}>Add friend</LinkButton>
+              <LinkButton href={`/friends?add=${profile.username}`} className="w-full sm:w-auto">Add friend</LinkButton>
             )}
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Cards collected" value={(summary.copies ?? 0).toLocaleString()} icon="⭐" />
         <StatCard label="Packs opened" value={profile.totalPacksOpened.toLocaleString()} icon="📦" />
         <StatCard label="Current streak" value={`${profile.currentStreak} days`} icon="🔥" />

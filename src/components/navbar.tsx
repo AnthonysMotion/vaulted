@@ -107,16 +107,18 @@ export async function Navbar() {
       </div>
 
       {/* Mobile Nav */}
-      <nav className="mx-auto mt-3 flex max-w-[1200px] gap-1 overflow-x-auto pb-1 md:hidden pointer-events-auto no-scrollbar">
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="whitespace-nowrap rounded-lg border border-zinc-800 bg-black/80 backdrop-blur-md px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
-          >
-            {link.label}
-          </Link>
-        ))}
+      <nav className="pointer-events-auto fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 md:hidden">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-1 rounded-2xl border border-zinc-800 bg-black/95 p-2 shadow-2xl backdrop-blur-md">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex min-w-0 flex-1 items-center justify-center rounded-xl px-2 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-white"
+            >
+              <span className="truncate">{link.label}</span>
+            </Link>
+          ))}
+        </div>
       </nav>
     </header>
   );

@@ -30,13 +30,13 @@ export default async function OpenSetPage({
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between border-b border-zinc-900 pb-8">
+    <div className="flex flex-col gap-8 md:gap-10">
+      <div className="flex flex-col gap-5 border-b border-zinc-900 pb-6 lg:flex-row lg:items-center lg:justify-between lg:pb-8">
         <div>
           <Link href={`/open-pack?mode=${mode}`} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
             ← Change booster
           </Link>
-          <div className="flex items-center gap-4 mt-4">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <h1 className="text-3xl font-black tracking-tighter text-white">{set.name}</h1>
             <div className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-lg ${
               mode === "sandbox" 
@@ -56,7 +56,7 @@ export default async function OpenSetPage({
         </Link>
       </div>
 
-      <div className="relative py-12">
+      <div className="relative py-6 sm:py-12">
         <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none" />
         <PackOpener
           set={{ id: set.id, name: set.name, logoUrl: set.logoUrl, symbolUrl: set.symbolUrl }}

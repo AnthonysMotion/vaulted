@@ -31,30 +31,30 @@ export default async function OpenPackPage({
     profile && profile.lastPackDate === today ? profile.packsOpenedToday : 0;
 
   return (
-    <div className="flex flex-col gap-16">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="flex flex-col gap-12 md:gap-16">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="h-px w-8 bg-zinc-800" />
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Pick your booster</span>
           </div>
-          <h1 className="text-5xl font-black tracking-tighter text-white">Rip packs.</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">Rip packs.</h1>
           <p className="mt-6 text-zinc-500 leading-relaxed font-medium">
             {mode === "sandbox"
               ? "Sandbox mode — test your luck with unlimited packs. No cards are saved to your collection."
               : `Trainer mode — earn real progress. You have ${Math.max(0, DAILY_PACK_LIMIT - packsUsed)} of ${DAILY_PACK_LIMIT} packs remaining for today.`}
           </p>
         </div>
-        <div className="flex rounded-xl border border-zinc-800 bg-black p-1 shadow-2xl">
+        <div className="flex w-full rounded-xl border border-zinc-800 bg-black p-1 shadow-2xl sm:w-auto">
           <Link
             href="/open-pack?mode=sandbox"
-            className={`rounded-lg px-6 py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${mode === "sandbox" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
+            className={`flex-1 rounded-lg px-6 py-2.5 text-center text-xs font-bold uppercase tracking-widest transition-all ${mode === "sandbox" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
           >
             Sandbox
           </Link>
           <Link
             href={profile ? "/open-pack?mode=trainer" : "/login?next=/open-pack%3Fmode%3Dtrainer"}
-            className={`rounded-lg px-6 py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${mode === "trainer" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
+            className={`flex-1 rounded-lg px-6 py-2.5 text-center text-xs font-bold uppercase tracking-widest transition-all ${mode === "trainer" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
           >
             Trainer
           </Link>
@@ -70,12 +70,12 @@ export default async function OpenPackPage({
             <div className="h-px flex-1 bg-zinc-900" />
             <Badge>{seriesSets.length}</Badge>
           </div>
-          <div className="grid grid-cols-2 gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
             {seriesSets.map((s) => (
               <Link
                 key={s.id}
                 href={`/open-pack/${s.id}?mode=${mode}`}
-                className="group flex flex-col items-center gap-6 bg-black p-8 transition-all hover:bg-zinc-950"
+                className="group flex flex-col items-center gap-5 bg-black p-5 transition-all hover:bg-zinc-950 sm:p-8"
               >
                 <div className="grid h-24 w-full place-items-center bg-zinc-900/30 rounded-xl border border-transparent transition-all group-hover:border-zinc-800 group-hover:bg-zinc-900/50">
                   {s.logoUrl ? (
