@@ -9,14 +9,15 @@ export function Button({
   className = "",
   ...props
 }: ComponentProps<"button"> & {
-  variant?: "primary" | "secondary" | "ghost" | "danger" | "dark";
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "dark" | "glass";
 }) {
   const variants = {
     primary: "bg-primary text-ink hover:brightness-95",
-    dark: "bg-anthracite text-white hover:bg-dark-grey",
-    secondary: "bg-surface text-foreground border border-border hover:bg-white",
-    ghost: "bg-transparent text-muted hover:text-foreground hover:bg-surface",
+    dark: "glass-dark text-white hover:bg-dark-grey/60",
+    secondary: "glass text-foreground hover:bg-white/60",
+    ghost: "bg-transparent text-muted hover:text-foreground hover:bg-surface/40",
     danger: "bg-[#fc4c3b]/10 text-[#fc4c3b] border border-[#fc4c3b]/30 hover:bg-[#fc4c3b]/15",
+    glass: "glass text-foreground hover:bg-white/60",
   };
   return (
     <button className={`${baseBtn} ${variants[variant]} ${className}`} {...props} />
@@ -28,13 +29,14 @@ export function LinkButton({
   className = "",
   ...props
 }: ComponentProps<typeof Link> & {
-  variant?: "primary" | "secondary" | "ghost" | "dark";
+  variant?: "primary" | "secondary" | "ghost" | "dark" | "glass";
 }) {
   const variants = {
     primary: "bg-primary text-ink hover:brightness-95",
-    dark: "bg-anthracite text-white hover:bg-dark-grey",
-    secondary: "bg-surface text-foreground border border-border hover:bg-white",
-    ghost: "bg-transparent text-muted hover:text-foreground hover:bg-surface",
+    dark: "glass-dark text-white hover:bg-dark-grey/60",
+    secondary: "glass text-foreground hover:bg-white/60",
+    ghost: "bg-transparent text-muted hover:text-foreground hover:bg-surface/40",
+    glass: "glass text-foreground hover:bg-white/60",
   };
   return (
     <Link className={`${baseBtn} ${variants[variant]} ${className}`} {...props} />
@@ -44,13 +46,19 @@ export function LinkButton({
 export function Card({
   className = "",
   children,
+  variant = "glass",
 }: {
   className?: string;
   children: ReactNode;
+  variant?: "glass" | "surface";
 }) {
+  const variants = {
+    glass: "glass",
+    surface: "bg-surface border border-border",
+  };
   return (
     <div
-      className={`rounded-[20px] border border-border bg-surface p-5 sm:p-6 ${className}`}
+      className={`rounded-[20px] p-5 sm:p-6 ${variants[variant]} ${className}`}
     >
       {children}
     </div>
@@ -65,12 +73,12 @@ export function Badge({
   color?: "default" | "gold" | "purple" | "pink" | "blue" | "green";
 }) {
   const colors = {
-    default: "bg-surface-2 text-muted border-border",
-    gold: "bg-primary/40 text-ink border-primary/60",
-    purple: "bg-[#1975ff]/10 text-[#1975ff] border-[#1975ff]/25",
-    pink: "bg-[#fc4c3b]/10 text-[#fc4c3b] border-[#fc4c3b]/25",
-    blue: "bg-[#bcefff]/50 text-[#1266d4] border-[#bcefff]",
-    green: "bg-accent/15 text-[#0f9a52] border-accent/30",
+    default: "bg-white/20 text-muted border-white/30 backdrop-blur-md",
+    gold: "glass-primary text-ink border-primary/40",
+    purple: "bg-[#1975ff]/10 text-[#1975ff] border-[#1975ff]/25 backdrop-blur-md",
+    pink: "bg-[#fc4c3b]/10 text-[#fc4c3b] border-[#fc4c3b]/25 backdrop-blur-md",
+    blue: "bg-[#bcefff]/40 text-[#1266d4] border-[#bcefff]/50 backdrop-blur-md",
+    green: "bg-accent/15 text-[#0f9a52] border-accent/30 backdrop-blur-md",
   };
   return (
     <span
@@ -100,9 +108,9 @@ export function ProgressBar({
 }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <div className={`h-1.5 w-full overflow-hidden rounded-full bg-surface-2 ${className}`}>
+    <div className={`h-1.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm ${className}`}>
       <div
-        className="h-full rounded-full bg-primary transition-all duration-500"
+        className="h-full rounded-full bg-primary transition-all duration-500 shadow-[0_0_8px_rgba(201,254,110,0.5)]"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -119,7 +127,7 @@ export function StatCard({
   icon?: string;
 }) {
   return (
-    <div className="rounded-[20px] border border-border bg-surface p-5">
+    <div className="rounded-[20px] glass p-5">
       <div className="mwg-label-s text-muted">{label}</div>
       <div className="mt-2 flex items-center gap-2 text-3xl font-bold tracking-tight">
         {icon && <span className="text-2xl">{icon}</span>}
@@ -139,7 +147,7 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[20px] border border-dashed border-border bg-surface py-16 text-center">
+    <div className="flex flex-col items-center justify-center rounded-[20px] border border-dashed border-white/30 glass py-16 text-center">
       <div className="text-3xl text-muted">{icon}</div>
       <div className="mt-3 title-s">{title}</div>
       {children && <div className="mt-2 max-w-sm text-sm text-muted">{children}</div>}
@@ -149,7 +157,7 @@ export function EmptyState({
 
 export function Spinner() {
   return (
-    <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-anthracite" />
+    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-anthracite" />
   );
 }
 

@@ -53,11 +53,18 @@ export default async function SetsPage() {
               return (
                 <Link
                   key={s.id}
-                  href={`/open-pack/${s.id}`}
+                  href={`/sets/${s.id}`}
                   className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40"
                 >
                   <div className="grid h-12 w-12 shrink-0 place-items-center">
-                    {s.symbolUrl ? (
+                    {s.logoUrl ? (
+                      <img
+                        src={s.logoUrl}
+                        alt={s.name}
+                        className="max-h-12 max-w-full object-contain"
+                        loading="lazy"
+                      />
+                    ) : s.symbolUrl ? (
                       <img src={s.symbolUrl} alt="" className="max-h-10 max-w-10" loading="lazy" />
                     ) : (
                       <span>🎴</span>

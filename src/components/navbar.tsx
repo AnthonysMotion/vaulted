@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { SignOutButton } from "./sign-out-button";
 
@@ -10,66 +10,52 @@ const NAV_LINKS = [
   { href: "/feed", label: "Feed" },
 ];
 
-function RollLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="nav-roll">
-      <span>
-        <span>{children}</span>
-        <span>{children}</span>
-      </span>
-    </span>
-  );
-}
-
 export async function Navbar() {
   const profile = await getOrCreateProfile().catch(() => null);
 
   return (
-    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-5 sm:pt-4">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3">
-        {/* Left: floating link pill */}
-        <nav className="hidden items-center rounded-full bg-surface px-1.5 py-1.5 shadow-[0_1px_0_rgba(0,0,0,0.04)] md:flex">
+    <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-5 sm:pt-4 pointer-events-none">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3 pointer-events-auto">
+        <div className="hidden items-center gap-2 md:flex">
           <Link
             href="/"
-            className="group mwg-label rounded-full px-3.5 py-2.5 text-foreground transition-colors hover:bg-surface-2"
+            className="mwg-label inline-flex h-[50px] items-center rounded-full glass-dark px-6 text-white shadow-lg transition-all hover:scale-[1.02] hover:brightness-110 active:scale-[0.98]"
           >
-            <RollLabel>Vaulted</RollLabel>
+            Vaulted
           </Link>
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="group mwg-label rounded-full px-3.5 py-2.5 text-foreground transition-colors hover:bg-surface-2"
-            >
-              <RollLabel>{link.label}</RollLabel>
-            </Link>
-          ))}
-        </nav>
 
-        {/* Mobile brand */}
+          <nav className="flex items-center rounded-full glass px-1.5 py-1.5 shadow-sm">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="mwg-label rounded-full px-3.5 py-2.5 text-foreground transition-colors hover:bg-white/40"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
         <Link
           href="/"
-          className="mwg-label rounded-full bg-surface px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)] md:hidden"
+          className="mwg-label rounded-full glass-dark px-4 py-3 text-white shadow-lg md:hidden pointer-events-auto"
         >
           Vaulted
         </Link>
 
-        {/* Right: CTA + account */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pointer-events-auto">
           <Link
             href="/open-pack"
-            className="group mwg-label inline-flex h-[50px] items-center gap-2 rounded-full bg-primary px-6 text-ink transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            className="mwg-label inline-flex h-[50px] items-center rounded-full glass-primary px-6 text-ink transition-all hover:scale-[1.02] hover:brightness-105 active:scale-[0.98] shadow-md"
           >
-            <RollLabel>Open pack</RollLabel>
-            <span aria-hidden className="text-base leading-none">
-              →
-            </span>
+            Open pack
           </Link>
 
           {profile ? (
             <Link
               href="/dashboard"
-              className="group hidden h-[50px] items-center gap-2 rounded-full bg-anthracite px-4 text-white sm:inline-flex"
+              className="hidden h-[50px] items-center gap-2 rounded-full glass-dark px-4 text-white transition-all hover:scale-[1.02] hover:bg-dark-grey/60 sm:inline-flex shadow-md"
               title={profile.username}
             >
               <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-xs font-bold text-ink">
@@ -82,9 +68,9 @@ export async function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="group mwg-label hidden h-[50px] items-center rounded-full bg-surface px-5 text-foreground shadow-[0_1px_0_rgba(0,0,0,0.04)] sm:inline-flex hover:bg-white"
+              className="mwg-label hidden h-[50px] items-center rounded-full glass px-5 text-foreground shadow-sm transition-all hover:scale-[1.02] hover:bg-white/40 sm:inline-flex"
             >
-              <RollLabel>Sign in</RollLabel>
+              Sign in
             </Link>
           )}
 
@@ -96,13 +82,12 @@ export async function Navbar() {
         </div>
       </div>
 
-      {/* Mobile link row */}
-      <nav className="mx-auto mt-2 flex max-w-[1200px] gap-1 overflow-x-auto pb-1 md:hidden">
+      <nav className="mx-auto mt-2 flex max-w-[1200px] gap-1 overflow-x-auto pb-1 md:hidden pointer-events-auto">
         {NAV_LINKS.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="mwg-label-s whitespace-nowrap rounded-full bg-surface px-3 py-2 text-foreground shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+            className="mwg-label-s whitespace-nowrap rounded-full glass px-3 py-2 text-foreground shadow-sm transition-colors hover:bg-white/40"
           >
             {link.label}
           </Link>
@@ -110,14 +95,14 @@ export async function Navbar() {
         {profile ? (
           <Link
             href="/dashboard"
-            className="mwg-label-s whitespace-nowrap rounded-full bg-anthracite px-3 py-2 text-white"
+            className="mwg-label-s whitespace-nowrap rounded-full glass-dark px-3 py-2 text-white transition-colors hover:bg-dark-grey/60 shadow-md"
           >
             Dashboard
           </Link>
         ) : (
           <Link
             href="/login"
-            className="mwg-label-s whitespace-nowrap rounded-full bg-anthracite px-3 py-2 text-white"
+            className="mwg-label-s whitespace-nowrap rounded-full glass-dark px-3 py-2 text-white transition-colors hover:bg-dark-grey/60 shadow-md"
           >
             Sign in
           </Link>

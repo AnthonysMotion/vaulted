@@ -38,9 +38,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <Navbar />
-        <main className="mx-auto w-full max-w-[1200px] flex-1 px-5 pb-20 pt-8 sm:px-8 sm:pt-10">
-          {children}
-        </main>
+        {children}
         <footer className="border-t border-border bg-surface px-5 py-10 sm:px-8">
           <div className="mx-auto flex max-w-[1200px] flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>

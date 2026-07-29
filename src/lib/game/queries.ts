@@ -9,7 +9,7 @@ import {
   sets,
   userCards,
 } from "@/db/schema";
-import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 
 export async function getProfileByUsername(username: string) {
   return db.query.profiles.findFirst({
@@ -20,6 +20,36 @@ export async function getProfileByUsername(username: string) {
 
 export async function getAllSets() {
   return db.query.sets.findMany({ orderBy: [desc(sets.releaseDate)] });
+}
+
+export async function getSetById(setId: string) {
+  return db.query.sets.findFirst({ where: eq(sets.id, setId) });
+}
+
+export async function getCardsForSet(setId: string) {
+  return db.query.cards.findMany({
+    where: eq(cards.setId, setId),
+    columns: {
+      id: true,
+      name: true,
+      number: true,
+      rarity: true,
+      imageSmall: true,
+      imageLarge: true,
+    },
+    orderBy: [asc(cards.number), asc(cards.name)],
+  });
+}
+
+export async function getOwnedCardCountsForSet(userId: string, setId: string) {
+  return db
+    .select({
+      cardId: userCards.cardId,
+      quantity: userCards.quantity,
+    })
+    .from(userCards)
+    .innerJoin(cards, eq(userCards.cardId, cards.id))
+    .where(and(eq(userCards.userId, userId), eq(cards.setId, setId)));
 }
 
 // ---------------------------------------------------------------------------

@@ -42,6 +42,9 @@ export default async function OpenSetPage({
             {mode === "sandbox" ? "🏖️ Sandbox (not saved)" : "🏆 Trainer mode"}
           </p>
         </div>
+        <Link href={`/sets/${set.id}`} className="text-sm text-muted underline underline-offset-4 hover:text-foreground">
+          Browse cards
+        </Link>
       </div>
 
       <PackOpener
