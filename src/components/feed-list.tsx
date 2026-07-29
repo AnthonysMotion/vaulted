@@ -128,7 +128,7 @@ function FeedRow({
           <span className="mr-1">{icon}</span>
           <Link
             href={`/profile/${item.user.username}`}
-            className="font-semibold text-anthracite underline decoration-primary underline-offset-2 hover:text-foreground"
+            className="font-semibold text-white underline decoration-primary underline-offset-2 transition-colors hover:text-zinc-300"
           >
             {item.user.username}
           </Link>{" "}

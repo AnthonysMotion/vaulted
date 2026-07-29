@@ -138,6 +138,8 @@ export function PackOpener({
               set={set}
               shaking={phase === "shaking"}
               ripping={phase === "ripping"}
+              interactive={phase === "idle" && canOpen}
+              onClick={phase === "idle" && canOpen ? openPack : undefined}
             />
             {phase === "idle" && (
               <div className="flex flex-col items-center gap-3">
@@ -296,10 +298,14 @@ function BoosterPackArt({
   set,
   shaking,
   ripping,
+  interactive = false,
+  onClick,
 }: {
   set: SetInfo;
   shaking: boolean;
   ripping: boolean;
+  interactive?: boolean;
+  onClick?: () => void;
 }) {
   return (
     <motion.div
@@ -317,7 +323,8 @@ function BoosterPackArt({
             ? { duration: 0.7, repeat: Infinity }
             : { duration: 3, repeat: Infinity, ease: "easeInOut" }
       }
-      className="relative h-80 w-56 select-none"
+      className={`relative h-80 w-56 select-none ${interactive ? "cursor-pointer" : ""}`}
+      onClick={onClick}
       style={{ perspective: 800 }}
     >
       <div className="absolute inset-0 overflow-hidden rounded-[20px] border border-border bg-anthracite shadow-[0_24px_60px_rgba(10,10,11,0.25)]">

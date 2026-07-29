@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CardTile } from "@/components/card-tile";
+import { SetCardGallery } from "@/components/set-card-gallery";
 import { Badge, Card, LinkButton, ProgressBar } from "@/components/ui";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import {
@@ -129,39 +129,18 @@ export default async function SetDetailPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {sortedCards.map((card) => (
-            <div key={card.id} className="group flex flex-col gap-3">
-              <div className="relative aspect-[63/88] w-full transition-transform duration-300 group-hover:-translate-y-1">
-                <CardTile
-                  card={{
-                    id: card.id,
-                    name: card.name,
-                    rarity: card.rarity,
-                    imageSmall: card.imageSmall,
-                    imageLarge: card.imageLarge,
-                    rarityTier: rarityTier(card.rarity),
-                    quantity: ownedByCardId.get(card.id),
-                  }}
-                  size="lg"
-                />
-              </div>
-              <div className="px-1">
-                <div className="truncate text-xs font-bold text-white mb-1">{card.name}</div>
-                <div className="flex items-center justify-between">
-                   <div className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">
-                    #{card.number}
-                  </div>
-                  {card.rarity && (
-                    <div className="text-[9px] font-bold text-zinc-600 uppercase">
-                      {card.rarity.split(" ").pop()}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SetCardGallery
+          cards={sortedCards.map((card) => ({
+            id: card.id,
+            name: card.name,
+            number: card.number,
+            rarity: card.rarity,
+            imageSmall: card.imageSmall,
+            imageLarge: card.imageLarge,
+            rarityTier: rarityTier(card.rarity),
+            quantity: ownedByCardId.get(card.id),
+          }))}
+        />
       </section>
     </div>
   );

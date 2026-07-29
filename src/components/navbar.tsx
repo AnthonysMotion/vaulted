@@ -6,12 +6,16 @@ const NAV_LINKS = [
   { href: "/open-pack", label: "Packs" },
   { href: "/collection", label: "Collection" },
   { href: "/sets", label: "Sets" },
+];
+
+const AUTHED_NAV_LINKS = [
   { href: "/friends", label: "Friends" },
   { href: "/feed", label: "Feed" },
 ];
 
 export async function Navbar() {
   const profile = await getOrCreateProfile().catch(() => null);
+  const navLinks = profile ? [...NAV_LINKS, ...AUTHED_NAV_LINKS] : NAV_LINKS;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 pointer-events-none">
@@ -25,7 +29,7 @@ export async function Navbar() {
           </Link>
 
           <nav className="hidden items-center rounded-lg border border-zinc-800 bg-black/80 backdrop-blur-md px-1 py-1 md:flex">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -75,7 +79,7 @@ export async function Navbar() {
 
       {/* Mobile Nav */}
       <nav className="mx-auto mt-3 flex max-w-[1200px] gap-1 overflow-x-auto pb-1 md:hidden pointer-events-auto no-scrollbar">
-        {NAV_LINKS.map((link) => (
+        {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}

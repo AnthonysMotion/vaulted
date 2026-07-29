@@ -11,20 +11,27 @@ export function SetCardGallery({ cards }: { cards: GalleryCard[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5">
         {cards.map((card) => (
-          <div key={card.id} className="group flex flex-col gap-2">
-            <div className="transition-transform duration-300 group-hover:-translate-y-1">
+          <div key={card.id} className="group flex flex-col gap-3">
+            <div className="relative aspect-[63/88] w-full transition-transform duration-300 group-hover:-translate-y-1">
               <CardTile
                 card={card}
-                size="fill"
+                size="lg"
                 onClick={() => setLightboxCard(card)}
               />
             </div>
-            <div className="px-0.5">
-              <div className="truncate text-[10px] font-bold text-white mb-0.5">{card.name}</div>
-              <div className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
-                #{card.number}
+            <div className="px-1">
+              <div className="truncate text-xs font-bold text-white mb-1">{card.name}</div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">
+                  #{card.number}
+                </div>
+                {card.rarity && (
+                  <div className="text-[9px] font-bold text-zinc-600 uppercase">
+                    {card.rarity.split(" ").pop()}
+                  </div>
+                )}
               </div>
             </div>
           </div>
