@@ -30,28 +30,40 @@ export default async function OpenSetPage({
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between border-b border-zinc-900 pb-8">
         <div>
-          <Link href={`/open-pack?mode=${mode}`} className="text-sm text-muted hover:text-foreground">
-            ← All sets
+          <Link href={`/open-pack?mode=${mode}`} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+            ← Change booster
           </Link>
-          <h1 className="mt-1 text-2xl font-black">{set.name}</h1>
-          <p className="text-sm text-muted">
-            {set.series} · {set.releaseDate.slice(0, 4)} ·{" "}
-            {mode === "sandbox" ? "🏖️ Sandbox (not saved)" : "🏆 Trainer mode"}
-          </p>
+          <div className="flex items-center gap-4 mt-4">
+            <h1 className="text-3xl font-black tracking-tighter text-white">{set.name}</h1>
+            <div className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-lg ${
+              mode === "sandbox" 
+                ? "bg-zinc-800 text-zinc-400 border border-zinc-700" 
+                : "bg-white text-black border border-white"
+            }`}>
+              {mode === "sandbox" ? "Sandbox" : "Trainer"}
+            </div>
+          </div>
         </div>
-        <Link href={`/sets/${set.id}`} className="text-sm text-muted underline underline-offset-4 hover:text-foreground">
+        <Link 
+          href={`/sets/${set.id}`} 
+          className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-all flex items-center gap-2"
+        >
           Browse cards
+          <span className="text-lg opacity-50">→</span>
         </Link>
       </div>
 
-      <PackOpener
-        set={{ id: set.id, name: set.name, logoUrl: set.logoUrl, symbolUrl: set.symbolUrl }}
-        mode={mode}
-        initialPacksRemaining={packsRemaining}
-      />
+      <div className="relative py-12">
+        <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none" />
+        <PackOpener
+          set={{ id: set.id, name: set.name, logoUrl: set.logoUrl, symbolUrl: set.symbolUrl }}
+          mode={mode}
+          initialPacksRemaining={packsRemaining}
+        />
+      </div>
     </div>
   );
 }

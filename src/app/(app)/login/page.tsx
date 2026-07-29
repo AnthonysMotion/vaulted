@@ -109,7 +109,11 @@ function LoginForm() {
           {error && <p className="text-sm text-[#fc4c3b]">{error}</p>}
           {info && <p className="text-sm text-[#0f9a52]">{info}</p>}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white/10 border border-white/20 backdrop-blur-xl text-white shadow-sm hover:bg-white/15"
+          >
             {loading ? "..." : mode === "signin" ? "Sign in →" : "Create account →"}
           </Button>
         </form>

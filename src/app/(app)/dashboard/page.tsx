@@ -8,7 +8,7 @@ import {
 } from "@/lib/game/queries";
 import { DAILY_PACK_LIMIT } from "@/lib/game/open-pack";
 import { xpForLevel } from "@/lib/packs/rarity";
-import { Card, LinkButton, ProgressBar, StatCard } from "@/components/ui";
+import { Card, LinkButton, ProgressBar, StatCard, SectionEyebrow } from "@/components/ui";
 import { FeedList } from "@/components/feed-list";
 
 export const metadata = { title: "Dashboard" };
@@ -39,74 +39,93 @@ export default async function DashboardPage() {
   const minsToReset = Math.floor((msToReset % 3_600_000) / 60_000);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-16">
+      <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
         <div>
-          <h1 className="title-m">
-            Welcome back, <span className="text-anthracite">{profile.username}</span>
+           <SectionEyebrow>Account Overview</SectionEyebrow>
+          <h1 className="text-5xl font-black tracking-tighter text-white mt-4">
+            Hi, {profile.username}.
           </h1>
-          <p className="mt-2 text-muted">
+          <p className="mt-4 text-zinc-500 font-medium">
             {packsLeft > 0
-              ? `You have ${packsLeft} pack${packsLeft === 1 ? "" : "s"} to open today.`
+              ? `You have ${packsLeft} pack${packsLeft === 1 ? "" : "s"} left to open today.`
               : `All packs opened — resets in ${hoursToReset}h ${minsToReset}m.`}
           </p>
         </div>
-        <div className="flex gap-2">
-          <LinkButton href="/open-pack?mode=trainer">Open packs</LinkButton>
-          <LinkButton href={`/profile/${profile.username}`} variant="secondary">
-            My profile
+        <div className="flex gap-3">
+          <LinkButton href="/open-pack?mode=trainer" variant="primary" className="h-12 px-6">Open Packs</LinkButton>
+          <LinkButton href={`/profile/${profile.username}`} variant="dark" className="h-12 px-6">
+            View Profile
           </LinkButton>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Trainer level" value={profile.level} icon="⭐" />
-        <StatCard label="Daily streak" value={`${profile.currentStreak} days`} icon="🔥" />
-        <StatCard label="Packs opened" value={profile.totalPacksOpened.toLocaleString()} icon="📦" />
-        <StatCard label="Cards collected" value={(summary.copies ?? 0).toLocaleString()} icon="🎴" />
+      <div className="grid grid-cols-2 gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden lg:grid-cols-4 shadow-2xl">
+        <div className="bg-black p-8">
+          <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Level</div>
+          <div className="text-3xl font-black text-white">Lvl {profile.level}</div>
+        </div>
+        <div className="bg-black p-8">
+          <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Streak</div>
+          <div className="text-3xl font-black text-white">{profile.currentStreak} Days</div>
+        </div>
+        <div className="bg-black p-8">
+          <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Packs</div>
+          <div className="text-3xl font-black text-white">{profile.totalPacksOpened.toLocaleString()}</div>
+        </div>
+        <div className="bg-black p-8">
+          <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Cards</div>
+          <div className="text-3xl font-black text-white">{(summary.copies ?? 0).toLocaleString()}</div>
+        </div>
       </div>
 
-      <Card>
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold">Level {profile.level}</span>
-          <span className="text-muted">
-            {profile.xp - currentLevelXp} / {nextLevelXp - currentLevelXp} XP to level{" "}
-            {profile.level + 1}
-          </span>
+      <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-8 relative overflow-hidden">
+        <div className="absolute inset-0 grid-bg opacity-5 pointer-events-none" />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Progression</span>
+            <span className="text-xs font-black text-white uppercase tracking-tighter">
+              {profile.xp - currentLevelXp} / {nextLevelXp - currentLevelXp} XP to Lvl {profile.level + 1}
+            </span>
+          </div>
+          <ProgressBar
+            className="h-2"
+            value={profile.xp - currentLevelXp}
+            max={nextLevelXp - currentLevelXp}
+          />
         </div>
-        <ProgressBar
-          className="mt-2"
-          value={profile.xp - currentLevelXp}
-          max={nextLevelXp - currentLevelXp}
-        />
-      </Card>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
         <section>
-          <h2 className="mb-3 text-lg font-bold">Set progress</h2>
+          <div className="mb-8 flex items-center gap-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Recent Collections</h2>
+            <div className="h-px flex-1 bg-zinc-900" />
+          </div>
           {setProgress.length === 0 ? (
-            <Card className="text-sm text-muted">
-              Open your first Trainer Mode pack to start tracking set completion.
-            </Card>
+            <div className="bg-zinc-950 border border-dashed border-zinc-900 rounded-xl p-12 text-center">
+              <p className="text-zinc-500 text-sm">Open your first pack to see progress.</p>
+            </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="grid gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden">
               {setProgress.slice(0, 6).map((p) => (
                 <Link
                   key={p.set.id}
                   href={`/collection?set=${p.set.id}`}
-                  className="rounded-xl border border-border bg-surface p-4 hover:border-primary/40"
+                  className="group flex items-center justify-between bg-black p-6 hover:bg-zinc-950 transition-colors"
                 >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold">
-                      {p.completedAt && "🏆 "}
+                  <div className="flex flex-col gap-1">
+                    <span className="font-bold text-white group-hover:text-white flex items-center gap-2">
+                      {p.completedAt && <span className="text-xs">🏆</span>}
                       {p.set.name}
                     </span>
-                    <span className="text-muted">
-                      {p.uniqueOwned}/{p.set.total} ·{" "}
-                      {Math.floor((p.uniqueOwned / p.set.total) * 100)}%
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                      {p.uniqueOwned}/{p.set.total} · {Math.floor((p.uniqueOwned / p.set.total) * 100)}%
                     </span>
                   </div>
-                  <ProgressBar className="mt-2" value={p.uniqueOwned} max={p.set.total} />
+                  <div className="w-32">
+                    <ProgressBar className="h-1" value={p.uniqueOwned} max={p.set.total} />
+                  </div>
                 </Link>
               ))}
             </div>
@@ -114,8 +133,13 @@ export default async function DashboardPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-bold">Community feed</h2>
-          <FeedList items={feed} viewerId={profile.id} compact />
+          <div className="mb-8 flex items-center gap-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">Activity</h2>
+            <div className="h-px flex-1 bg-zinc-900" />
+          </div>
+          <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-6">
+            <FeedList items={feed} viewerId={profile.id} compact />
+          </div>
         </section>
       </div>
     </div>

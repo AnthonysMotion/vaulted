@@ -9,7 +9,7 @@ import {
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
 import { CardTile } from "@/components/card-tile";
-import { Badge, Card, EmptyState, ProgressBar } from "@/components/ui";
+import { Badge, Card, EmptyState, ProgressBar, SectionEyebrow } from "@/components/ui";
 
 export const metadata = { title: "My Collection" };
 export const dynamic = "force-dynamic";
@@ -72,151 +72,141 @@ export default async function CollectionPage({
   const totalPages = Math.max(1, Math.ceil(collection.total / collection.pageSize));
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-black">My collection</h1>
-        <p className="mt-1 text-muted">
-          {summary.unique.toLocaleString()} unique cards ·{" "}
-          {(summary.copies ?? 0).toLocaleString()} total copies
-        </p>
-      </div>
-
-      {/* Rarity distribution */}
-      <div className="flex flex-wrap gap-2">
-        {summary.rarityDistribution
-          .sort((a, b) => rarityTier(b.rarity) - rarityTier(a.rarity))
-          .map((r) => (
-            <Link key={r.rarity ?? "none"} href={buildUrl({ rarity: r.rarity ?? undefined, page: undefined })}>
-              <Badge color={rarityTier(r.rarity) >= 5 ? "gold" : rarityTier(r.rarity) >= 4 ? "purple" : "default"}>
-                {r.rarity ?? "Unknown"}: {r.unique}
-              </Badge>
-            </Link>
-          ))}
+    <div className="flex flex-col gap-16">
+      <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+        <div>
+          <SectionEyebrow>Vault</SectionEyebrow>
+          <h1 className="text-5xl font-black tracking-tighter text-white mt-4">Your collection.</h1>
+          <p className="mt-4 text-zinc-500 font-medium">
+            {summary.unique.toLocaleString()} unique cards indexed from your packs.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {summary.rarityDistribution
+            .sort((a, b) => rarityTier(b.rarity) - rarityTier(a.rarity))
+            .map((r) => (
+              <Link key={r.rarity ?? "none"} href={buildUrl({ rarity: r.rarity ?? undefined, page: undefined })}>
+                <Badge color={rarityTier(r.rarity) >= 6 ? "pink" : rarityTier(r.rarity) >= 5 ? "gold" : rarityTier(r.rarity) >= 4 ? "purple" : "default"}>
+                  {r.rarity ?? "—"} · {r.unique}
+                </Badge>
+              </Link>
+            ))}
+        </div>
       </div>
 
       {selectedSetProgress && (
-        <Card>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">{selectedSetProgress.set.name} completion</span>
-            <span className="text-muted">
-              {selectedSetProgress.uniqueOwned}/{selectedSetProgress.set.total} (
-              {Math.floor((selectedSetProgress.uniqueOwned / selectedSetProgress.set.total) * 100)}%)
+        <div className="bg-zinc-950 border border-zinc-900 rounded-xl p-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-white tracking-tight">{selectedSetProgress.set.name}</span>
+              <div className="text-[10px] uppercase font-black text-zinc-700 tracking-[0.2em]">Completion</div>
+            </div>
+            <span className="text-sm font-black text-white">
+              {selectedSetProgress.uniqueOwned}/{selectedSetProgress.set.total} ({Math.floor((selectedSetProgress.uniqueOwned / selectedSetProgress.set.total) * 100)}%)
             </span>
           </div>
           <ProgressBar
-            className="mt-2"
+            className="h-1"
             value={selectedSetProgress.uniqueOwned}
             max={selectedSetProgress.set.total}
           />
-        </Card>
+        </div>
       )}
 
-      {/* Filters */}
-      <form className="flex flex-wrap items-end gap-3" action="/collection" method="get">
-        <label className="flex flex-col gap-1 text-xs text-muted">
-          Search
-          <input
-            name="q"
-            defaultValue={sp.q ?? ""}
-            placeholder="Card name..."
-            className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-muted">
-          Set
+      <div className="sticky top-28 z-20 bg-black/80 backdrop-blur-xl border border-zinc-900 rounded-xl p-6 shadow-2xl">
+        <form className="flex flex-wrap items-center gap-4" action="/collection" method="get">
+          <div className="flex-1 min-w-[200px]">
+            <input
+              name="q"
+              defaultValue={sp.q ?? ""}
+              placeholder="Search by card name..."
+              className="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white outline-none focus:border-white/20 transition-colors"
+            />
+          </div>
           <select
             name="set"
             defaultValue={sp.set ?? ""}
-            className="max-w-52 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
+            className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none"
           >
-            <option value="">All sets</option>
+            <option value="">All Sets</option>
             {allSets.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.series})
-              </option>
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-muted">
-          Rarity
           <select
             name="rarity"
             defaultValue={sp.rarity ?? ""}
-            className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
+            className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none"
           >
-            <option value="">All rarities</option>
+            <option value="">All Rarities</option>
             {RARITY_OPTIONS.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-muted">
-          Type
-          <select
-            name="type"
-            defaultValue={sp.type ?? ""}
-            className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
-          >
-            <option value="">All types</option>
-            {TYPE_OPTIONS.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </label>
-        <button className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-slate-900 cursor-pointer">
-          Filter
-        </button>
-        {(sp.set || sp.rarity || sp.type || sp.q) && (
-          <Link href="/collection" className="py-2 text-sm text-muted underline">
-            Clear
-          </Link>
+          <button className="h-9 px-6 bg-white text-black text-xs font-black uppercase tracking-widest rounded-lg hover:bg-zinc-200 transition-colors cursor-pointer">
+            Filter
+          </button>
+          {(sp.set || sp.rarity || sp.type || sp.q) && (
+            <Link href="/collection" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+              Clear
+            </Link>
+          )}
+        </form>
+      </div>
+
+      <div>
+        {collection.rows.length === 0 ? (
+          <EmptyState icon="🎴" title="Nothing found in the vault" />
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {collection.rows.map((row) => (
+                <div key={row.cardId} className="flex flex-col gap-3 group">
+                  <div className="relative aspect-[63/88] w-full transition-transform duration-300 group-hover:-translate-y-1">
+                    <CardTile
+                      card={{
+                        id: row.card.id,
+                        name: row.card.name,
+                        rarity: row.card.rarity,
+                        imageSmall: row.card.imageSmall,
+                        rarityTier: rarityTier(row.card.rarity),
+                        quantity: row.quantity,
+                      }}
+                      size="lg"
+                    />
+                  </div>
+                  <div className="px-1">
+                    <div className="truncate text-xs font-bold text-white mb-1">{row.card.name}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">
+                        {row.card.id.split("-")[0].toUpperCase()} · #{row.card.number}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="mt-20 flex items-center justify-center gap-8 py-10 border-t border-zinc-900">
+                {collection.page > 1 && (
+                  <Link href={buildUrl({ page: String(collection.page - 1) })} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+                    ← Prev
+                  </Link>
+                )}
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-700">
+                  {collection.page} / {totalPages}
+                </span>
+                {collection.page < totalPages && (
+                  <Link href={buildUrl({ page: String(collection.page + 1) })} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+                    Next →
+                  </Link>
+                )}
+              </div>
+            )}
+          </>
         )}
-      </form>
-
-      {/* Cards */}
-      {collection.rows.length === 0 ? (
-        <EmptyState icon="🎴" title="No cards found">
-          {collection.total === 0 && !sp.set && !sp.q
-            ? "Open Trainer Mode packs to start your collection!"
-            : "Try different filters."}
-        </EmptyState>
-      ) : (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-          {collection.rows.map((row) => (
-            <CardTile
-              key={row.cardId}
-              card={{
-                id: row.card.id,
-                name: row.card.name,
-                rarity: row.card.rarity,
-                imageSmall: row.card.imageSmall,
-                rarityTier: rarityTier(row.card.rarity),
-                quantity: row.quantity,
-              }}
-              size="md"
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 text-sm">
-          {collection.page > 1 && (
-            <Link href={buildUrl({ page: String(collection.page - 1) })} className="text-primary underline">
-              ← Previous
-            </Link>
-          )}
-          <span className="text-muted">
-            Page {collection.page} of {totalPages}
-          </span>
-          {collection.page < totalPages && (
-            <Link href={buildUrl({ page: String(collection.page + 1) })} className="text-primary underline">
-              Next →
-            </Link>
-          )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

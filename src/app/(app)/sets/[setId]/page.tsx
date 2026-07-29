@@ -41,100 +41,122 @@ export default async function SetDetailPage({
   );
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+    <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <Link href="/sets" className="text-sm text-muted hover:text-foreground">
-            ← All expansions
+          <Link href="/sets" className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+            ← Back to all sets
           </Link>
-          <div className="mt-4 flex items-start gap-4">
-            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-border bg-surface p-2">
+          <div className="mt-8 flex items-start gap-6">
+            <div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl border border-zinc-800 bg-zinc-950 p-3 shadow-xl">
               {set.logoUrl ? (
-                <img src={set.logoUrl} alt={set.name} className="max-h-12 max-w-full object-contain" />
+                <img src={set.logoUrl} alt={set.name} className="max-h-14 max-w-full object-contain" />
               ) : set.symbolUrl ? (
                 <img src={set.symbolUrl} alt="" className="max-h-10 max-w-10 object-contain" />
               ) : (
-                <span className="text-2xl">🎴</span>
+                <span className="text-3xl text-zinc-800">🎴</span>
               )}
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="title-m">{set.name}</h1>
-                <Badge>{set.id.toUpperCase()}</Badge>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-4xl font-black tracking-tighter text-white">{set.name}</h1>
+                <Badge color="gold">{set.id.toUpperCase()}</Badge>
               </div>
-              <p className="mt-2 text-muted">
-                {set.series} · {set.releaseDate} · {set.total} cards
-              </p>
-              <p className="mt-3 max-w-2xl text-sm text-muted">
-                Browse the full checklist first, then jump into opening packs when you are
-                ready.
+              <p className="mt-3 text-zinc-500 font-medium">
+                {set.series} Series · {set.releaseDate.split("-")[0]} · {set.total} cards
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <LinkButton href={`/open-pack/${set.id}?mode=sandbox`}>Open sandbox pack</LinkButton>
+          <LinkButton href={`/open-pack/${set.id}?mode=sandbox`} variant="dark" className="h-12 px-6">
+            Open Sandbox
+          </LinkButton>
           <LinkButton
             href={profile ? `/open-pack/${set.id}?mode=trainer` : `/login?next=/open-pack/${set.id}%3Fmode%3Dtrainer`}
-            variant="secondary"
+            variant="primary"
+            className="h-12 px-6"
           >
-            {profile ? "Open trainer pack" : "Sign in for trainer mode"}
+            {profile ? "Open Trainer Pack" : "Sign In to Open"}
           </LinkButton>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Card>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Set checklist</span>
-            <span className="text-muted">
-              {ownedCount}/{set.total} owned{profile ? ` · ${completionPct}%` : ""}
+      <div className="grid gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden md:grid-cols-2 lg:grid-cols-3">
+        <div className="bg-black p-8">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Completion</span>
+            <span className="text-sm font-black text-white">
+              {ownedCount} / {set.total}
             </span>
           </div>
-          <ProgressBar className="mt-2" value={ownedCount} max={set.total} />
-        </Card>
-
-        <Card>
-          <div className="flex flex-wrap gap-2">
-            <Badge>{set.printedTotal} printed</Badge>
-            <Badge>{cards.length} imported</Badge>
-            {setProgress?.completedAt && <Badge color="gold">Completed</Badge>}
-            {!profile && <Badge color="blue">Sign in to track ownership</Badge>}
+          <ProgressBar value={ownedCount} max={set.total} className="h-1" />
+          <div className="mt-2 text-[10px] font-bold text-zinc-700 text-right uppercase tracking-widest">
+            {completionPct}% Complete
           </div>
-        </Card>
+        </div>
+
+        <div className="bg-black p-8 flex flex-col justify-center">
+          <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-2">Metadata</div>
+          <div className="flex flex-wrap gap-2">
+            <Badge>{set.printedTotal} Printed</Badge>
+            <Badge>{cards.length} Indexed</Badge>
+            {setProgress?.completedAt && <Badge color="gold">🏆 Mastered</Badge>}
+          </div>
+        </div>
+
+        <div className="bg-black p-8 flex flex-col justify-center lg:col-span-1 md:col-span-2">
+          {!profile ? (
+            <Link href="/login" className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors uppercase tracking-widest">
+              Sign in to track progress →
+            </Link>
+          ) : (
+            <div className="text-xs font-bold text-emerald-500 uppercase tracking-widest">
+              ✓ Tracking collection
+            </div>
+          )}
+        </div>
       </div>
 
-      <section>
-        <div className="mb-4 flex items-center justify-between gap-3">
+      <section className="mt-8">
+        <div className="mb-10 flex items-end justify-between border-b border-zinc-900 pb-6">
           <div>
-            <h2 className="text-lg font-bold">Cards in this set</h2>
-            <p className="text-sm text-muted">
-              Sorted by card number. Owned cards show a quantity badge when available.
+            <h2 className="text-xl font-bold text-white tracking-tight">Card Gallery</h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Checklist for {set.name}. Owned cards show quantities.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {sortedCards.map((card) => (
-            <div key={card.id} className="flex flex-col gap-2">
-              <CardTile
-                card={{
-                  id: card.id,
-                  name: card.name,
-                  rarity: card.rarity,
-                  imageSmall: card.imageSmall,
-                  imageLarge: card.imageLarge,
-                  rarityTier: rarityTier(card.rarity),
-                  quantity: ownedByCardId.get(card.id),
-                }}
-                size="md"
-              />
+            <div key={card.id} className="group flex flex-col gap-3">
+              <div className="relative aspect-[63/88] w-full transition-transform duration-300 group-hover:-translate-y-1">
+                <CardTile
+                  card={{
+                    id: card.id,
+                    name: card.name,
+                    rarity: card.rarity,
+                    imageSmall: card.imageSmall,
+                    imageLarge: card.imageLarge,
+                    rarityTier: rarityTier(card.rarity),
+                    quantity: ownedByCardId.get(card.id),
+                  }}
+                  size="lg"
+                />
+              </div>
               <div className="px-1">
-                <div className="truncate text-sm font-semibold">{card.name}</div>
-                <div className="text-xs text-muted">
-                  #{card.number}
-                  {card.rarity ? ` · ${card.rarity}` : ""}
+                <div className="truncate text-xs font-bold text-white mb-1">{card.name}</div>
+                <div className="flex items-center justify-between">
+                   <div className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">
+                    #{card.number}
+                  </div>
+                  {card.rarity && (
+                    <div className="text-[9px] font-bold text-zinc-600 uppercase">
+                      {card.rarity.split(" ").pop()}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

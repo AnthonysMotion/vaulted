@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 /** Closest widely-available stand-in for MWG's LayGrotesk. */
 const display = Space_Grotesk({
@@ -36,23 +37,24 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="flex min-h-full flex-col bg-black text-white selection:bg-white selection:text-black">
+        <SmoothScroll />
         <Navbar />
         {children}
-        <footer className="border-t border-border bg-surface px-5 py-10 sm:px-8">
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <footer className="border-t border-zinc-900 bg-black px-6 py-12 sm:px-10">
+          <div className="mx-auto flex max-w-[1200px] flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-2xl font-bold tracking-tight">VaultedTCG</div>
-              <p className="mt-2 max-w-md text-sm text-muted">
+              <div className="text-xl font-bold tracking-tighter text-white">VaultedTCG</div>
+              <p className="mt-4 max-w-sm text-xs leading-relaxed text-zinc-500">
                 Non-profit fan project. Pokémon and Pokémon TCG are trademarks of
                 Nintendo, Creatures Inc. and GAME FREAK inc.
               </p>
             </div>
-            <p className="mwg-label-s text-muted">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
               Card data via{" "}
               <a
                 href="https://github.com/PokemonTCG/pokemon-tcg-data"
-                className="underline decoration-primary underline-offset-4 hover:text-foreground"
+                className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
               >
                 pokemon-tcg-data
               </a>

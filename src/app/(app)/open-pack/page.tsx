@@ -31,27 +31,30 @@ export default async function OpenPackPage({
     profile && profile.lastPackDate === today ? profile.packsOpenedToday : 0;
 
   return (
-    <div className="flex flex-col gap-12">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mwg-label text-muted">Choose your booster</p>
-          <h1 className="title-l mt-3">Open packs</h1>
-          <p className="mt-3 max-w-md text-muted">
+    <div className="flex flex-col gap-16">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <div className="h-px w-8 bg-zinc-800" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Pick your booster</span>
+          </div>
+          <h1 className="text-5xl font-black tracking-tighter text-white">Rip packs.</h1>
+          <p className="mt-6 text-zinc-500 leading-relaxed font-medium">
             {mode === "sandbox"
-              ? "Sandbox — unlimited packs, nothing is saved."
-              : `Trainer — ${Math.max(0, DAILY_PACK_LIMIT - packsUsed)} of ${DAILY_PACK_LIMIT} packs left today. Cards are saved forever.`}
+              ? "Sandbox mode — test your luck with unlimited packs. No cards are saved to your collection."
+              : `Trainer mode — earn real progress. You have ${Math.max(0, DAILY_PACK_LIMIT - packsUsed)} of ${DAILY_PACK_LIMIT} packs remaining for today.`}
           </p>
         </div>
-        <div className="flex rounded-full bg-surface p-1 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+        <div className="flex rounded-xl border border-zinc-800 bg-black p-1 shadow-2xl">
           <Link
             href="/open-pack?mode=sandbox"
-            className={`mwg-label rounded-full px-5 py-3 ${mode === "sandbox" ? "bg-primary text-ink" : "text-muted hover:text-foreground"}`}
+            className={`rounded-lg px-6 py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${mode === "sandbox" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
           >
             Sandbox
           </Link>
           <Link
             href={profile ? "/open-pack?mode=trainer" : "/login?next=/open-pack%3Fmode%3Dtrainer"}
-            className={`mwg-label rounded-full px-5 py-3 ${mode === "trainer" ? "bg-primary text-ink" : "text-muted hover:text-foreground"}`}
+            className={`rounded-lg px-6 py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${mode === "trainer" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
           >
             Trainer
           </Link>
@@ -60,32 +63,36 @@ export default async function OpenPackPage({
 
       {[...bySeries.entries()].map(([series, seriesSets]) => (
         <section key={series}>
-          <h2 className="mb-4 flex items-center gap-3 title-s">
-            {series} <Badge>{seriesSets.length}</Badge>
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+           <div className="mb-8 flex items-center gap-4">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-600">
+              {series}
+            </h2>
+            <div className="h-px flex-1 bg-zinc-900" />
+            <Badge>{seriesSets.length}</Badge>
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {seriesSets.map((s) => (
               <Link
                 key={s.id}
                 href={`/open-pack/${s.id}?mode=${mode}`}
-                className="group flex flex-col items-center gap-3 rounded-[20px] border border-border bg-surface p-5 transition-all hover:bg-white hover:shadow-[0_12px_40px_rgba(10,10,11,0.06)]"
+                className="group flex flex-col items-center gap-6 bg-black p-8 transition-all hover:bg-zinc-950"
               >
-                <div className="grid h-16 w-full place-items-center">
+                <div className="grid h-24 w-full place-items-center bg-zinc-900/30 rounded-xl border border-transparent transition-all group-hover:border-zinc-800 group-hover:bg-zinc-900/50">
                   {s.logoUrl ? (
                     <img
                       src={s.logoUrl}
                       alt={s.name}
                       loading="lazy"
-                      className="max-h-16 max-w-full object-contain transition-transform group-hover:scale-105"
+                      className="max-h-20 max-w-[85%] object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
                     />
                   ) : (
-                    <span className="font-bold">{s.name}</span>
+                    <span className="font-bold text-zinc-700">{s.name}</span>
                   )}
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-semibold">{s.name}</div>
-                  <div className="text-xs text-muted">
-                    {s.releaseDate.slice(0, 4)} · {s.total} cards
+                  <div className="text-sm font-bold text-white group-hover:text-white transition-colors">{s.name}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mt-2">
+                    {s.releaseDate.split("-")[0]} · {s.total} cards
                   </div>
                 </div>
               </Link>

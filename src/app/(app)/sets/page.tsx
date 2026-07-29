@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { getAllSets, getSetProgress } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
-import { Badge, ProgressBar } from "@/components/ui";
+import { Badge, ProgressBar, Card } from "@/components/ui";
 
 export const metadata = { title: "Sets" };
 export const dynamic = "force-dynamic";
@@ -33,57 +33,58 @@ export default async function SetsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-12">
       <div>
-        <h1 className="text-3xl font-black">All expansions</h1>
-        <p className="mt-1 text-muted">
-          {allSets.length} sets from Base Set to today.
-          {profile && " Your completion shows on each set."}
+        <h1 className="text-4xl font-black tracking-tighter text-white">Expansions</h1>
+        <p className="mt-4 text-zinc-500 max-w-md">
+          Explore {allSets.length} sets from the 1999 Base Set to today.
+          {profile && " Your collection progress is tracked automatically."}
         </p>
       </div>
 
       {[...bySeries.entries()].map(([series, seriesSets]) => (
         <section key={series}>
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-bold">
-            {series} <Badge>{seriesSets.length}</Badge>
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mb-6 flex items-center gap-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
+              {series}
+            </h2>
+            <div className="h-px flex-1 bg-zinc-900" />
+            <Badge>{seriesSets.length}</Badge>
+          </div>
+          <div className="grid gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden sm:grid-cols-2 lg:grid-cols-3">
             {seriesSets.map((s) => {
               const prog = progressBySet.get(s.id);
               return (
                 <Link
                   key={s.id}
                   href={`/sets/${s.id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40"
+                  className="group flex items-center gap-4 bg-black p-6 transition-all hover:bg-zinc-950"
                 >
-                  <div className="grid h-12 w-12 shrink-0 place-items-center">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center bg-zinc-900/50 rounded-lg border border-zinc-800 transition-colors group-hover:border-zinc-700">
                     {s.logoUrl ? (
                       <img
                         src={s.logoUrl}
                         alt={s.name}
-                        className="max-h-12 max-w-full object-contain"
+                        className="max-h-12 max-w-full object-contain p-1 transition-transform group-hover:scale-110"
                         loading="lazy"
                       />
                     ) : s.symbolUrl ? (
-                      <img src={s.symbolUrl} alt="" className="max-h-10 max-w-10" loading="lazy" />
+                      <img src={s.symbolUrl} alt="" className="max-h-8 max-w-8" loading="lazy" />
                     ) : (
-                      <span>🎴</span>
+                      <span className="text-xl">🎴</span>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate font-semibold">{s.name}</span>
-                      {prog?.completed && <span title="Completed">🏆</span>}
+                      <span className="truncate font-bold text-white group-hover:text-white transition-colors">{s.name}</span>
+                      {prog?.completed && <span title="Completed" className="text-xs">🏆</span>}
                     </div>
-                    <div className="text-xs text-muted">
-                      {s.releaseDate} · {s.total} cards
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 mt-1">
+                      {s.releaseDate.split("-")[0]} · {s.total} cards
                     </div>
                     {prog && (
-                      <div className="mt-1.5 flex items-center gap-2">
-                        <ProgressBar value={prog.owned} max={s.total} className="h-1.5" />
-                        <span className="whitespace-nowrap text-[10px] text-muted">
-                          {Math.floor((prog.owned / s.total) * 100)}%
-                        </span>
+                      <div className="mt-3">
+                        <ProgressBar value={prog.owned} max={s.total} className="h-1" />
                       </div>
                     )}
                   </div>

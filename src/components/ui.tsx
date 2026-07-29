@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
 const baseBtn =
-  "inline-flex h-[50px] items-center justify-center gap-2 rounded-full px-6 mwg-label transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-[0.98]";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
 
 export function Button({
   variant = "primary",
@@ -12,12 +12,12 @@ export function Button({
   variant?: "primary" | "secondary" | "ghost" | "danger" | "dark" | "glass";
 }) {
   const variants = {
-    primary: "bg-primary text-ink hover:brightness-95",
-    dark: "glass-dark text-white hover:bg-dark-grey/60",
-    secondary: "glass text-foreground hover:bg-white/60",
-    ghost: "bg-transparent text-muted hover:text-foreground hover:bg-surface/40",
-    danger: "bg-[#fc4c3b]/10 text-[#fc4c3b] border border-[#fc4c3b]/30 hover:bg-[#fc4c3b]/15",
-    glass: "glass text-foreground hover:bg-white/60",
+    primary: "bg-white text-black hover:bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.1)]",
+    dark: "bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800",
+    secondary: "bg-black text-white border border-zinc-800 hover:border-zinc-700",
+    ghost: "bg-transparent text-zinc-400 hover:text-white hover:bg-zinc-900",
+    danger: "bg-red-600/10 text-red-500 border border-red-600/20 hover:bg-red-600/20",
+    glass: "glass text-white hover:bg-white/10",
   };
   return (
     <button className={`${baseBtn} ${variants[variant]} ${className}`} {...props} />
@@ -32,11 +32,11 @@ export function LinkButton({
   variant?: "primary" | "secondary" | "ghost" | "dark" | "glass";
 }) {
   const variants = {
-    primary: "bg-primary text-ink hover:brightness-95",
-    dark: "glass-dark text-white hover:bg-dark-grey/60",
-    secondary: "glass text-foreground hover:bg-white/60",
-    ghost: "bg-transparent text-muted hover:text-foreground hover:bg-surface/40",
-    glass: "glass text-foreground hover:bg-white/60",
+    primary: "bg-white text-black hover:bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.1)]",
+    dark: "bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800",
+    secondary: "bg-black text-white border border-zinc-800 hover:border-zinc-700",
+    ghost: "bg-transparent text-zinc-400 hover:text-white hover:bg-zinc-900",
+    glass: "glass text-white hover:bg-white/10",
   };
   return (
     <Link className={`${baseBtn} ${variants[variant]} ${className}`} {...props} />
@@ -54,11 +54,11 @@ export function Card({
 }) {
   const variants = {
     glass: "glass",
-    surface: "bg-surface border border-border",
+    surface: "bg-zinc-950 border border-zinc-800",
   };
   return (
     <div
-      className={`rounded-[20px] p-5 sm:p-6 ${variants[variant]} ${className}`}
+      className={`rounded-xl p-5 sm:p-6 ${variants[variant]} ${className}`}
     >
       {children}
     </div>
@@ -73,16 +73,16 @@ export function Badge({
   color?: "default" | "gold" | "purple" | "pink" | "blue" | "green";
 }) {
   const colors = {
-    default: "bg-white/20 text-muted border-white/30 backdrop-blur-md",
-    gold: "glass-primary text-ink border-primary/40",
-    purple: "bg-[#1975ff]/10 text-[#1975ff] border-[#1975ff]/25 backdrop-blur-md",
-    pink: "bg-[#fc4c3b]/10 text-[#fc4c3b] border-[#fc4c3b]/25 backdrop-blur-md",
-    blue: "bg-[#bcefff]/40 text-[#1266d4] border-[#bcefff]/50 backdrop-blur-md",
-    green: "bg-accent/15 text-[#0f9a52] border-accent/30 backdrop-blur-md",
+    default: "bg-zinc-900 text-zinc-400 border-zinc-800",
+    gold: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    purple: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    pink: "bg-pink-500/10 text-pink-500 border-pink-500/20",
+    blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   };
   return (
     <span
-      className={`mwg-label-s inline-flex items-center rounded-full border px-2.5 py-1 ${colors[color]}`}
+      className={`text-[10px] font-bold tracking-wider uppercase inline-flex items-center rounded-full border px-2 py-0.5 ${colors[color]}`}
     >
       {children}
     </span>
@@ -92,7 +92,7 @@ export function Badge({
 export function rarityBadgeColor(tier: number) {
   if (tier >= 6) return "pink" as const;
   if (tier >= 5) return "gold" as const;
-  if (tier >= 4) return "green" as const;
+  if (tier >= 4) return "purple" as const;
   if (tier >= 3) return "blue" as const;
   return "default" as const;
 }
@@ -108,9 +108,9 @@ export function ProgressBar({
 }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <div className={`h-1.5 w-full overflow-hidden rounded-full bg-white/20 backdrop-blur-sm ${className}`}>
+    <div className={`h-1 w-full overflow-hidden rounded-full bg-zinc-900 ${className}`}>
       <div
-        className="h-full rounded-full bg-primary transition-all duration-500 shadow-[0_0_8px_rgba(201,254,110,0.5)]"
+        className="h-full rounded-full bg-white transition-all duration-500 shadow-[0_0_10px_rgba(255,255,255,0.5)]"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -127,10 +127,10 @@ export function StatCard({
   icon?: string;
 }) {
   return (
-    <div className="rounded-[20px] glass p-5">
-      <div className="mwg-label-s text-muted">{label}</div>
-      <div className="mt-2 flex items-center gap-2 text-3xl font-bold tracking-tight">
-        {icon && <span className="text-2xl">{icon}</span>}
+    <div className="rounded-xl border border-zinc-800 bg-black p-5 hover:border-zinc-700 transition-colors">
+      <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-2">{label}</div>
+      <div className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
+        {icon && <span className="text-xl">{icon}</span>}
         <span>{value}</span>
       </div>
     </div>
@@ -147,20 +147,27 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-[20px] border border-dashed border-white/30 glass py-16 text-center">
-      <div className="text-3xl text-muted">{icon}</div>
-      <div className="mt-3 title-s">{title}</div>
-      {children && <div className="mt-2 max-w-sm text-sm text-muted">{children}</div>}
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-950/50 py-16 text-center">
+      <div className="text-3xl text-zinc-600 mb-4">{icon}</div>
+      <div className="text-lg font-bold text-white mb-2">{title}</div>
+      {children && <div className="max-w-sm text-sm text-zinc-500">{children}</div>}
     </div>
   );
 }
 
 export function Spinner() {
   return (
-    <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-anthracite" />
+    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/10 border-t-white" />
   );
 }
 
 export function SectionEyebrow({ children }: { children: ReactNode }) {
-  return <p className="mwg-label text-muted">{children}</p>;
+  return (
+    <div className="inline-flex items-center gap-2 mb-6">
+      <div className="h-px w-8 bg-zinc-800" />
+      <span className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
+        {children}
+      </span>
+    </div>
+  );
 }
