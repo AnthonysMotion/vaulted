@@ -78,7 +78,7 @@ function LoginForm() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="ash_ketchum"
-                className="h-12 rounded-full border border-border bg-surface-2 px-4 outline-none transition-colors focus:border-anthracite focus:bg-white"
+                className="h-12 rounded-full border border-border bg-surface-2 px-4 text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
               />
             </label>
           )}
@@ -90,7 +90,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="h-12 rounded-full border border-border bg-surface-2 px-4 outline-none transition-colors focus:border-anthracite focus:bg-white"
+              className="h-12 rounded-full border border-border bg-surface-2 px-4 text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
@@ -102,7 +102,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-12 rounded-full border border-border bg-surface-2 px-4 outline-none transition-colors focus:border-anthracite focus:bg-white"
+              className="h-12 rounded-full border border-border bg-surface-2 px-4 text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
             />
           </label>
 
