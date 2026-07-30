@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mesh, Program, Renderer, Triangle } from "ogl";
 
 interface GrainientProps {
@@ -165,8 +165,25 @@ export default function Grainient({
   className = "",
 }: GrainientProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPreference = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    syncPreference();
+    mediaQuery.addEventListener("change", syncPreference);
+
+    return () => {
+      mediaQuery.removeEventListener("change", syncPreference);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+
     const container = containerRef.current;
     if (!container) return;
 
@@ -294,7 +311,7 @@ export default function Grainient({
         // Ignore if the canvas was already removed.
       }
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -354,7 +371,7 @@ export default function Grainient({
   return (
     <div
       ref={containerRef}
-      className={`relative h-full w-full overflow-hidden ${className}`.trim()}
+      className={`relative h-full w-full overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.06),_transparent_45%),linear-gradient(180deg,_#111111_0%,_#000000_100%)] ${className}`.trim()}
     />
   );
 }

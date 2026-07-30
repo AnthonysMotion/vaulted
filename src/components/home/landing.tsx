@@ -1,7 +1,6 @@
 ﻿"use client";
 
-import Link from "next/link";
-import { LinkButton, SectionEyebrow, Card, Badge } from "@/components/ui";
+import { LinkButton, SectionEyebrow, Card } from "@/components/ui";
 import Grainient from "./Grainient";
 
 const STATS = [
