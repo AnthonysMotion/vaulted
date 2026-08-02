@@ -214,11 +214,13 @@ export function BinderEditor({
       </div>
 
       {editable && (
-        <div className="flex items-center gap-3">
-          <Button onClick={() => save(slots)} disabled={!dirty || saving}>
+        <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <Button onClick={() => save(slots)} disabled={!dirty || saving} className="w-full sm:w-auto">
             {saving ? "Saving..." : dirty ? "Save binder" : "Saved"}
           </Button>
-          <span className="text-xs text-muted">Drag cards to rearrange · ☆ to feature</span>
+          <span className="text-center text-xs text-muted sm:text-left">
+            Drag cards to rearrange · ☆ to feature
+          </span>
         </div>
       )}
 

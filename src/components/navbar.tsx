@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { ProfileMenu } from "./profile-menu";
+import { MobileNav } from "./mobile-nav";
 
 const NAV_LINKS = [
   { href: "/open-pack", label: "Packs" },
@@ -28,58 +29,61 @@ export async function Navbar() {
   const homeHref = profile ? "/dashboard" : "/";
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 pointer-events-none">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3 pointer-events-auto">
-        <div className="flex items-center gap-3">
-          <Link href={homeHref} className={solid}>
-            Vaulted
-          </Link>
-
-          <nav className={`hidden md:flex ${glassBar}`}>
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className={chip}>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className={`hidden sm:flex ${glassBar}`}>
-            <Link href="/open-pack" className={chip}>
-              Open pack
+    <>
+      {/* Desktop — top */}
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden px-4 py-4 pt-[max(1rem,env(safe-area-inset-top))] md:block">
+        <div className="pointer-events-auto mx-auto flex max-w-[1200px] items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Link href={homeHref} className={solid}>
+              Vaulted
             </Link>
 
-            {profile ? (
-              <ProfileMenu
-                username={profile.username}
-                avatarUrl={profile.avatarUrl}
-              />
-            ) : null}
+            <nav className={glassBar}>
+              {navLinks.map((link) => (
+                <Link key={link.href} href={link.href} className={chip}>
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
 
-          {!profile && (
-            <Link href="/login" className={`hidden sm:flex ${solid}`}>
-              Sign in
-            </Link>
-          )}
+          <div className="flex items-center gap-3">
+            <div className={glassBar}>
+              <Link href="/open-pack" className={chip}>
+                Open pack
+              </Link>
+
+              {profile ? (
+                <ProfileMenu
+                  username={profile.username}
+                  avatarUrl={profile.avatarUrl}
+                />
+              ) : null}
+            </div>
+
+            {!profile && (
+              <Link href="/login" className={solid}>
+                Sign in
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile — bottom */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[260] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 md:hidden">
+        <div className="pointer-events-auto mx-auto max-w-[1200px]">
+          <MobileNav
+            homeHref={homeHref}
+            links={navLinks}
+            profile={
+              profile
+                ? { username: profile.username, avatarUrl: profile.avatarUrl }
+                : null
+            }
+          />
         </div>
       </div>
-
-      {/* Mobile Nav */}
-      <nav className="pointer-events-auto fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 md:hidden">
-        <div className={`mx-auto flex max-w-[1200px] justify-between gap-1 p-1 shadow-2xl ${glass}`}>
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="flex min-w-0 flex-1 items-center justify-center rounded-md px-2 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <span className="truncate">{link.label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-    </header>
+    </>
   );
 }

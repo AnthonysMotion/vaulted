@@ -37,10 +37,10 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-black pb-24 text-white selection:bg-white selection:text-black md:pb-0">
+      <body className="flex min-h-full flex-col bg-black text-white selection:bg-white selection:text-black">
         <Navbar />
         {children}
-        <footer className="border-t border-zinc-900 bg-black px-6 pb-28 pt-12 sm:px-10 md:pb-12">
+        <footer className="border-t border-zinc-900 bg-black px-5 pb-28 pt-10 sm:px-10 sm:pt-12 md:pb-12">
           <div className="mx-auto flex max-w-[1200px] flex-col gap-8">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
               <div>

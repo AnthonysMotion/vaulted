@@ -60,7 +60,7 @@ export default async function ProfilePage({
   return (
     <div className="flex flex-col gap-10 md:gap-12">
       {/* Full-bleed profile header — cancels main top padding so banner hits viewport top */}
-      <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-24 sm:-mt-32 md:-mt-40">
+      <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-6 sm:-mt-8 md:-mt-36">
         <div className="relative isolate">
           <div
             className="relative h-64 overflow-hidden bg-zinc-950 sm:h-80 md:h-96"
@@ -90,7 +90,7 @@ export default async function ProfilePage({
             />
           </div>
 
-          <div className="mx-auto max-w-[1200px] px-5 sm:px-8 md:px-10">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-8 md:px-10">
             <div className="relative -mt-14 flex flex-col gap-6 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-8 md:-mt-20">
               <div className="flex min-w-0 flex-1 flex-col gap-5 sm:flex-row sm:items-end sm:gap-6">
                 <div className="relative z-10 grid h-32 w-32 shrink-0 place-items-center overflow-hidden rounded-2xl bg-zinc-950 text-5xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] sm:h-36 sm:w-36 md:h-40 md:w-40">

@@ -141,6 +141,48 @@ export async function getCardsCollectedFromPacks(userId: string) {
   return row?.total ?? 0;
 }
 
+/** Daily pack-open counts for the last ~53 weeks (UTC days). */
+export async function getUserActivityByDay(userId: string, weeks = 53) {
+  const end = new Date();
+  end.setUTCHours(0, 0, 0, 0);
+
+  // Align start to Sunday (GitHub-style week), weeks-1 weeks before this week's Sunday
+  const endDay = end.getUTCDay(); // 0 = Sun
+  const thisSunday = new Date(end);
+  thisSunday.setUTCDate(end.getUTCDate() - endDay);
+
+  const start = new Date(thisSunday);
+  start.setUTCDate(thisSunday.getUTCDate() - (weeks - 1) * 7);
+
+  const rows = await db
+    .select({
+      day: sql<string>`(timezone('utc', ${packOpenings.openedAt}))::date::text`,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(packOpenings)
+    .where(
+      and(
+        eq(packOpenings.userId, userId),
+        sql`${packOpenings.openedAt} >= ${start.toISOString()}`,
+      ),
+    )
+    .groupBy(sql`(timezone('utc', ${packOpenings.openedAt}))::date`);
+
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.day, row.count);
+
+  const days: { date: string; count: number }[] = [];
+  const cursor = new Date(start);
+  const last = new Date(end);
+  while (cursor <= last) {
+    const key = cursor.toISOString().slice(0, 10);
+    days.push({ date: key, count: counts.get(key) ?? 0 });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return { start: start.toISOString().slice(0, 10), days };
+}
+
 /** Per-set owned counts joined with set totals for completion percentages. */
 export async function getSetProgress(userId: string) {
   return db
