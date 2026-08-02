@@ -41,10 +41,10 @@ export async function getOrCreateProfile(): Promise<Profile | null> {
   });
   if (existing) return existing;
 
-  // Ensure a unique username by suffixing a discriminator on collision.
   const base = usernameFromUser(user);
   const avatarUrl = avatarFromUser(user);
   let username = base;
+
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
       const [created] = await db
@@ -62,9 +62,23 @@ export async function getOrCreateProfile(): Promise<Profile | null> {
         .onConflictDoNothing();
       return created;
     } catch {
-      username = `${base}${Math.floor(Math.random() * 9000) + 1000}`;
+      // Navbar + page can race on first OAuth login — if the row exists, use it.
+      const raced = await db.query.profiles.findFirst({
+        where: eq(profiles.id, user.id),
+      });
+      if (raced) return raced;
+
+      // Otherwise it was a username collision — try a suffix.
+      username = `${base.slice(0, 16)}${Math.floor(Math.random() * 9000) + 1000}`;
     }
   }
+
+  // Last resort: another request may have finished creating mid-loop.
+  const fallback = await db.query.profiles.findFirst({
+    where: eq(profiles.id, user.id),
+  });
+  if (fallback) return fallback;
+
   throw new Error("Could not allocate a username");
 }
 

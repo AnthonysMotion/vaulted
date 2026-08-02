@@ -24,8 +24,9 @@ import {
   xpForTier,
 } from "@/lib/packs/rarity";
 import type { OpenedPack } from "@/lib/packs/types";
+import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
 
-export const DAILY_PACK_LIMIT = 3;
+export { DAILY_PACK_LIMIT };
 const XP_PER_PACK = 25;
 
 export class PackLimitError extends Error {

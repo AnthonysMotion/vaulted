@@ -20,6 +20,11 @@ export async function GET(request: Request) {
   }
 
   const cookieStore = await cookies();
+  // Build the redirect first so auth cookies can be attached to it.
+  // Without this, the session often fails to stick across the redirect.
+  let destination = `${origin}/onboarding`;
+  const response = NextResponse.redirect(destination);
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -31,6 +36,7 @@ export async function GET(request: Request) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options);
+            response.cookies.set(name, value, options);
           });
         },
       },
@@ -42,15 +48,26 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=oauth`);
   }
 
-  // New OAuth users land on onboarding; returning users go to `next`.
-  const existing = await db.query.profiles.findFirst({
-    where: eq(profiles.id, data.user.id),
-    columns: { onboardingCompleted: true },
-  });
+  try {
+    const existing = await db.query.profiles.findFirst({
+      where: eq(profiles.id, data.user.id),
+      columns: { onboardingCompleted: true },
+    });
 
-  if (!existing || !existing.onboardingCompleted) {
-    return NextResponse.redirect(`${origin}/onboarding`);
+    destination =
+      !existing || !existing.onboardingCompleted
+        ? `${origin}/onboarding`
+        : `${origin}${next}`;
+  } catch (err) {
+    console.error("[auth/callback] profile lookup failed", err);
+    // Session is valid — send them somewhere safe even if the flag query failed.
+    destination = `${origin}${next}`;
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  // Recreate redirect with final destination, copying session cookies.
+  const finalResponse = NextResponse.redirect(destination);
+  for (const cookie of response.cookies.getAll()) {
+    finalResponse.cookies.set(cookie);
+  }
+  return finalResponse;
 }
