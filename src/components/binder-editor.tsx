@@ -2,10 +2,14 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { rarityTier } from "@/lib/packs/rarity";
-import { Button, Spinner } from "./ui";
+import { Button } from "./ui";
+import {
+  CollectionCardPicker,
+  type CollectionOwnedCard,
+} from "./collection-card-picker";
 
 export type BinderSlotData = {
   position: number;
@@ -16,14 +20,6 @@ export type BinderSlotData = {
   isFavourite: boolean;
 };
 
-type OwnedCard = {
-  id: string;
-  name: string;
-  rarity: string | null;
-  imageSmall: string | null;
-  quantity: number;
-};
-
 /**
  * 3x3 showcase binder. Owners can drag cards between slots to rearrange,
  * click an empty slot to add an owned card, and star a favourite.
@@ -31,9 +27,11 @@ type OwnedCard = {
 export function BinderEditor({
   initialSlots,
   editable,
+  align = "center",
 }: {
   initialSlots: BinderSlotData[];
   editable: boolean;
+  align?: "center" | "start";
 }) {
   const [slots, setSlots] = useState<(BinderSlotData | null)[]>(() => {
     const grid: (BinderSlotData | null)[] = Array(9).fill(null);
@@ -112,7 +110,7 @@ export function BinderEditor({
     mutate((prev) => prev.map((s, i) => (i === index ? null : s)));
   }
 
-  function placeCard(index: number, card: OwnedCard) {
+  function placeCard(index: number, card: CollectionOwnedCard) {
     mutate((prev) => {
       const next = [...prev];
       next[index] = {
@@ -129,7 +127,9 @@ export function BinderEditor({
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div
+      className={`flex flex-col gap-4 ${align === "start" ? "items-start" : "items-center"}`}
+    >
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {error}
@@ -222,97 +222,17 @@ export function BinderEditor({
         </div>
       )}
 
-      {pickerFor !== null && (
-        <CardPicker onPick={(card) => placeCard(pickerFor, card)} onClose={() => setPickerFor(null)} />
-      )}
-    </div>
-  );
-}
-
-function CardPicker({
-  onPick,
-  onClose,
-}: {
-  onPick: (card: OwnedCard) => void;
-  onClose: () => void;
-}) {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<OwnedCard[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const timeout = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/collection/cards?q=${encodeURIComponent(query)}`, {
-          signal: controller.signal,
-        });
-        const data = await res.json();
-        setResults(data.cards ?? []);
-      } catch {
-        // aborted or failed; keep previous results
-      } finally {
-        setLoading(false);
-      }
-    }, 250);
-    return () => {
-      controller.abort();
-      clearTimeout(timeout);
-    };
-  }, [query]);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="flex max-h-[80vh] w-full max-w-2xl flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-surface p-5"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold">Pick a card you own</h3>
-          <button onClick={onClose} className="text-muted hover:text-foreground cursor-pointer">
-            ✕
-          </button>
-        </div>
-        <input
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search your collection..."
-          className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-primary"
-        />
-        <div className="grid flex-1 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6">
-          {loading ? (
-            <div className="col-span-full flex justify-center py-8">
-              <Spinner />
-            </div>
-          ) : results.length === 0 ? (
-            <p className="col-span-full py-8 text-center text-sm text-muted">
-              No owned cards match. You can only showcase cards you own.
-            </p>
-          ) : (
-            results.map((card) => (
-              <button
-                key={card.id}
-                onClick={() => onPick(card)}
-                className="overflow-hidden rounded-lg transition-transform hover:scale-105 cursor-pointer"
-                title={`${card.name} (${card.rarity ?? "?"})`}
-              >
-                {card.imageSmall ? (
-                  <img src={card.imageSmall} alt={card.name} className="w-full" loading="lazy" />
-                ) : (
-                  <div className="grid aspect-[63/88] place-items-center bg-surface-2 p-1 text-center text-[9px]">
-                    {card.name}
-                  </div>
-                )}
-              </button>
-            ))
-          )}
-        </div>
-      </div>
+      <CollectionCardPicker
+        open={pickerFor !== null}
+        onClose={() => setPickerFor(null)}
+        title="Add a card to your binder"
+        description="Select a card, preview it, then confirm."
+        confirmLabel="Add to binder"
+        emptyHint="Open trainer packs first, then add cards to your binder."
+        onConfirm={(card) => {
+          if (pickerFor !== null) placeCard(pickerFor, card);
+        }}
+      />
     </div>
   );
 }

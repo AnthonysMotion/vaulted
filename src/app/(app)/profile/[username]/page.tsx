@@ -13,9 +13,8 @@ import {
   getUserRecentPackOpenings,
 } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
-import { rarityTier } from "@/lib/packs/rarity";
 import { Card, LinkButton, ProgressBar, StatCard } from "@/components/ui";
-import { CardTile } from "@/components/card-tile";
+import { BinderEditor } from "@/components/binder-editor";
 import { ProfileActivityFeed } from "@/components/profile-activity-feed";
 import { ProfileShowcaseCard } from "@/components/profile-showcase-card";
 
@@ -44,9 +43,14 @@ export default async function ProfilePage({
   const isOwner = viewer?.id === profile.id;
   const completedSets = progress.filter((p) => p.completedAt);
   const topProgress = progress.slice(0, 3);
-  const binderCards = (binder?.slots ?? [])
-    .sort((a, b) => a.position - b.position)
-    .slice(0, 9);
+  const binderSlots = (binder?.slots ?? []).map((s) => ({
+    position: s.position,
+    cardId: s.cardId,
+    name: s.card.name,
+    rarity: s.card.rarity,
+    imageSmall: s.card.imageSmall,
+    isFavourite: s.isFavourite,
+  }));
 
   const joinedLabel = new Date(profile.createdAt).toLocaleDateString(undefined, {
     month: "short",
@@ -271,33 +275,16 @@ export default async function ProfilePage({
         </div>
       </div>
 
-      {/* Binder preview */}
+      {/* Showcase binder */}
       <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Showcase binder</h2>
-          <Link href={`/binder/${profile.username}`} className="text-sm text-primary underline">
-            Full binder →
-          </Link>
-        </div>
-        {binderCards.length === 0 ? (
-          <Card className="text-sm text-muted">Binder is empty.</Card>
-        ) : (
-          <div className="flex flex-wrap gap-3">
-            {binderCards.map((slot) => (
-              <CardTile
-                key={slot.position}
-                card={{
-                  id: slot.card.id,
-                  name: slot.card.name,
-                  rarity: slot.card.rarity,
-                  imageSmall: slot.card.imageSmall,
-                  rarityTier: rarityTier(slot.card.rarity),
-                }}
-                size="sm"
-              />
-            ))}
-          </div>
-        )}
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-400">
+          Showcase binder
+        </h2>
+        <BinderEditor
+          initialSlots={binderSlots}
+          editable={isOwner}
+          align="start"
+        />
       </section>
     </div>
   );
