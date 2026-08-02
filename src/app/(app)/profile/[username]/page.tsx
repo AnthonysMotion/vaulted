@@ -195,6 +195,7 @@ export default async function ProfilePage({
                     name: profile.favouriteCard.name,
                     rarity: profile.favouriteCard.rarity,
                     imageSmall: profile.favouriteCard.imageSmall,
+                    setName: profile.favouriteCard.set?.name ?? null,
                   }
                 : null
             }

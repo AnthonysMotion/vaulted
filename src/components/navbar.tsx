@@ -15,7 +15,7 @@ const AUTHED_NAV_LINKS = [
 ];
 
 const glass =
-  "flex items-center rounded-lg border border-white/10 bg-black/30 backdrop-blur-md px-1";
+  "flex items-center rounded-lg border border-white/10 bg-black/40 backdrop-blur-md px-1";
 const glassBar = `${glass} h-10`;
 const chip =
   "inline-flex h-8 items-center rounded-md px-4 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/10 hover:text-white";

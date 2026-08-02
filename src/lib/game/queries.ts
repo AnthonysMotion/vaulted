@@ -16,7 +16,10 @@ import { rarityTier } from "@/lib/packs/rarity";
 export async function getProfileByUsername(username: string) {
   return db.query.profiles.findFirst({
     where: eq(profiles.username, username.toLowerCase()),
-    with: { favouriteCard: true, rarestPull: true },
+    with: {
+      favouriteCard: { with: { set: true } },
+      rarestPull: true,
+    },
   });
 }
 

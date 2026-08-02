@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { cards, userCards } from "@/db/schema";
+import { cards, sets, userCards } from "@/db/schema";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { and, desc, eq, ilike } from "drizzle-orm";
 
-/** Search the caller's owned cards (binder picker). */
+/** Search the caller's owned cards (binder / showcase picker). */
 export async function GET(request: Request) {
   const profile = await getOrCreateProfile();
   if (!profile) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -20,14 +20,18 @@ export async function GET(request: Request) {
       id: cards.id,
       name: cards.name,
       rarity: cards.rarity,
+      number: cards.number,
       imageSmall: cards.imageSmall,
+      imageLarge: cards.imageLarge,
+      setName: sets.name,
       quantity: userCards.quantity,
     })
     .from(userCards)
     .innerJoin(cards, eq(userCards.cardId, cards.id))
+    .innerJoin(sets, eq(cards.setId, sets.id))
     .where(and(...conditions))
     .orderBy(desc(userCards.firstObtainedAt))
-    .limit(48);
+    .limit(60);
 
   return NextResponse.json({ cards: rows });
 }
