@@ -176,12 +176,14 @@ export async function openTrainerPack(
   const newLevel = levelForXp(newTotalXp);
   const leveledUp = newLevel > updated.level;
 
+  const cardsInPack = pack.cards.length;
+
   await db
     .update(profiles)
     .set({
       xp: newTotalXp,
       level: newLevel,
-      totalCardsCollected: sql`${profiles.totalCardsCollected} + ${collectibleCards.length}`,
+      totalCardsCollected: sql`${profiles.totalCardsCollected} + ${cardsInPack}`,
       longestStreak: sql`GREATEST(${profiles.longestStreak}, ${updated.currentStreak})`,
       ...(bestPull && bestPull.rarityTier > updated.rarestPullScore
         ? { rarestPullCardId: bestPull.card.id, rarestPullScore: bestPull.rarityTier }
@@ -225,7 +227,7 @@ export async function openTrainerPack(
   // --- Achievements --------------------------------------------------------------
   const newAchievements = await checkAchievements(profile.id, {
     totalPacks: updated.totalPacksOpened,
-    totalCards: updated.totalCardsCollected + collectibleCards.length,
+    totalCards: updated.totalCardsCollected + cardsInPack,
     streak: updated.currentStreak,
     level: newLevel,
     bestTier: bestPull?.rarityTier ?? 0,

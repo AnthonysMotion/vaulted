@@ -127,6 +127,17 @@ export async function getCollectionSummary(userId: string) {
   return { rarityDistribution: rarityRows, ...totals };
 }
 
+/** Total cards pulled from trainer packs (sum of each opening's card count). */
+export async function getCardsCollectedFromPacks(userId: string) {
+  const [row] = await db
+    .select({
+      total: sql<number>`coalesce(sum(jsonb_array_length(${packOpenings.cards})), 0)::int`,
+    })
+    .from(packOpenings)
+    .where(eq(packOpenings.userId, userId));
+  return row?.total ?? 0;
+}
+
 /** Per-set owned counts joined with set totals for completion percentages. */
 export async function getSetProgress(userId: string) {
   return db

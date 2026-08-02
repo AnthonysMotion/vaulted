@@ -7,7 +7,7 @@ import { userAchievements } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import {
   getBinder,
-  getCollectionSummary,
+  getCardsCollectedFromPacks,
   getProfileByUsername,
   getSetProgress,
   getUserRecentPackOpenings,
@@ -28,9 +28,9 @@ export default async function ProfilePage({
   const profile = await getProfileByUsername(username);
   if (!profile) notFound();
 
-  const [summary, progress, binder, unlocked, viewer, recentPacks] =
+  const [cardsCollected, progress, binder, unlocked, viewer, recentPacks] =
     await Promise.all([
-      getCollectionSummary(profile.id),
+      getCardsCollectedFromPacks(profile.id),
       getSetProgress(profile.id),
       getBinder(profile.id),
       db.query.userAchievements.findMany({
@@ -173,7 +173,7 @@ export default async function ProfilePage({
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Cards collected" value={(summary.copies ?? 0).toLocaleString()} icon="⭐" />
+        <StatCard label="Cards collected" value={cardsCollected.toLocaleString()} icon="⭐" />
         <StatCard label="Packs opened" value={profile.totalPacksOpened.toLocaleString()} icon="📦" />
         <StatCard label="Current streak" value={`${profile.currentStreak} days`} icon="🔥" />
         <StatCard label="Sets completed" value={completedSets.length} icon="🏆" />

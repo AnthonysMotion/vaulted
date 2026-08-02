@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import {
-  getCollectionSummary,
+  getCardsCollectedFromPacks,
   getSetProgress,
   getGlobalFeed,
 } from "@/lib/game/queries";
@@ -19,8 +19,8 @@ export default async function DashboardPage() {
   if (!profile) redirect("/login?next=/dashboard");
   redirectIfNeedsOnboarding(profile);
 
-  const [summary, setProgress, feed] = await Promise.all([
-    getCollectionSummary(profile.id),
+  const [cardsCollected, setProgress, feed] = await Promise.all([
+    getCardsCollectedFromPacks(profile.id),
     getSetProgress(profile.id),
     getGlobalFeed(15),
   ]);
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
         </div>
         <div className="bg-black p-5 sm:p-8">
           <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-4">Cards</div>
-          <div className="text-3xl font-black text-white">{(summary.copies ?? 0).toLocaleString()}</div>
+          <div className="text-3xl font-black text-white">{cardsCollected.toLocaleString()}</div>
         </div>
       </div>
 
