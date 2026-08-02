@@ -110,7 +110,7 @@ export function OnboardingFlow({
       <div className="mb-10">
         <div className="flex items-center justify-between gap-4">
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">
-            Getting started · {stepIndex + 1} / {STEPS.length}
+            Getting started · {stepIndex + 1} / {steps.length}
           </p>
           <button
             type="button"
