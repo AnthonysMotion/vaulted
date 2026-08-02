@@ -17,7 +17,7 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
   return (
     <div className="relative w-full bg-black text-white selection:bg-white selection:text-black">
       {/* Hero Section */}
-      <section className="hero relative flex min-h-[100svh] items-center justify-center overflow-hidden">
+      <section className="hero relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-black">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <Grainient
             className="absolute inset-0"
