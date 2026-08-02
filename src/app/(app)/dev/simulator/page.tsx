@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * Internal testing tool: simulate large volumes of packs and compare the
- * observed rarity rates against the researched real-world targets stored
- * in set_pull_rates.
+ * observed rarity rates against the researched targets in
+ * `src/lib/packs/configs.ts` (runtime source of truth via packConfigForSet).
  */
 export default async function SimulatorPage() {
   const sets = await getAllSets();

@@ -8,7 +8,7 @@ A social Pokémon TCG pack-opening simulator. Open booster packs with **research
 
 - **Next.js (App Router) + React + TypeScript**
 - **Tailwind CSS v4** + **Framer Motion** for the pack-opening experience
-- **Supabase** — auth (email/password) + PostgreSQL
+- **Supabase** — auth (email/password, Google, Discord) + PostgreSQL
 - **Drizzle ORM** + drizzle-kit
 - Deploys cleanly to **Vercel**
 
@@ -16,6 +16,7 @@ A social Pokémon TCG pack-opening simulator. Open booster packs with **research
 
 - **Sandbox Mode** — unlimited packs, no account, session history, nothing saved.
 - **Trainer Mode** — 3 packs/day (UTC reset), permanent collection, streaks, XP, levels, achievements.
+- **Onboarding** — short walkthrough for new trainers (modes, daily limit, binder, profile).
 - **Realistic pull engine** — per-set slot structures and rarity weights sourced from community datasets (TCGplayer Infinite studies, Elite Fourum multi-thousand-pack samples, ThePriceDex models). Every era has its own booster configuration; sets can override (e.g. SV 151). God pack support included.
 - **Collection** — filters by set/rarity/type, search, completion %, rarity distribution.
 - **Binder** — public 3×3 showcase, drag-and-drop rearranging, only cards you own.
@@ -24,7 +25,9 @@ A social Pokémon TCG pack-opening simulator. Open booster packs with **research
 
 ## Setup
 
-1. **Create a Supabase project** ([supabase.com](https://supabase.com)). In Authentication → Providers enable Email. Copy the API URL, anon key, and the database connection string.
+1. **Create a Supabase project** ([supabase.com](https://supabase.com)). In Authentication → Providers enable **Email**, and optionally **Google** + **Discord**. Copy the API URL, anon key, and the database connection string.
+
+   For OAuth: add `http://localhost:3000/auth/callback` (and your production URL) under Authentication → URL Configuration → Redirect URLs. Each provider also needs its own client ID/secret and the Supabase callback `https://YOUR-PROJECT.supabase.co/auth/v1/callback`.
 
 2. **Configure env** — copy `.env.example` to `.env.local` and fill in:
 
@@ -41,7 +44,7 @@ npm install
 npm run db:push        # creates all tables via drizzle-kit
 ```
 
-4. **Import every card & set** (downloads ~40MB from pokemon-tcg-data, seeds sets, cards, pull-rate configs and achievements):
+4. **Import every card & set** (downloads ~40MB from pokemon-tcg-data, seeds sets, cards, a pull-rate mirror table, and achievements):
 
 ```bash
 npm run db:seed
@@ -70,18 +73,30 @@ npm run simulate -- sv3pt5 100000
 
 Or use the in-app tool at `/dev/simulator`.
 
-## Pull-rate data management
+## Pull-rate configuration
 
-Every set's booster structure lives in the `set_pull_rates` table (slot rules, rarity weights, god pack config, source notes, last-updated). The engine is fully data-driven: adding a new expansion only requires a new row — no engine changes. Era defaults and set overrides are defined in `src/lib/packs/configs.ts` and seeded by `npm run db:seed`.
+**Runtime source of truth:** `src/lib/packs/configs.ts`.
+
+Pack opening (`open-pack`), the CLI simulator, and `/dev/simulator` all call `packConfigForSet()` from that file. Era defaults live in `ERA_BY_SERIES`; per-set differences live in `SET_OVERRIDES`. To change pull behaviour for a set, edit `configs.ts` — not the database.
+
+The `set_pull_rates` table is a **seeded mirror** of those configs (written by `npm run db:seed` for inspection / notes). It is **not** read at runtime. If the table drifts from `configs.ts`, the code wins until you re-seed.
+
+```
+src/lib/packs/configs.ts   ← edit this to change pack odds
+src/lib/packs/engine.ts    ← slot draw logic
+set_pull_rates (DB)        ← mirror only; re-seed after config changes if you care about the table
+```
 
 ## Project layout
 
 ```
 src/db/               Drizzle schema + client
-src/lib/packs/        Pull engine, rarity model, researched configs
-src/lib/game/         Profile, pack-opening game logic, queries
+src/lib/packs/        Pull engine, rarity model, configs (runtime source of truth)
+src/lib/game/         Profile, pack-opening game logic, onboarding, queries
+src/lib/auth/         Client helpers (e.g. last-used OAuth method)
 src/app/api/          Route handlers (packs, binder, friends, feed, simulate)
-src/app/              Pages (landing, login, dashboard, open-pack, collection,
-                      sets, profile, binder, friends, compare, feed, dev)
+src/app/              Pages (landing, login, onboarding, dashboard, open-pack,
+                      collection, sets, profile, binder, friends, compare, feed, dev)
+src/app/auth/         OAuth callback
 scripts/              Import, price enrichment, CLI simulator
 ```
