@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { achievements, userAchievements } from "@/db/schema";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { Badge, Card, SectionEyebrow } from "@/components/ui";
 import { asc, eq } from "drizzle-orm";
 
@@ -20,6 +21,7 @@ const CATEGORY_ORDER = ["packs", "pulls", "collection", "streak", "level"];
 export default async function AchievementsPage() {
   const profile = await getOrCreateProfile().catch(() => null);
   if (!profile) redirect("/login?next=/achievements");
+  redirectIfNeedsOnboarding(profile);
 
   const [allAchievements, unlockedRows] = await Promise.all([
     db.query.achievements.findMany({

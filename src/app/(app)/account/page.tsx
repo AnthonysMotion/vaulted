@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { profiles } from "@/db/schema";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { Button, Card } from "@/components/ui";
 import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -63,6 +64,7 @@ export default async function AccountPage({
   ]);
 
   if (!profile) redirect("/login?next=/account");
+  redirectIfNeedsOnboarding(profile);
 
   const message =
     params.error === "taken"

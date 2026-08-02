@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import {
   getCollectionSummary,
   getSetProgress,
@@ -16,6 +17,7 @@ export const metadata = { title: "Dashboard" };
 export default async function DashboardPage() {
   const profile = await getOrCreateProfile();
   if (!profile) redirect("/login?next=/dashboard");
+  redirectIfNeedsOnboarding(profile);
 
   const [summary, setProgress, feed] = await Promise.all([
     getCollectionSummary(profile.id),

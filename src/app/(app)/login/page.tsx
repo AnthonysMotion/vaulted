@@ -35,7 +35,7 @@ function LoginForm() {
         });
         if (error) throw error;
         if (data.session) {
-          router.push(next);
+          router.push("/onboarding");
           router.refresh();
         } else {
           setInfo("Check your email to confirm your account, then sign in.");

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { sets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { DAILY_PACK_LIMIT } from "@/lib/game/open-pack";
 import { PackOpener } from "@/components/pack-opener";
 
@@ -21,6 +22,7 @@ export default async function OpenSetPage({
 
   const profile = await getOrCreateProfile().catch(() => null);
   const mode = rawMode === "trainer" && profile ? "trainer" : "sandbox";
+  if (mode === "trainer") redirectIfNeedsOnboarding(profile);
 
   let packsRemaining: number | undefined;
   if (mode === "trainer" && profile) {

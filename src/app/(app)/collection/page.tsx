@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import {
   getAllSets,
   getCollectionSummary,
@@ -40,6 +41,7 @@ export default async function CollectionPage({
 }) {
   const profile = await getOrCreateProfile();
   if (!profile) redirect("/login?next=/collection");
+  redirectIfNeedsOnboarding(profile);
 
   const sp = await searchParams;
   const filters = {

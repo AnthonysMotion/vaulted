@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { getFriendships } from "@/lib/game/queries";
 import { Card, EmptyState, LinkButton } from "@/components/ui";
 import {
@@ -19,6 +20,7 @@ export default async function FriendsPage({
 }) {
   const profile = await getOrCreateProfile();
   if (!profile) redirect("/login?next=/friends");
+  redirectIfNeedsOnboarding(profile);
 
   const { add } = await searchParams;
   const { friends, incoming, outgoing } = await getFriendships(profile.id);

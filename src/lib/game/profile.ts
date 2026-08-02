@@ -38,7 +38,7 @@ export async function getOrCreateProfile(): Promise<Profile | null> {
     try {
       const [created] = await db
         .insert(profiles)
-        .values({ id: user.id, username })
+        .values({ id: user.id, username, onboardingCompleted: false })
         .returning();
       await db
         .insert(binders)

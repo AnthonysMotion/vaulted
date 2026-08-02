@@ -135,6 +135,11 @@ export const profiles = pgTable(
     /** UTC date of the most recent trainer-mode pack */
     lastPackDate: date("last_pack_date"),
     packsOpenedToday: integer("packs_opened_today").notNull().default(0),
+    /**
+     * Defaults true so existing trainers aren't forced through onboarding.
+     * New profiles insert with false (see getOrCreateProfile).
+     */
+    onboardingCompleted: boolean("onboarding_completed").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

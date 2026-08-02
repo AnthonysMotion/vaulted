@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { getAllSets } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { DAILY_PACK_LIMIT } from "@/lib/game/open-pack";
 import { COMPANION_ONLY_SET_IDS } from "@/lib/packs/companions";
 import { Badge } from "@/components/ui";
@@ -18,6 +19,7 @@ export default async function OpenPackPage({
   const { mode: rawMode } = await searchParams;
   const profile = await getOrCreateProfile().catch(() => null);
   const mode = rawMode === "trainer" && profile ? "trainer" : "sandbox";
+  if (mode === "trainer") redirectIfNeedsOnboarding(profile);
 
   const allSets = (await getAllSets()).filter(
     (s) => !COMPANION_ONLY_SET_IDS.has(s.id),
