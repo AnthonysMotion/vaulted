@@ -4,12 +4,13 @@ import Link from "next/link";
 import { getAllSets } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
-import { DAILY_PACK_LIMIT } from "@/lib/game/open-pack";
+import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
+import { packsRemainingToday, resolvePackMode } from "@/lib/game/pack-mode";
 import { COMPANION_ONLY_SET_IDS } from "@/lib/packs/companions";
 import { Badge } from "@/components/ui";
 
 export const metadata = { title: "Open Packs" };
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function OpenPackPage({
   searchParams,
@@ -18,7 +19,8 @@ export default async function OpenPackPage({
 }) {
   const { mode: rawMode } = await searchParams;
   const profile = await getOrCreateProfile().catch(() => null);
-  const mode = rawMode === "trainer" && profile ? "trainer" : "sandbox";
+  const packsLeft = profile ? packsRemainingToday(profile) : 0;
+  const mode = resolvePackMode(rawMode, profile);
   if (mode === "trainer") redirectIfNeedsOnboarding(profile);
 
   const allSets = (await getAllSets()).filter(
@@ -31,23 +33,23 @@ export default async function OpenPackPage({
     bySeries.set(s.series, list);
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const packsUsed =
-    profile && profile.lastPackDate === today ? profile.packsOpenedToday : 0;
-
   return (
     <div className="flex flex-col gap-12 md:gap-16">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="h-px w-8 bg-zinc-800" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Pick your booster</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+              Pick your booster
+            </span>
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">Rip packs.</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">
+            Rip packs.
+          </h1>
           <p className="mt-6 text-zinc-500 leading-relaxed font-medium">
             {mode === "sandbox"
               ? "Sandbox mode — test your luck with unlimited packs. No cards are saved to your collection."
-              : `Trainer mode — earn real progress. You have ${Math.max(0, DAILY_PACK_LIMIT - packsUsed)} of ${DAILY_PACK_LIMIT} packs remaining for today.`}
+              : `Trainer mode — earn real progress. You have ${packsLeft} of ${DAILY_PACK_LIMIT} packs remaining for today.`}
           </p>
         </div>
         <div className="flex w-full rounded-xl border border-zinc-800 bg-black p-1 shadow-2xl sm:w-auto">
@@ -58,7 +60,11 @@ export default async function OpenPackPage({
             Sandbox
           </Link>
           <Link
-            href={profile ? "/open-pack?mode=trainer" : "/login?next=/open-pack%3Fmode%3Dtrainer"}
+            href={
+              profile
+                ? "/open-pack?mode=trainer"
+                : "/login?next=/open-pack%3Fmode%3Dtrainer"
+            }
             className={`flex-1 rounded-lg px-6 py-2.5 text-center text-xs font-bold uppercase tracking-widest transition-all ${mode === "trainer" ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
           >
             Trainer
@@ -68,7 +74,7 @@ export default async function OpenPackPage({
 
       {[...bySeries.entries()].map(([series, seriesSets]) => (
         <section key={series}>
-           <div className="mb-8 flex items-center gap-4">
+          <div className="mb-8 flex items-center gap-4">
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-600">
               {series}
             </h2>
@@ -95,7 +101,9 @@ export default async function OpenPackPage({
                   )}
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-bold text-white group-hover:text-white transition-colors">{s.name}</div>
+                  <div className="text-sm font-bold text-white group-hover:text-white transition-colors">
+                    {s.name}
+                  </div>
                   <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mt-2">
                     {s.releaseDate.split("-")[0]} · {s.total} cards
                   </div>

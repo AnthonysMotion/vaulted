@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   getLastAuthMethod,
@@ -51,7 +51,6 @@ function DiscordIcon({ className = "" }: { className?: string }) {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
   const oauthError = searchParams.get("error") === "oauth";
@@ -81,6 +80,11 @@ function LoginForm() {
     setLoading(true);
     const supabase = createSupabaseBrowserClient();
 
+    const destination =
+      next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/login")
+        ? next
+        : "/dashboard";
+
     try {
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -92,11 +96,12 @@ function LoginForm() {
         setLastAuthMethod("email");
         setLastMethod("email");
         if (data.session) {
-          router.push("/onboarding");
-          router.refresh();
-        } else {
-          setInfo("Check your email to confirm your account, then sign in.");
+          // Full navigation so proxy/middleware sees the new session cookies.
+          window.location.assign("/onboarding");
+          return;
         }
+        setInfo("Check your email to confirm your account, then sign in.");
+        setLoading(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -105,12 +110,11 @@ function LoginForm() {
         if (error) throw error;
         setLastAuthMethod("email");
         setLastMethod("email");
-        router.push(next);
-        router.refresh();
+        window.location.assign(destination);
+        return;
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed");
-    } finally {
       setLoading(false);
     }
   }

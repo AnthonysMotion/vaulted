@@ -5,7 +5,7 @@ import { sets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
-import { DAILY_PACK_LIMIT } from "@/lib/game/open-pack";
+import { packsRemainingToday, resolvePackMode } from "@/lib/game/pack-mode";
 import { PackOpener } from "@/components/pack-opener";
 
 export default async function OpenSetPage({
@@ -21,15 +21,11 @@ export default async function OpenSetPage({
   if (!set) notFound();
 
   const profile = await getOrCreateProfile().catch(() => null);
-  const mode = rawMode === "trainer" && profile ? "trainer" : "sandbox";
+  const mode = resolvePackMode(rawMode, profile);
   if (mode === "trainer") redirectIfNeedsOnboarding(profile);
 
-  let packsRemaining: number | undefined;
-  if (mode === "trainer" && profile) {
-    const today = new Date().toISOString().slice(0, 10);
-    const used = profile.lastPackDate === today ? profile.packsOpenedToday : 0;
-    packsRemaining = Math.max(0, DAILY_PACK_LIMIT - used);
-  }
+  const packsRemaining =
+    mode === "trainer" && profile ? packsRemainingToday(profile) : undefined;
 
   return (
     <div className="flex flex-col gap-8 md:gap-10">

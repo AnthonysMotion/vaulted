@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
@@ -49,15 +50,23 @@ export default function RootLayout({
                   Nintendo, Creatures Inc. and GAME FREAK inc.
                 </p>
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                Card data via{" "}
-                <a
-                  href="https://github.com/PokemonTCG/pokemon-tcg-data"
-                  className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
+              <nav className="flex flex-col items-start gap-3 sm:items-end">
+                <Link
+                  href="/about"
+                  className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
                 >
-                  pokemon-tcg-data
-                </a>
-              </p>
+                  About
+                </Link>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                  Card data via{" "}
+                  <a
+                    href="https://github.com/PokemonTCG/pokemon-tcg-data"
+                    className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
+                  >
+                    pokemon-tcg-data
+                  </a>
+                </p>
+              </nav>
             </div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">
               This project is still under development.

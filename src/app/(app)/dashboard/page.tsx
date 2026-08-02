@@ -55,7 +55,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <LinkButton href="/open-pack?mode=trainer" variant="primary" className="h-12 px-6 sm:min-w-[150px]">Open Packs</LinkButton>
+          <LinkButton href="/open-pack" variant="primary" className="h-12 px-6 sm:min-w-[150px]">Open Packs</LinkButton>
           <LinkButton href={`/profile/${profile.username}`} variant="dark" className="h-12 px-6 sm:min-w-[150px]">
             View Profile
           </LinkButton>
