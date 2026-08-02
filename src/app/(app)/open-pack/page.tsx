@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getAllSets } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { DAILY_PACK_LIMIT } from "@/lib/game/open-pack";
+import { COMPANION_ONLY_SET_IDS } from "@/lib/packs/companions";
 import { Badge } from "@/components/ui";
 
 export const metadata = { title: "Open Packs" };
@@ -18,7 +19,9 @@ export default async function OpenPackPage({
   const profile = await getOrCreateProfile().catch(() => null);
   const mode = rawMode === "trainer" && profile ? "trainer" : "sandbox";
 
-  const allSets = await getAllSets();
+  const allSets = (await getAllSets()).filter(
+    (s) => !COMPANION_ONLY_SET_IDS.has(s.id),
+  );
   const bySeries = new Map<string, typeof allSets>();
   for (const s of allSets) {
     const list = bySeries.get(s.series) ?? [];

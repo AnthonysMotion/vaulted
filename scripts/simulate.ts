@@ -18,7 +18,8 @@ async function main() {
   const { db } = await import("../src/db");
   const { simulatePacks } = await import("../src/lib/packs/engine");
   const { packConfigForSet } = await import("../src/lib/packs/configs");
-  const { eq } = await import("drizzle-orm");
+  const { companionSetIdsFor } = await import("../src/lib/packs/companions");
+  const { eq, inArray } = await import("drizzle-orm");
   const schema = await import("../src/db/schema");
 
   const set = await db.query.sets.findFirst({ where: eq(schema.sets.id, setId) });
@@ -27,20 +28,31 @@ async function main() {
     process.exit(1);
   }
 
-  const pullRates = await db.query.setPullRates.findFirst({
-    where: eq(schema.setPullRates.setId, setId),
-  });
-  const packConfig = pullRates
-    ? (pullRates.config as import("../src/lib/packs/types").PackConfig)
-    : packConfigForSet(set.id, set.series);
+  const packConfig = packConfigForSet(set.id, set.series);
+  const companionIds = packConfig.companionSetIds ?? companionSetIdsFor(setId);
+  const poolSetIds = [setId, ...companionIds];
 
   const setCards = await db.query.cards.findMany({
-    where: eq(schema.cards.setId, setId),
+    where:
+      poolSetIds.length === 1
+        ? eq(schema.cards.setId, setId)
+        : inArray(schema.cards.setId, poolSetIds),
   });
 
   console.log(`\nSimulating ${packCount.toLocaleString()} packs of ${set.name} (${set.id})`);
-  console.log(`Era: ${packConfig.era} | Cards in set: ${setCards.length}`);
+  console.log(`Era: ${packConfig.era} | Cards in pool: ${setCards.length}`);
+  if (companionIds.length > 0) {
+    console.log(`Companions: ${companionIds.join(", ")}`);
+  }
   console.log(`Sources: ${packConfig.sourceNotes}\n`);
+  console.log("Slots:");
+  for (const slot of packConfig.slots) {
+    const outcomes = slot.outcomes
+      .map((o) => o.label ?? o.rarities.join("|"))
+      .join(", ");
+    console.log(`  ${slot.count}× ${slot.name} → ${outcomes}`);
+  }
+  console.log();
 
   const start = Date.now();
   const result = simulatePacks(setCards, packConfig, packCount);
@@ -57,6 +69,7 @@ async function main() {
     console.log(`\nGod packs: ${result.godPacks} (1 in ${(packCount / result.godPacks).toFixed(0)})`);
   }
 
+  console.log(`\nAvg cards/pack: ${(result.totalCardsDrawn / packCount).toFixed(2)}`);
   console.log(`\n--- Top chase cards ---`);
   for (const c of result.topCards.slice(0, 20)) {
     console.log(

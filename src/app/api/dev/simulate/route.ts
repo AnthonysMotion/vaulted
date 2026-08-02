@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
-import { cards, sets, setPullRates } from "@/db/schema";
+import { cards, sets } from "@/db/schema";
 import { simulatePacks } from "@/lib/packs/engine";
 import { packConfigForSet } from "@/lib/packs/configs";
-import type { PackConfig } from "@/lib/packs/types";
-import { eq } from "drizzle-orm";
+import { companionSetIdsFor } from "@/lib/packs/companions";
+import { eq, inArray } from "drizzle-orm";
 
 const bodySchema = z.object({
   setId: z.string().min(1),
@@ -22,20 +22,28 @@ export async function POST(request: Request) {
   const set = await db.query.sets.findFirst({ where: eq(sets.id, body.data.setId) });
   if (!set) return NextResponse.json({ error: "Set not found" }, { status: 404 });
 
-  const [setCards, pullRates] = await Promise.all([
-    db.query.cards.findMany({ where: eq(cards.setId, set.id) }),
-    db.query.setPullRates.findFirst({ where: eq(setPullRates.setId, set.id) }),
-  ]);
+  const config = packConfigForSet(set.id, set.series);
+  const companionIds = config.companionSetIds ?? companionSetIdsFor(set.id);
+  const poolSetIds = [set.id, ...companionIds];
 
-  const config = pullRates
-    ? (pullRates.config as PackConfig)
-    : packConfigForSet(set.id, set.series);
+  const setCards = await db.query.cards.findMany({
+    where:
+      poolSetIds.length === 1
+        ? eq(cards.setId, set.id)
+        : inArray(cards.setId, poolSetIds),
+  });
 
   const result = simulatePacks(setCards, config, body.data.packs);
   return NextResponse.json({
     set: { id: set.id, name: set.name },
     era: config.era,
     sourceNotes: config.sourceNotes,
+    companions: companionIds,
+    slots: config.slots.map((s) => ({
+      name: s.name,
+      count: s.count,
+      outcomes: s.outcomes.map((o) => o.label ?? o.rarities.join("|")),
+    })),
     result,
   });
 }

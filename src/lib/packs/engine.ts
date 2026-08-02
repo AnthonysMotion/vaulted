@@ -1,4 +1,5 @@
 import type { Card } from "@/db/schema";
+import { createFallbackBasicEnergies } from "./basic-energy";
 import { rarityTier } from "./rarity";
 import type {
   OpenedPack,
@@ -6,29 +7,79 @@ import type {
   PulledCard,
   Rng,
   SlotConfig,
+  SlotOutcome,
 } from "./types";
+
+/** Basic Energy eligible for Energy slots (excludes chase foil Energy). */
+const CHASE_ENERGY_RARITIES = new Set([
+  "Rare Secret",
+  "Rare Ultra",
+  "Hyper Rare",
+  "Ultra Rare",
+  "Rare Rainbow",
+  "ACE SPEC Rare",
+  "Rare Holo",
+]);
+
+function isEnergy(card: Card): boolean {
+  return card.supertype === "Energy";
+}
+
+function isBasicEnergy(card: Card): boolean {
+  if (!isEnergy(card)) return false;
+  const subtypes = card.subtypes ?? [];
+  return subtypes.includes("Basic");
+}
+
+function isPackBasicEnergy(card: Card): boolean {
+  if (!isBasicEnergy(card)) return false;
+  const rarity = card.rarity ?? "Common";
+  return !CHASE_ENERGY_RARITIES.has(rarity);
+}
 
 /**
  * Data-driven booster pack simulator.
  *
- * Given a set's full card pool and its PackConfig, produces a pack that
- * respects the configured slot structure and researched rarity weights.
- * Outcomes whose rarity pools don't exist in the set are dropped and their
- * weight is effectively redistributed among the remaining outcomes, so a
- * single era config safely covers sets with slightly different line-ups.
+ * Packs are built slot-by-slot from an era layout. Each slot only draws from
+ * its allowed rarity pool (never "any card from the set"). Energy cards are
+ * excluded from non-Energy slots; Illustration Rares / galleries only appear
+ * where the slot outcomes allow them.
  */
 export class PackEngine {
+  /** Non-Energy cards bucketed by rarity string. */
   private pools = new Map<string, Card[]>();
+  /** Basic Energy eligible for Energy slots. */
+  private basicEnergy: Card[] = [];
+  /** All cards by setId (for companion / gallery filters). */
+  private bySetId = new Map<string, Card[]>();
 
   constructor(
     private readonly setCards: Card[],
     private readonly config: PackConfig,
   ) {
+    const primarySetId = setCards[0]?.setId ?? "unknown";
+
     for (const card of setCards) {
+      const setPool = this.bySetId.get(card.setId);
+      if (setPool) setPool.push(card);
+      else this.bySetId.set(card.setId, [card]);
+
+      if (isPackBasicEnergy(card)) {
+        this.basicEnergy.push(card);
+        continue;
+      }
+      if (isEnergy(card)) continue;
+
       const key = card.rarity ?? "Common";
       const pool = this.pools.get(key);
       if (pool) pool.push(card);
       else this.pools.set(key, [card]);
+    }
+
+    // SWSH/SV checklists usually omit pack Basic Energy (or only list chase
+    // foil prints). Inject shared commons so Energy slots still resolve.
+    if (this.basicEnergy.length === 0) {
+      this.basicEnergy = createFallbackBasicEnergies(primarySetId);
     }
   }
 
@@ -36,7 +87,10 @@ export class PackEngine {
     const setId = this.setCards[0]?.setId ?? "";
 
     if (this.config.godPack && rng() < this.config.godPack.chance) {
-      const godPool = this.resolvePool(this.config.godPack.rarities);
+      const godPool = this.resolvePool({
+        weight: 1,
+        rarities: this.config.godPack.rarities,
+      });
       if (godPool.length > 0) {
         const cards = this.drawMany(godPool, this.config.cardsPerPack, rng).map(
           (card): PulledCard => ({
@@ -67,12 +121,11 @@ export class PackEngine {
     rng: Rng,
   ): PulledCard | null {
     const viable = slot.outcomes
-      .map((outcome) => ({ outcome, pool: this.resolvePool(outcome.rarities) }))
+      .map((outcome) => ({ outcome, pool: this.resolvePool(outcome) }))
       .filter((v) => v.pool.length > 0);
 
     if (viable.length === 0) {
-      // Set has none of the configured rarities at all (tiny promo sets).
-      const anyPool = this.setCards;
+      const anyPool = [...this.pools.values()].flat();
       if (anyPool.length === 0) return null;
       const card = this.drawOne(anyPool, alreadyPulled, rng);
       return {
@@ -93,16 +146,29 @@ export class PackEngine {
     };
   }
 
-  /** Union pool for rarities, applying configured then generic fallbacks. */
-  private resolvePool(rarities: string[]): Card[] {
-    const direct = rarities.flatMap((r) => this.pools.get(r) ?? []);
-    if (direct.length > 0) return direct;
+  /** Union pool for an outcome, applying set filters and rarity fallbacks. */
+  private resolvePool(outcome: SlotOutcome): Card[] {
+    if (outcome.energyOnly) return this.basicEnergy;
+
+    let pool: Card[];
+    if (outcome.fromSetIds && outcome.fromSetIds.length > 0) {
+      pool = outcome.fromSetIds.flatMap((id) => this.bySetId.get(id) ?? []);
+      if (outcome.rarities.length > 0) {
+        const allowed = new Set(outcome.rarities);
+        const filtered = pool.filter((c) => allowed.has(c.rarity ?? "Common"));
+        if (filtered.length > 0) pool = filtered;
+      }
+      return pool.filter((c) => !isEnergy(c) || isPackBasicEnergy(c));
+    }
+
+    pool = outcome.rarities.flatMap((r) => this.pools.get(r) ?? []);
+    if (pool.length > 0) return pool;
 
     const fallbacks = this.config.rarityFallbacks ?? {};
-    for (const rarity of rarities) {
+    for (const rarity of outcome.rarities) {
       for (const fb of fallbacks[rarity] ?? []) {
-        const pool = this.pools.get(fb);
-        if (pool && pool.length > 0) return pool;
+        const fbPool = this.pools.get(fb);
+        if (fbPool && fbPool.length > 0) return fbPool;
       }
     }
     return [];

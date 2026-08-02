@@ -6,15 +6,16 @@ import {
   packOpenings,
   profiles,
   sets,
-  setPullRates,
   userAchievements,
   userCards,
   type FeedPayload,
   type Profile,
 } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { openPack } from "@/lib/packs/engine";
 import { packConfigForSet } from "@/lib/packs/configs";
+import { companionSetIdsFor } from "@/lib/packs/companions";
+import { isFallbackEnergyId } from "@/lib/packs/basic-energy";
 import {
   FEED_WORTHY_TIER,
   ULTRA_RARE_TIER,
@@ -22,7 +23,7 @@ import {
   levelForXp,
   xpForTier,
 } from "@/lib/packs/rarity";
-import type { OpenedPack, PackConfig } from "@/lib/packs/types";
+import type { OpenedPack } from "@/lib/packs/types";
 
 export const DAILY_PACK_LIMIT = 3;
 const XP_PER_PACK = 25;
@@ -48,15 +49,18 @@ export async function loadSetForOpening(setId: string) {
   const set = await db.query.sets.findFirst({ where: eq(sets.id, setId) });
   if (!set) throw new Error(`Unknown set: ${setId}`);
 
-  const [setCards, pullRates] = await Promise.all([
-    db.query.cards.findMany({ where: eq(cards.setId, setId) }),
-    db.query.setPullRates.findFirst({ where: eq(setPullRates.setId, setId) }),
-  ]);
-  if (setCards.length === 0) throw new Error(`Set ${setId} has no cards`);
+  // Code configs are the source of truth (era layouts + set overrides).
+  const config = packConfigForSet(set.id, set.series);
+  const companionIds = config.companionSetIds ?? companionSetIdsFor(setId);
+  const poolSetIds = [setId, ...companionIds];
 
-  const config = pullRates
-    ? (pullRates.config as PackConfig)
-    : packConfigForSet(set.id, set.series);
+  const setCards = await db.query.cards.findMany({
+    where:
+      poolSetIds.length === 1
+        ? eq(cards.setId, setId)
+        : inArray(cards.setId, poolSetIds),
+  });
+  if (setCards.length === 0) throw new Error(`Set ${setId} has no cards`);
 
   return { set, setCards, config };
 }
@@ -117,9 +121,11 @@ export async function openTrainerPack(
   const pack = openPack(setCards, config);
 
   // --- Persist pulled cards -------------------------------------------------
+  // Fallback Basic Energy is display-only (not in the cards table).
+  const collectibleCards = pack.cards.filter((p) => !isFallbackEnergyId(p.card.id));
   const newCardIds: string[] = [];
   const countsByCard = new Map<string, number>();
-  for (const pulled of pack.cards) {
+  for (const pulled of collectibleCards) {
     countsByCard.set(pulled.card.id, (countsByCard.get(pulled.card.id) ?? 0) + 1);
   }
 
@@ -157,11 +163,14 @@ export async function openTrainerPack(
   }
 
   // --- XP / level -------------------------------------------------------------
-  const rarityXp = pack.cards.reduce((sum, c) => sum + xpForTier(c.rarityTier), 0);
+  const rarityXp = collectibleCards.reduce((sum, c) => sum + xpForTier(c.rarityTier), 0);
   const streakBonus = Math.min(updated.currentStreak, 30);
   const xpAwarded = XP_PER_PACK + rarityXp + streakBonus + (pack.isGodPack ? 500 : 0);
 
-  const bestPull = pack.cards.reduce((a, b) => (b.rarityTier > a.rarityTier ? b : a));
+  const bestPull =
+    collectibleCards.length > 0
+      ? collectibleCards.reduce((a, b) => (b.rarityTier > a.rarityTier ? b : a))
+      : null;
   const newTotalXp = updated.xp + xpAwarded;
   const newLevel = levelForXp(newTotalXp);
   const leveledUp = newLevel > updated.level;
@@ -171,9 +180,9 @@ export async function openTrainerPack(
     .set({
       xp: newTotalXp,
       level: newLevel,
-      totalCardsCollected: sql`${profiles.totalCardsCollected} + ${pack.cards.length}`,
+      totalCardsCollected: sql`${profiles.totalCardsCollected} + ${collectibleCards.length}`,
       longestStreak: sql`GREATEST(${profiles.longestStreak}, ${updated.currentStreak})`,
-      ...(bestPull.rarityTier > updated.rarestPullScore
+      ...(bestPull && bestPull.rarityTier > updated.rarestPullScore
         ? { rarestPullCardId: bestPull.card.id, rarestPullScore: bestPull.rarityTier }
         : {}),
     })
@@ -181,7 +190,7 @@ export async function openTrainerPack(
 
   // --- Feed events -------------------------------------------------------------
   const feedEvents: { type: typeof activityFeed.$inferInsert.type; payload: FeedPayload }[] = [];
-  if (bestPull.rarityTier >= FEED_WORTHY_TIER) {
+  if (bestPull && bestPull.rarityTier >= FEED_WORTHY_TIER) {
     feedEvents.push({
       type: "rare_pull",
       payload: {
@@ -215,12 +224,12 @@ export async function openTrainerPack(
   // --- Achievements --------------------------------------------------------------
   const newAchievements = await checkAchievements(profile.id, {
     totalPacks: updated.totalPacksOpened,
-    totalCards: updated.totalCardsCollected + pack.cards.length,
+    totalCards: updated.totalCardsCollected + collectibleCards.length,
     streak: updated.currentStreak,
     level: newLevel,
-    bestTier: bestPull.rarityTier,
-    pulledSecret: pack.cards.some((c) => isSecretTier(c.card.rarity)),
-    pulledUltra: pack.cards.some((c) => c.rarityTier >= ULTRA_RARE_TIER),
+    bestTier: bestPull?.rarityTier ?? 0,
+    pulledSecret: collectibleCards.some((c) => isSecretTier(c.card.rarity)),
+    pulledUltra: collectibleCards.some((c) => c.rarityTier >= ULTRA_RARE_TIER),
     completedSet,
     godPack: pack.isGodPack,
   });

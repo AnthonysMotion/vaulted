@@ -12,12 +12,22 @@ export type SlotOutcome = {
   rarities: string[];
   /** Render/record the card as a reverse holo variant. */
   reverseHolo?: boolean;
-  /** Human-readable label, e.g. "Illustration Rare upgrade". */
+  /** Human-readable label, e.g. "Illustration Rare". */
   label?: string;
+  /**
+   * Draw only Basic Energy cards (Energy slot). Ignores rarity buckets
+   * except to exclude chase foil Energy prints.
+   */
+  energyOnly?: boolean;
+  /**
+   * Restrict draws to cards whose `setId` is in this list. Used for
+   * Trainer Gallery / Galarian Gallery companion pools merged into a pack.
+   */
+  fromSetIds?: string[];
 };
 
 export type SlotConfig = {
-  /** Display name, e.g. "Common", "Reverse Holo", "Rare / Hit". */
+  /** Display name, e.g. "Common", "Reverse Slot 1", "Rare Slot". */
   name: string;
   /** Number of cards drawn from this slot. */
   count: number;
@@ -40,6 +50,11 @@ export type PackConfig = {
    * (checked in order). A final generic fallback also applies.
    */
   rarityFallbacks?: Record<string, string[]>;
+  /**
+   * Companion set IDs whose cards are merged into the pack pool
+   * (Trainer Gallery, Galarian Gallery, Shiny Vault, etc.).
+   */
+  companionSetIds?: string[];
   /** Provenance for the numbers used. */
   sourceNotes: string;
 };
