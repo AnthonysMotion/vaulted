@@ -32,7 +32,6 @@ export function CardTile({
   onClick?: () => void;
 }) {
   const glow = card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
-  const shimmer = card.reverseHolo || card.rarityTier >= 3 ? "holo-shimmer" : "";
   const sizes = { sm: "w-24", md: "w-36", lg: "w-56" };
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -72,7 +71,7 @@ export function CardTile({
         willChange: "transform",
       }}
     >
-      <div className={`relative aspect-[63/88] overflow-hidden rounded-lg ${glow} ${shimmer}`}>
+      <div className={`relative aspect-[63/88] overflow-hidden rounded-lg ${glow}`}>
         {card.imageSmall ? (
           <img
             src={card.imageSmall}
@@ -87,7 +86,7 @@ export function CardTile({
         )}
         <motion.div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-70 mix-blend-screen"
+          className="pointer-events-none absolute inset-0 z-[3] opacity-70 mix-blend-screen"
           style={{
             background:
               "radial-gradient(circle at center, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 22%, rgba(255,255,255,0) 48%)",

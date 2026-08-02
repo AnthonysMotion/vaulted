@@ -344,7 +344,6 @@ function BoosterPackArt({
             <img src={set.symbolUrl} alt="" className="h-6 opacity-80 brightness-200" />
           )}
         </div>
-        <div className="holo-shimmer absolute inset-0 rounded-[20px]" />
       </div>
     </motion.div>
   );
@@ -397,7 +396,7 @@ function RevealStack({
           <div
             className={`relative h-full w-full overflow-hidden rounded-xl ${
               card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : ""
-            } ${card.reverseHolo || card.rarityTier >= 3 ? "holo-shimmer" : ""}`}
+            }`}
           >
             {card.imageLarge || card.imageSmall ? (
               <img

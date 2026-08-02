@@ -61,7 +61,6 @@ export function CardLightbox({
   }, [onClose]);
 
   const glow = card && card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
-  const shimmer = card && (card.reverseHolo || card.rarityTier >= 3) ? "holo-shimmer" : "";
 
   return (
     <AnimatePresence>
@@ -93,7 +92,7 @@ export function CardLightbox({
                 transformPerspective: 1200,
                 willChange: "transform",
               }}
-              className={`relative w-64 sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow} ${shimmer}`}
+              className={`relative w-64 sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow}`}
             >
               {card.imageLarge || card.imageSmall ? (
                 <img
@@ -109,7 +108,7 @@ export function CardLightbox({
               )}
               <motion.div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-80 mix-blend-screen"
+                className="pointer-events-none absolute inset-0 z-[3] opacity-80 mix-blend-screen"
                 style={{
                   background:
                     "radial-gradient(circle at center, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.12) 18%, rgba(255,255,255,0) 45%)",
