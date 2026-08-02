@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { binders, profiles, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isBootstrapDeveloperUsername } from "@/lib/game/developer";
 import { eq } from "drizzle-orm";
 import type { User } from "@supabase/supabase-js";
 
@@ -54,6 +55,7 @@ export async function getOrCreateProfile(): Promise<Profile | null> {
           username,
           avatarUrl,
           onboardingCompleted: false,
+          isDeveloper: isBootstrapDeveloperUsername(username),
         })
         .returning();
       await db

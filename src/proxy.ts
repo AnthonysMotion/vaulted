@@ -9,6 +9,7 @@ const PROTECTED_PREFIXES = [
   "/account",
   "/achievements",
   "/onboarding",
+  "/dev",
 ];
 
 export async function proxy(request: NextRequest) {

@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
 import { cards, sets } from "@/db/schema";
-import { simulatePacks } from "@/lib/packs/engine";
+import { simulatePacksWithAccuracy } from "@/lib/packs/engine";
 import { packConfigForSet } from "@/lib/packs/configs";
 import { companionSetIdsFor } from "@/lib/packs/companions";
+import { getOrCreateProfile } from "@/lib/game/profile";
+import { isDeveloper } from "@/lib/game/developer";
 import { eq, inArray } from "drizzle-orm";
 
 const bodySchema = z.object({
@@ -14,6 +16,11 @@ const bodySchema = z.object({
 
 /** Internal testing tool: simulate N packs and report observed rates. */
 export async function POST(request: Request) {
+  const profile = await getOrCreateProfile().catch(() => null);
+  if (!isDeveloper(profile)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const body = bodySchema.safeParse(await request.json());
   if (!body.success) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -33,7 +40,12 @@ export async function POST(request: Request) {
         : inArray(cards.setId, poolSetIds),
   });
 
-  const result = simulatePacks(setCards, config, body.data.packs);
+  const { result, accuracy } = simulatePacksWithAccuracy(
+    setCards,
+    config,
+    body.data.packs,
+  );
+
   return NextResponse.json({
     set: { id: set.id, name: set.name },
     era: config.era,
@@ -45,5 +57,6 @@ export async function POST(request: Request) {
       outcomes: s.outcomes.map((o) => o.label ?? o.rarities.join("|")),
     })),
     result,
+    accuracy,
   });
 }

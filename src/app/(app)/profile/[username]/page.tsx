@@ -43,49 +43,128 @@ export default async function ProfilePage({
     .sort((a, b) => a.position - b.position)
     .slice(0, 9);
 
+  const joinedLabel = new Date(profile.createdAt).toLocaleDateString(undefined, {
+    month: "short",
+    year: "numeric",
+  });
+
   return (
-    <div className="flex flex-col gap-8">
-      {/* Banner + header */}
-      <div className="overflow-hidden rounded-3xl border border-border">
-        <div
-          className="h-36 bg-gradient-to-r from-sky-500/30 via-purple-500/20 to-yellow-500/30 sm:h-44"
-          style={
-            profile.bannerUrl
-              ? { backgroundImage: `url(${profile.bannerUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
-              : undefined
-          }
-        />
-        <div className="flex flex-col gap-5 bg-surface p-5 sm:flex-row sm:items-end sm:justify-between sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className="-mt-16 grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-surface bg-surface-2 text-4xl shadow-xl">
-              {profile.avatarUrl ? (
-                <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                "🧢"
-              )}
-            </div>
-            <div>
-              <h1 className="text-2xl font-black">{profile.username}</h1>
-              <p className="text-sm text-muted">
-                Level {profile.level} trainer · joined{" "}
-                {new Date(profile.createdAt).toLocaleDateString(undefined, {
-                  month: "short",
-                  year: "numeric",
-                })}
-              </p>
-              {profile.bio && <p className="mt-1 max-w-md text-sm">{profile.bio}</p>}
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <LinkButton href={`/binder/${profile.username}`} variant="secondary" className="w-full sm:w-auto">
-              View binder
-            </LinkButton>
-            {!isOwner && viewer && (
-              <LinkButton href={`/friends?add=${profile.username}`} className="w-full sm:w-auto">Add friend</LinkButton>
+    <div className="flex flex-col gap-10 md:gap-12">
+      {/* Full-bleed profile header — cancels main top padding so banner hits viewport top */}
+      <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-24 sm:-mt-32 md:-mt-40">
+        <div className="relative isolate">
+          <div
+            className="relative h-64 overflow-hidden bg-zinc-950 sm:h-80 md:h-96"
+            style={
+              profile.bannerUrl
+                ? {
+                    backgroundImage: `url(${profile.bannerUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }
+                : undefined
+            }
+          >
+            {!profile.bannerUrl && (
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(255,255,255,0.08),transparent_55%),linear-gradient(180deg,#111_0%,#050505_100%)]"
+              />
             )}
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 h-px bg-zinc-900"
+            />
+          </div>
+
+          <div className="mx-auto max-w-[1200px] px-5 sm:px-8 md:px-10">
+            <div className="relative -mt-14 flex flex-col gap-6 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-8 md:-mt-20">
+              <div className="flex min-w-0 flex-1 flex-col gap-5 sm:flex-row sm:items-end sm:gap-6">
+                <div className="relative z-10 grid h-32 w-32 shrink-0 place-items-center overflow-hidden rounded-2xl bg-zinc-950 text-5xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] sm:h-36 sm:w-36 md:h-40 md:w-40">
+                  {profile.avatarUrl ? (
+                    <img
+                      src={profile.avatarUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span aria-hidden>🧢</span>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1 pb-1">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h1 className="truncate text-3xl font-black tracking-tighter text-white sm:text-4xl">
+                      {profile.username}
+                    </h1>
+                    {profile.isDeveloper && (
+                      <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                        Dev
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-400">
+                    <span className="font-medium text-zinc-200">
+                      Level {profile.level} trainer
+                    </span>
+                    <span aria-hidden className="text-zinc-700">
+                      ·
+                    </span>
+                    <span>Joined {joinedLabel}</span>
+                  </div>
+
+                  {profile.bio ? (
+                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-[15px]">
+                      {profile.bio}
+                    </p>
+                  ) : isOwner ? (
+                    <p className="mt-3 text-sm text-zinc-600">
+                      No bio yet.{" "}
+                      <Link
+                        href="/account"
+                        className="underline underline-offset-4 hover:text-zinc-300"
+                      >
+                        Add one
+                      </Link>
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:pb-1">
+                <LinkButton
+                  href={`/binder/${profile.username}`}
+                  variant="dark"
+                  className="w-full sm:w-auto"
+                >
+                  View binder
+                </LinkButton>
+                {isOwner ? (
+                  <LinkButton
+                    href="/account"
+                    variant="secondary"
+                    className="w-full sm:w-auto"
+                  >
+                    Edit profile
+                  </LinkButton>
+                ) : viewer ? (
+                  <LinkButton
+                    href={`/friends?add=${profile.username}`}
+                    className="w-full sm:w-auto"
+                  >
+                    Add friend
+                  </LinkButton>
+                ) : null}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">

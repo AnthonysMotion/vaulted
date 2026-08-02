@@ -140,6 +140,8 @@ export const profiles = pgTable(
      * New profiles insert with false (see getOrCreateProfile).
      */
     onboardingCompleted: boolean("onboarding_completed").notNull().default(true),
+    /** Site developer — can access /dev tools. */
+    isDeveloper: boolean("is_developer").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

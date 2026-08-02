@@ -196,6 +196,66 @@ export class PackEngine {
     }
     return result;
   }
+
+  /**
+   * P(a single draw from `slot` yields a card of `rarity`), matching resolvePool
+   * + weighted outcomes (independent of in-pack duplicate avoidance).
+   */
+  private pSlotYieldsRarity(slot: SlotConfig, rarity: string): number {
+    const viable = slot.outcomes
+      .map((outcome) => ({ outcome, pool: this.resolvePool(outcome) }))
+      .filter((v) => v.pool.length > 0);
+    if (viable.length === 0) return 0;
+
+    const totalW = viable.reduce((sum, v) => sum + v.outcome.weight, 0);
+    let p = 0;
+    for (const { outcome, pool } of viable) {
+      const matching = pool.filter((c) => (c.rarity ?? "Unknown") === rarity).length;
+      p += (outcome.weight / totalW) * (matching / pool.length);
+    }
+    return p;
+  }
+
+  /**
+   * Expected share of packs containing ≥1 card of each rarity, from the
+   * configured slot weights + this set's card pools (incl. god packs).
+   */
+  expectedRarityPackRates(): Record<string, { percent: number; oneIn: number }> {
+    const rarities = new Set<string>([...this.pools.keys()]);
+    if (this.basicEnergy.length > 0) {
+      for (const c of this.basicEnergy) rarities.add(c.rarity ?? "Common");
+    }
+
+    const g = this.config.godPack?.chance ?? 0;
+    const godPool = this.config.godPack
+      ? this.resolvePool({ weight: 1, rarities: this.config.godPack.rarities })
+      : [];
+
+    const out: Record<string, { percent: number; oneIn: number }> = {};
+    for (const rarity of rarities) {
+      let pNone = 1;
+      for (const slot of this.config.slots) {
+        const p = this.pSlotYieldsRarity(slot, rarity);
+        pNone *= (1 - p) ** slot.count;
+      }
+      const pNormal = 1 - pNone;
+
+      let pGod = 0;
+      if (godPool.length > 0) {
+        const share =
+          godPool.filter((c) => (c.rarity ?? "Unknown") === rarity).length /
+          godPool.length;
+        pGod = 1 - (1 - share) ** this.config.cardsPerPack;
+      }
+
+      const p = (1 - g) * pNormal + g * pGod;
+      out[rarity] = {
+        percent: p * 100,
+        oneIn: p > 0 ? 1 / p : Infinity,
+      };
+    }
+    return out;
+  }
 }
 
 function weightedPick<T>(items: T[], weightOf: (item: T) => number, rng: Rng): T {
@@ -229,6 +289,103 @@ export type SimulationResult = {
   topCards: { cardId: string; name: string; rarity: string | null; count: number; percent: number }[];
   totalCardsDrawn: number;
 };
+
+export type RarityAccuracy = {
+  rarity: string;
+  observedPercent: number;
+  observedOneIn: number;
+  targetPercent: number;
+  targetOneIn: number;
+  /** Observed − target, in percentage points. */
+  deltaPp: number;
+  /** |obs−target| / target (0–1+). */
+  relativeError: number;
+  /** Approximate 95% SE of the observed rate (percentage points). */
+  samplingSePp: number;
+  /** True when |delta| is within ~2× sampling SE. */
+  withinNoise: boolean;
+  grade: "excellent" | "good" | "fair" | "off";
+};
+
+export type AccuracySummary = {
+  /** Mean relative error across graded rarities (0–1). */
+  meanRelativeError: number;
+  /** Share of graded rarities within sampling noise. */
+  withinNoiseShare: number;
+  gradedCount: number;
+  grade: "excellent" | "good" | "fair" | "off";
+  rows: RarityAccuracy[];
+};
+
+function gradeRelativeError(rel: number): RarityAccuracy["grade"] {
+  if (rel < 0.02) return "excellent";
+  if (rel < 0.05) return "good";
+  if (rel < 0.12) return "fair";
+  return "off";
+}
+
+/**
+ * Compare simulated pack rates to config-implied targets for this set's pools.
+ * Skips rarities with tiny targets (<0.05%) — too noisy to grade usefully.
+ */
+export function compareSimulationAccuracy(
+  result: SimulationResult,
+  expected: Record<string, { percent: number; oneIn: number }>,
+): AccuracySummary {
+  const n = result.packs;
+  const rows: RarityAccuracy[] = [];
+
+  const rarities = new Set([
+    ...Object.keys(result.rarityPackRate),
+    ...Object.keys(expected),
+  ]);
+
+  for (const rarity of [...rarities].sort(
+    (a, b) => rarityTier(b) - rarityTier(a),
+  )) {
+    const obs = result.rarityPackRate[rarity];
+    const exp = expected[rarity];
+    if (!exp || exp.percent < 0.05) continue;
+
+    const observedPercent = obs?.percent ?? 0;
+    const p = exp.percent / 100;
+    const samplingSePp = Math.sqrt((p * (1 - p)) / Math.max(n, 1)) * 100;
+    const deltaPp = observedPercent - exp.percent;
+    const relativeError =
+      exp.percent > 0 ? Math.abs(deltaPp) / exp.percent : 0;
+    const withinNoise = Math.abs(deltaPp) <= 2 * samplingSePp + 1e-9;
+
+    rows.push({
+      rarity,
+      observedPercent,
+      observedOneIn: obs?.oneIn ?? Infinity,
+      targetPercent: exp.percent,
+      targetOneIn: exp.oneIn,
+      deltaPp,
+      relativeError,
+      samplingSePp,
+      withinNoise,
+      grade: gradeRelativeError(relativeError),
+    });
+  }
+
+  const meanRelativeError =
+    rows.length > 0
+      ? rows.reduce((s, r) => s + r.relativeError, 0) / rows.length
+      : 0;
+  const withinNoiseShare =
+    rows.length > 0
+      ? rows.filter((r) => r.withinNoise).length / rows.length
+      : 1;
+
+  return {
+    meanRelativeError,
+    withinNoiseShare,
+    gradedCount: rows.length,
+    grade: gradeRelativeError(meanRelativeError),
+    rows,
+  };
+}
 
 export function simulatePacks(
   setCards: Card[],
@@ -289,4 +446,17 @@ export function simulatePacks(
     topCards,
     totalCardsDrawn: totalCards,
   };
+}
+
+/** Simulate and attach accuracy vs config-implied targets. */
+export function simulatePacksWithAccuracy(
+  setCards: Card[],
+  config: PackConfig,
+  packCount: number,
+  rng: Rng = Math.random,
+) {
+  const result = simulatePacks(setCards, config, packCount, rng);
+  const expected = new PackEngine(setCards, config).expectedRarityPackRates();
+  const accuracy = compareSimulationAccuracy(result, expected);
+  return { result, expected, accuracy };
 }
