@@ -2,7 +2,8 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   AnimatePresence,
   motion,
@@ -20,6 +21,7 @@ export function CardLightbox({
   card: CardTileData | null;
   onClose: () => void;
 }) {
+  const [mounted, setMounted] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -30,7 +32,14 @@ export function CardLightbox({
   const glarePosition = useMotionTemplate`${glareX} ${glareY}`;
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (!card) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleMouseMove = (e: MouseEvent) => {
       const el = cardRef.current;
       if (!el) return;
@@ -43,26 +52,26 @@ export function CardLightbox({
       rotateX.set(-dy * 10);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      rotateX.set(0);
-      rotateY.set(0);
-    };
-  }, [card, rotateX, rotateY]);
-
-  // Close on Escape
-  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+
+    window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("keydown", onKey);
+      rotateX.set(0);
+      rotateY.set(0);
+    };
+  }, [card, onClose, rotateX, rotateY]);
 
   const glow = card && card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {card && (
         <motion.div
@@ -71,7 +80,7 @@ export function CardLightbox({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -80,7 +89,6 @@ export function CardLightbox({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.7, opacity: 0 }}
             transition={{ type: "spring", bounce: 0.35, duration: 0.45 }}
-            // Stop click from closing when clicking on the card itself
             onClick={(e) => e.stopPropagation()}
             className="flex flex-col items-center gap-5 select-none"
           >
@@ -92,7 +100,7 @@ export function CardLightbox({
                 transformPerspective: 1200,
                 willChange: "transform",
               }}
-              className={`relative w-64 sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow}`}
+              className={`relative w-[min(80vw,20rem)] sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow}`}
             >
               {card.imageLarge || card.imageSmall ? (
                 <img
@@ -119,7 +127,9 @@ export function CardLightbox({
             <div className="flex flex-col items-center gap-1">
               <p className="text-base font-bold text-white">{card.name}</p>
               {card.rarity && (
-                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">{card.rarity}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+                  {card.rarity}
+                </p>
               )}
             </div>
             <p className="text-[10px] uppercase tracking-widest text-zinc-700">
@@ -128,6 +138,7 @@ export function CardLightbox({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

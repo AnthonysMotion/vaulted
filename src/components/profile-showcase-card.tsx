@@ -14,6 +14,8 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Badge, Button, Card, rarityBadgeColor } from "@/components/ui";
+import { CardLightbox } from "@/components/card-lightbox";
+import { CardTile, type CardTileData } from "@/components/card-tile";
 import { rarityTier } from "@/lib/packs/rarity";
 
 type ShowcaseCard = {
@@ -21,6 +23,7 @@ type ShowcaseCard = {
   name: string;
   rarity: string | null;
   imageSmall: string | null;
+  imageLarge?: string | null;
   setName?: string | null;
 };
 
@@ -39,8 +42,20 @@ export function ProfileShowcaseCard({
   isOwner: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [lightbox, setLightbox] = useState<CardTileData | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
+
+  const tileCard: CardTileData | null = card
+    ? {
+        id: card.id,
+        name: card.name,
+        rarity: card.rarity,
+        imageSmall: card.imageSmall,
+        imageLarge: card.imageLarge,
+        rarityTier: rarityTier(card.rarity),
+      }
+    : null;
 
   async function selectCard(cardId: string | null) {
     startTransition(async () => {
@@ -84,23 +99,13 @@ export function ProfileShowcaseCard({
         )}
       </div>
 
-      {card ? (
+      {card && tileCard ? (
         <div className="flex items-center gap-4">
-          <div className="relative w-24 shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-black sm:w-28">
-            <div className="relative aspect-[63/88] w-full">
-              {card.imageSmall ? (
-                <img
-                  src={card.imageSmall}
-                  alt={card.name}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              ) : (
-                <div className="absolute inset-0 grid place-items-center p-2 text-center text-[10px] text-zinc-600">
-                  {card.name}
-                </div>
-              )}
-            </div>
-          </div>
+          <CardTile
+            card={tileCard}
+            size="sm"
+            onClick={() => setLightbox(tileCard)}
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-base font-semibold text-white">
               {card.name}
@@ -141,6 +146,8 @@ export function ProfileShowcaseCard({
       ) : (
         <p className="py-2 text-sm text-zinc-500">No showcase card yet.</p>
       )}
+
+      <CardLightbox card={lightbox} onClose={() => setLightbox(null)} />
 
       <AnimatePresence>
         {open && isOwner && (
