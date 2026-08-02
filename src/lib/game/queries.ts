@@ -5,11 +5,13 @@ import {
   cards,
   collections,
   friendships,
+  packOpenings,
   profiles,
   sets,
   userCards,
 } from "@/db/schema";
 import { and, asc, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { rarityTier } from "@/lib/packs/rarity";
 
 export async function getProfileByUsername(username: string) {
   return db.query.profiles.findFirst({
@@ -249,3 +251,63 @@ export async function getGlobalFeed(limit = 40) {
 }
 
 export type FeedItemWithRelations = Awaited<ReturnType<typeof getGlobalFeed>>[number];
+
+// ---------------------------------------------------------------------------
+// Profile activity (recent pack openings)
+// ---------------------------------------------------------------------------
+
+export async function getUserRecentPackOpenings(userId: string, limit = 12) {
+  const openings = await db.query.packOpenings.findMany({
+    where: eq(packOpenings.userId, userId),
+    orderBy: [desc(packOpenings.openedAt)],
+    limit,
+    with: { set: true },
+  });
+
+  const cardIds = [
+    ...new Set(openings.flatMap((o) => o.cards.map((c) => c.cardId))),
+  ];
+  const cardRows =
+    cardIds.length > 0
+      ? await db.query.cards.findMany({
+          where: inArray(cards.id, cardIds),
+          columns: {
+            id: true,
+            name: true,
+            rarity: true,
+            imageSmall: true,
+          },
+        })
+      : [];
+  const byId = new Map(cardRows.map((c) => [c.id, c]));
+
+  return openings.map((opening) => {
+    const enriched = opening.cards
+      .map((c) => {
+        const card = byId.get(c.cardId) ?? null;
+        return {
+          cardId: c.cardId,
+          rarity: c.rarity,
+          reverseHolo: Boolean(c.reverseHolo),
+          tier: rarityTier(c.rarity),
+          card,
+        };
+      })
+      .sort((a, b) => b.tier - a.tier || a.cardId.localeCompare(b.cardId));
+
+    return {
+      id: opening.id,
+      openedAt: opening.openedAt,
+      isGodPack: opening.isGodPack,
+      xpAwarded: opening.xpAwarded,
+      set: opening.set,
+      cardCount: opening.cards.length,
+      highlights: enriched.filter((c) => c.card).slice(0, 4),
+      bestTier: enriched[0]?.tier ?? 0,
+    };
+  });
+}
+
+export type ProfilePackOpening = Awaited<
+  ReturnType<typeof getUserRecentPackOpenings>
+>[number];

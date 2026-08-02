@@ -10,11 +10,14 @@ import {
   getCollectionSummary,
   getProfileByUsername,
   getSetProgress,
+  getUserRecentPackOpenings,
 } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { rarityTier } from "@/lib/packs/rarity";
-import { Badge, Card, LinkButton, ProgressBar, StatCard } from "@/components/ui";
+import { Card, LinkButton, ProgressBar, StatCard } from "@/components/ui";
 import { CardTile } from "@/components/card-tile";
+import { ProfileActivityFeed } from "@/components/profile-activity-feed";
+import { ProfileShowcaseCard } from "@/components/profile-showcase-card";
 
 export default async function ProfilePage({
   params,
@@ -25,16 +28,18 @@ export default async function ProfilePage({
   const profile = await getProfileByUsername(username);
   if (!profile) notFound();
 
-  const [summary, progress, binder, unlocked, viewer] = await Promise.all([
-    getCollectionSummary(profile.id),
-    getSetProgress(profile.id),
-    getBinder(profile.id),
-    db.query.userAchievements.findMany({
-      where: eq(userAchievements.userId, profile.id),
-      with: { achievement: true },
-    }),
-    getOrCreateProfile().catch(() => null),
-  ]);
+  const [summary, progress, binder, unlocked, viewer, recentPacks] =
+    await Promise.all([
+      getCollectionSummary(profile.id),
+      getSetProgress(profile.id),
+      getBinder(profile.id),
+      db.query.userAchievements.findMany({
+        where: eq(userAchievements.userId, profile.id),
+        with: { achievement: true },
+      }),
+      getOrCreateProfile().catch(() => null),
+      getUserRecentPackOpenings(profile.id, 5),
+    ]);
 
   const isOwner = viewer?.id === profile.id;
   const completedSets = progress.filter((p) => p.completedAt);
@@ -174,90 +179,94 @@ export default async function ProfilePage({
         <StatCard label="Sets completed" value={completedSets.length} icon="🏆" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Best pull + favourites */}
-        <Card className="flex flex-col items-center gap-3 text-center">
-          <h2 className="font-bold">🏆 Best pull</h2>
-          {profile.rarestPull ? (
-            <>
-              <CardTile
-                card={{
-                  id: profile.rarestPull.id,
-                  name: profile.rarestPull.name,
-                  rarity: profile.rarestPull.rarity,
-                  imageSmall: profile.rarestPull.imageSmall,
-                  rarityTier: rarityTier(profile.rarestPull.rarity),
-                }}
-                size="md"
-              />
-              <div>
-                <div className="font-semibold">{profile.rarestPull.name}</div>
-                <Badge color="gold">{profile.rarestPull.rarity}</Badge>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] lg:items-start">
+        <ProfileActivityFeed
+          openings={recentPacks}
+          username={profile.username}
+        />
+
+        <div className="flex flex-col gap-4">
+          <ProfileShowcaseCard
+            isOwner={isOwner}
+            card={
+              profile.favouriteCard
+                ? {
+                    id: profile.favouriteCard.id,
+                    name: profile.favouriteCard.name,
+                    rarity: profile.favouriteCard.rarity,
+                    imageSmall: profile.favouriteCard.imageSmall,
+                  }
+                : null
+            }
+          />
+
+          <Card>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
+              Set completion
+            </h2>
+            {topProgress.length === 0 ? (
+              <p className="mt-3 text-sm text-zinc-500">No progress yet.</p>
+            ) : (
+              <div className="mt-4 flex flex-col gap-3">
+                {topProgress.map((p) => (
+                  <div key={p.set.id}>
+                    <div className="flex justify-between gap-2 text-sm">
+                      <span className="truncate font-medium text-zinc-200">
+                        {p.completedAt && "🏆 "}
+                        {p.set.name}
+                      </span>
+                      <span className="shrink-0 text-zinc-500">
+                        {Math.floor((p.uniqueOwned / p.set.total) * 100)}%
+                      </span>
+                    </div>
+                    <ProgressBar
+                      className="mt-1.5"
+                      value={p.uniqueOwned}
+                      max={p.set.total}
+                    />
+                  </div>
+                ))}
               </div>
-            </>
-          ) : (
-            <p className="text-sm text-muted">No pulls yet</p>
-          )}
-          {(profile.favouritePokemon || profile.favouriteCard) && (
-            <div className="mt-2 border-t border-border pt-3 text-sm">
-              {profile.favouritePokemon && (
-                <p>
-                  ❤️ Favourite Pokémon: <span className="font-semibold">{profile.favouritePokemon}</span>
-                </p>
-              )}
-              {profile.favouriteCard && (
-                <p className="mt-1">
-                  🎴 Favourite card: <span className="font-semibold">{profile.favouriteCard.name}</span>
-                </p>
-              )}
-            </div>
-          )}
-        </Card>
+            )}
+          </Card>
 
-        {/* Set completion */}
-        <Card>
-          <h2 className="font-bold">Set completion</h2>
-          {topProgress.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">No progress yet.</p>
-          ) : (
-            <div className="mt-4 flex flex-col gap-4">
-              {topProgress.map((p) => (
-                <div key={p.set.id}>
-                  <div className="flex justify-between text-sm">
-                    <span className="truncate font-medium">
-                      {p.completedAt && "🏆 "}
-                      {p.set.name}
-                    </span>
-                    <span className="text-muted">
-                      {Math.floor((p.uniqueOwned / p.set.total) * 100)}%
-                    </span>
+          <Card>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
+              Achievements · {unlocked.length}
+            </h2>
+            {unlocked.length === 0 ? (
+              <p className="mt-3 text-sm text-zinc-500">None unlocked yet.</p>
+            ) : (
+              <div className="mt-4 flex flex-col gap-2">
+                {unlocked.slice(0, 6).map((u) => (
+                  <div
+                    key={u.achievementId}
+                    className="flex items-center gap-2.5 text-sm"
+                  >
+                    <span className="text-lg">{u.achievement.icon}</span>
+                    <div className="min-w-0">
+                      <div className="truncate font-medium text-zinc-200">
+                        {u.achievement.name}
+                      </div>
+                      <div className="truncate text-xs text-zinc-500">
+                        {u.achievement.description}
+                      </div>
+                    </div>
                   </div>
-                  <ProgressBar className="mt-1.5" value={p.uniqueOwned} max={p.set.total} />
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
+                ))}
+              </div>
+            )}
+          </Card>
 
-        {/* Achievements */}
-        <Card>
-          <h2 className="font-bold">Achievements · {unlocked.length}</h2>
-          {unlocked.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">None unlocked yet.</p>
-          ) : (
-            <div className="mt-4 flex flex-col gap-2">
-              {unlocked.slice(0, 8).map((u) => (
-                <div key={u.achievementId} className="flex items-center gap-3 text-sm">
-                  <span className="text-xl">{u.achievement.icon}</span>
-                  <div>
-                    <div className="font-medium">{u.achievement.name}</div>
-                    <div className="text-xs text-muted">{u.achievement.description}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {profile.favouritePokemon && (
+            <p className="px-1 text-sm text-zinc-500">
+              Favourite Pokémon:{" "}
+              <span className="font-medium text-zinc-300">
+                {profile.favouritePokemon}
+              </span>
+            </p>
           )}
-        </Card>
+        </div>
       </div>
 
       {/* Binder preview */}
