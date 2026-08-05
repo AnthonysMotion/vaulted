@@ -1,7 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SafeImage } from "@/components/safe-image";
 import { SetCardGallery } from "@/components/set-card-gallery";
 import { Badge, Card, LinkButton, ProgressBar } from "@/components/ui";
 import { getOrCreateProfile } from "@/lib/game/profile";
@@ -48,14 +47,15 @@ export default async function SetDetailPage({
             ← Back to all sets
           </Link>
           <div className="mt-8 flex items-start gap-6">
-            <div className="grid h-20 w-20 shrink-0 place-items-center rounded-xl border border-zinc-800 bg-zinc-950 p-3 shadow-xl">
-              {set.logoUrl ? (
-                <img src={set.logoUrl} alt={set.name} className="max-h-14 max-w-full object-contain" />
-              ) : set.symbolUrl ? (
-                <img src={set.symbolUrl} alt="" className="max-h-10 max-w-10 object-contain" />
-              ) : (
-                <span className="text-3xl text-zinc-800">🎴</span>
-              )}
+            <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-xl">
+              <SafeImage
+                src={set.logoUrl ?? set.symbolUrl}
+                alt={set.logoUrl ? set.name : ""}
+                fill
+                sizes="80px"
+                className="object-contain p-3"
+                fallback={<span className="text-3xl text-zinc-800">🎴</span>}
+              />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-3">

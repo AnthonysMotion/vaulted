@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -12,6 +10,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import { SafeImage } from "@/components/safe-image";
 import type { CardTileData } from "./card-tile";
 
 export function CardLightbox({
@@ -102,18 +101,21 @@ export function CardLightbox({
               }}
               className={`relative w-[min(80vw,20rem)] sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow}`}
             >
-              {card.imageLarge || card.imageSmall ? (
-                <img
-                  src={card.imageLarge ?? card.imageSmall ?? ""}
-                  alt={card.name}
-                  draggable={false}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="grid h-full w-full place-items-center bg-surface-2 text-center text-white">
-                  {card.name}
-                </div>
-              )}
+              <SafeImage
+                src={card.imageLarge ?? card.imageSmall}
+                alt={card.name}
+                fill
+                sizes="(max-width: 640px) 80vw, 320px"
+                quality={90}
+                preload
+                draggable={false}
+                className="object-cover"
+                fallback={
+                  <div className="grid h-full w-full place-items-center bg-surface-2 text-center text-white">
+                    {card.name}
+                  </div>
+                }
+              />
               <motion.div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 z-[3] opacity-80 mix-blend-screen"

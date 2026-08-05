@@ -1,8 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { getAllSets, getSetProgress } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { SafeImage } from "@/components/safe-image";
 import { Badge, ProgressBar, Card } from "@/components/ui";
 
 export const metadata = { title: "Sets" };
@@ -60,19 +59,15 @@ export default async function SetsPage() {
                   href={`/sets/${s.id}`}
                   className="group flex items-center gap-4 bg-black p-6 transition-all hover:bg-zinc-950"
                 >
-                  <div className="grid h-12 w-12 shrink-0 place-items-center bg-zinc-900/50 rounded-lg border border-zinc-800 transition-colors group-hover:border-zinc-700">
-                    {s.logoUrl ? (
-                      <img
-                        src={s.logoUrl}
-                        alt={s.name}
-                        className="max-h-12 max-w-full object-contain p-1 transition-transform group-hover:scale-110"
-                        loading="lazy"
-                      />
-                    ) : s.symbolUrl ? (
-                      <img src={s.symbolUrl} alt="" className="max-h-8 max-w-8" loading="lazy" />
-                    ) : (
-                      <span className="text-xl">🎴</span>
-                    )}
+                  <div className="relative grid h-12 w-12 shrink-0 place-items-center bg-zinc-900/50 rounded-lg border border-zinc-800 transition-colors group-hover:border-zinc-700">
+                    <SafeImage
+                      src={s.logoUrl ?? s.symbolUrl}
+                      alt={s.logoUrl ? s.name : ""}
+                      fill
+                      sizes="48px"
+                      className="object-contain p-1.5 transition-transform group-hover:scale-110"
+                      fallback={<span className="text-xl">🎴</span>}
+                    />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">

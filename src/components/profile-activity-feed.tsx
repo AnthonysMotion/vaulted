@@ -1,7 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import type { ProfilePackOpening } from "@/lib/game/queries";
+import { SafeImage } from "@/components/safe-image";
 import { rarityBadgeColor, Badge } from "@/components/ui";
 
 function timeAgo(date: Date | string): string {
@@ -63,11 +62,18 @@ function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
           className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md border border-zinc-800 bg-black"
         >
           {opening.set.logoUrl ? (
-            <img
-              src={opening.set.logoUrl}
-              alt=""
-              className="max-h-6 max-w-[80%] object-contain"
-            />
+            <div className="relative h-6 w-[80%]">
+              <SafeImage
+                src={opening.set.logoUrl}
+                alt=""
+                fill
+                sizes="36px"
+                className="object-contain"
+                fallback={
+                  <span className="text-[8px] font-bold text-zinc-600">SET</span>
+                }
+              />
+            </div>
           ) : (
             <span className="text-[8px] font-bold text-zinc-600">SET</span>
           )}
@@ -103,19 +109,19 @@ function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
                 className="w-8 overflow-hidden rounded border border-zinc-800 bg-black sm:w-9"
                 title={hit.card?.name ?? hit.cardId}
               >
-                <div className="aspect-[63/88]">
-                  {hit.card?.imageSmall ? (
-                    <img
-                      src={hit.card.imageSmall}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="grid h-full place-items-center text-[7px] text-zinc-600">
-                      ?
-                    </div>
-                  )}
+                <div className="relative aspect-[63/88]">
+                  <SafeImage
+                    src={hit.card?.imageSmall}
+                    alt=""
+                    fill
+                    sizes="36px"
+                    className="object-cover"
+                    fallback={
+                      <div className="grid h-full place-items-center text-[7px] text-zinc-600">
+                        ?
+                      </div>
+                    }
+                  />
                 </div>
               </div>
             ))}

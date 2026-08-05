@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
@@ -13,6 +11,7 @@ import {
   getUserRecentPackOpenings,
 } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { SafeImage } from "@/components/safe-image";
 import { Card, LinkButton, ProgressBar, StatCard } from "@/components/ui";
 import { BinderEditor } from "@/components/binder-editor";
 import { ProfileActivityFeed } from "@/components/profile-activity-feed";
@@ -94,15 +93,14 @@ export default async function ProfilePage({
             <div className="relative -mt-14 flex flex-col gap-6 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-8 md:-mt-20">
               <div className="flex min-w-0 flex-1 flex-col gap-5 sm:flex-row sm:items-end sm:gap-6">
                 <div className="relative z-10 grid h-32 w-32 shrink-0 place-items-center overflow-hidden rounded-2xl bg-zinc-950 text-5xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] sm:h-36 sm:w-36 md:h-40 md:w-40">
-                  {profile.avatarUrl ? (
-                    <img
-                      src={profile.avatarUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span aria-hidden>🧢</span>
-                  )}
+                  <SafeImage
+                    src={profile.avatarUrl}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 128px, (max-width: 768px) 144px, 160px"
+                    className="object-cover"
+                    fallback={<span aria-hidden>🧢</span>}
+                  />
                 </div>
 
                 <div className="min-w-0 flex-1 pb-1">

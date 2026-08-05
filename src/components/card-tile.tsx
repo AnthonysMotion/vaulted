@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import {
   motion,
   useMotionTemplate,
@@ -10,6 +8,7 @@ import {
   useTransform,
 } from "framer-motion";
 import type { PointerEvent as ReactPointerEvent } from "react";
+import { SafeImage } from "@/components/safe-image";
 
 export type CardTileData = {
   id: string;
@@ -72,18 +71,24 @@ export function CardTile({
       }}
     >
       <div className={`relative aspect-[63/88] overflow-hidden rounded-lg ${glow}`}>
-        {card.imageSmall ? (
-          <img
-            src={card.imageSmall}
-            alt={card.name}
-            loading="lazy"
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="grid h-full w-full place-items-center bg-surface-2 p-2 text-center text-xs text-muted">
-            {card.name}
-          </div>
-        )}
+        <SafeImage
+          src={card.imageSmall}
+          alt={card.name}
+          fill
+          sizes={
+            size === "lg"
+              ? "(max-width: 640px) 45vw, 224px"
+              : size === "sm"
+                ? "96px"
+                : "(max-width: 640px) 30vw, 144px"
+          }
+          className="object-cover"
+          fallback={
+            <div className="grid h-full w-full place-items-center bg-surface-2 p-2 text-center text-xs text-muted">
+              {card.name}
+            </div>
+          }
+        />
         <motion.div
           aria-hidden
           className="pointer-events-none absolute inset-0 z-[3] opacity-70 mix-blend-screen"

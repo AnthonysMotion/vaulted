@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { getAllSets } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
@@ -7,6 +5,7 @@ import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
 import { packsRemainingToday, resolvePackMode } from "@/lib/game/pack-mode";
 import { COMPANION_ONLY_SET_IDS } from "@/lib/packs/companions";
+import { SafeImage } from "@/components/safe-image";
 import { Badge } from "@/components/ui";
 
 export const metadata = { title: "Open Packs" };
@@ -88,17 +87,17 @@ export default async function OpenPackPage({
                 href={`/open-pack/${s.id}?mode=${mode}`}
                 className="group flex flex-col items-center gap-5 bg-black p-5 transition-all hover:bg-zinc-950 sm:p-8"
               >
-                <div className="grid h-24 w-full place-items-center bg-zinc-900/30 rounded-xl border border-transparent transition-all group-hover:border-zinc-800 group-hover:bg-zinc-900/50">
-                  {s.logoUrl ? (
-                    <img
-                      src={s.logoUrl}
-                      alt={s.name}
-                      loading="lazy"
-                      className="max-h-20 max-w-[85%] object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
-                    />
-                  ) : (
-                    <span className="font-bold text-zinc-700">{s.name}</span>
-                  )}
+                <div className="relative grid h-24 w-full place-items-center bg-zinc-900/30 rounded-xl border border-transparent transition-all group-hover:border-zinc-800 group-hover:bg-zinc-900/50">
+                  <SafeImage
+                    src={s.logoUrl}
+                    alt={s.name}
+                    fill
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 20vw"
+                    className="object-contain p-3 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                    fallback={
+                      <span className="font-bold text-zinc-700">{s.name}</span>
+                    }
+                  />
                 </div>
                 <div className="text-center">
                   <div className="text-sm font-bold text-white group-hover:text-white transition-colors">

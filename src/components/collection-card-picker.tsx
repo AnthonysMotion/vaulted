@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import {
   useEffect,
   useId,
@@ -12,6 +10,7 @@ import {
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Badge, Button, rarityBadgeColor } from "@/components/ui";
+import { SafeImage } from "@/components/safe-image";
 import { rarityTier } from "@/lib/packs/rarity";
 
 export type CollectionOwnedCard = {
@@ -268,18 +267,18 @@ function PickerDialog({
                       title={owned.name}
                     >
                       <div className="relative aspect-[63/88] w-full">
-                        {owned.imageSmall ? (
-                          <img
-                            src={owned.imageSmall}
-                            alt={owned.name}
-                            loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 grid place-items-center p-1 text-center text-[9px] text-zinc-600">
-                            {owned.name}
-                          </div>
-                        )}
+                        <SafeImage
+                          src={owned.imageSmall}
+                          alt={owned.name}
+                          fill
+                          sizes="(max-width: 768px) 18vw, 96px"
+                          className="object-cover"
+                          fallback={
+                            <div className="absolute inset-0 grid place-items-center p-1 text-center text-[9px] text-zinc-600">
+                              {owned.name}
+                            </div>
+                          }
+                        />
                       </div>
                       {isCurrent && (
                         <span className="absolute left-1 top-1 rounded bg-black/80 px-1 py-px text-[8px] font-bold uppercase tracking-wide text-zinc-300">
@@ -328,13 +327,13 @@ function PickerDialog({
           {selected ? (
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded border border-zinc-800">
-                {selected.imageSmall ? (
-                  <img
-                    src={selected.imageSmall}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : null}
+                <SafeImage
+                  src={selected.imageSmall}
+                  alt=""
+                  fill
+                  sizes="36px"
+                  className="object-cover"
+                />
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-white">
@@ -379,17 +378,18 @@ function PreviewPane({ card }: { card: CollectionOwnedCard | null }) {
       </p>
       <div className="mx-auto mt-3 w-full max-w-[148px] shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-black">
         <div className="relative aspect-[63/88] w-full">
-          {card.imageLarge || card.imageSmall ? (
-            <img
-              src={card.imageLarge ?? card.imageSmall ?? ""}
-              alt={card.name}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 grid place-items-center p-2 text-center text-[10px] text-zinc-600">
-              {card.name}
-            </div>
-          )}
+          <SafeImage
+            src={card.imageLarge ?? card.imageSmall}
+            alt={card.name}
+            fill
+            sizes="148px"
+            className="object-cover"
+            fallback={
+              <div className="absolute inset-0 grid place-items-center p-2 text-center text-[10px] text-zinc-600">
+                {card.name}
+              </div>
+            }
+          />
         </div>
       </div>
       <div className="mt-3 min-h-0 text-center">

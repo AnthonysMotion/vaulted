@@ -1,9 +1,8 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { SafeImage } from "@/components/safe-image";
 import { SignOutButton } from "./sign-out-button";
 
 const chip =
@@ -49,16 +48,15 @@ export function ProfileMenu({
         onClick={() => setOpen((value) => !value)}
         className={`${chip} cursor-pointer gap-2`}
       >
-        <span className="grid h-5 w-5 place-items-center overflow-hidden rounded border border-white/10 bg-white/5">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="h-2.5 w-2.5 rounded-full bg-white" />
-          )}
+        <span className="relative grid h-5 w-5 place-items-center overflow-hidden rounded border border-white/10 bg-white/5">
+          <SafeImage
+            src={avatarUrl}
+            alt=""
+            fill
+            sizes="20px"
+            className="object-cover"
+            fallback={<span className="h-2.5 w-2.5 rounded-full bg-white" />}
+          />
         </span>
         <span className="max-w-[100px] truncate">{username}</span>
         <span className="text-[10px] text-zinc-500">▾</span>

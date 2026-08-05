@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getOrCreateProfile } from "@/lib/game/profile";
@@ -10,6 +8,8 @@ import {
   getProfileByUsername,
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
+import { CARD_IMAGE } from "@/lib/images";
+import { SafeImage } from "@/components/safe-image";
 import { Card, EmptyState, ProgressBar } from "@/components/ui";
 
 export const metadata = { title: "Compare Collections" };
@@ -139,7 +139,14 @@ function MissingList({
           {sorted.map((c) => (
             <li key={c.id} className="flex items-center gap-2 text-sm">
               {c.imageSmall && (
-                <img src={c.imageSmall} alt="" className="h-8 rounded-sm" loading="lazy" />
+                <SafeImage
+                  src={c.imageSmall}
+                  alt=""
+                  width={CARD_IMAGE.thumb.width}
+                  height={CARD_IMAGE.thumb.height}
+                  sizes="32px"
+                  className="h-8 w-auto rounded-sm"
+                />
               )}
               <span className="min-w-0 flex-1 truncate">
                 {c.name} <span className="text-xs text-muted">#{c.number}</span>

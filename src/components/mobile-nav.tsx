@@ -1,12 +1,11 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
+import { SafeImage } from "@/components/safe-image";
 import { SignOutButton } from "./sign-out-button";
 
 type NavLink = { href: string; label: string };
@@ -232,16 +231,15 @@ export function MobileNav({
                             onClick={close}
                             className="flex items-center gap-3 border-b border-zinc-900 px-4 py-3.5 active:bg-white/[0.04]"
                           >
-                            <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
-                              {profile.avatarUrl ? (
-                                <img
-                                  src={profile.avatarUrl}
-                                  alt=""
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <span className="h-3 w-3 rounded-full bg-white" />
-                              )}
+                            <span className="relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+                              <SafeImage
+                                src={profile.avatarUrl}
+                                alt=""
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                                fallback={<span className="h-3 w-3 rounded-full bg-white" />}
+                              />
                             </span>
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-semibold text-white">

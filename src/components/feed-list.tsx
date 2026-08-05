@@ -1,10 +1,10 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useState } from "react";
 import Link from "next/link";
 import type { FeedItemWithRelations } from "@/lib/game/queries";
+import { SafeImage } from "@/components/safe-image";
+import { CARD_IMAGE } from "@/lib/images";
 import { EmptyState } from "./ui";
 
 const REACTIONS = [
@@ -116,11 +116,14 @@ function FeedRow({
 
   return (
     <div className="flex gap-3 rounded-xl border border-border bg-surface p-4">
-      {item.payload.cardImage && !compact && (
-        <img
+      {!compact && (
+        <SafeImage
           src={item.payload.cardImage}
           alt={item.payload.cardName ?? ""}
-          className="h-20 rounded shadow-lg"
+          width={CARD_IMAGE.sm.width}
+          height={CARD_IMAGE.sm.height}
+          sizes="80px"
+          className="h-20 w-auto rounded shadow-lg"
         />
       )}
       <div className="min-w-0 flex-1">

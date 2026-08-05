@@ -1,10 +1,10 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { SerialisedPack, SerialisedPulledCard } from "@/lib/game/open-pack";
+import { CARD_IMAGE } from "@/lib/images";
+import { SafeImage } from "@/components/safe-image";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
 import { CardLightbox } from "./card-lightbox";
@@ -274,10 +274,18 @@ export function PackOpener({
                     title={`${c.name} · ${c.rarity ?? "?"}`}
                     aria-label={`View ${c.name}`}
                   >
-                    <img
-                      src={c.imageSmall ?? ""}
+                    <SafeImage
+                      src={c.imageSmall}
                       alt={c.name}
-                      className="h-16 rounded"
+                      width={CARD_IMAGE.thumb.width}
+                      height={CARD_IMAGE.thumb.height}
+                      sizes="64px"
+                      className="h-16 w-auto rounded"
+                      fallback={
+                        <div className="grid h-16 w-11 place-items-center rounded bg-surface-2 text-[8px] text-muted">
+                          ?
+                        </div>
+                      }
                     />
                   </button>
                 ))}
@@ -333,7 +341,20 @@ function BoosterPackArt({
         <div className="absolute inset-x-0 bottom-0 h-6 rounded-b-[20px] bg-gradient-to-t from-white/15 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
         <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
           {set.logoUrl ? (
-            <img src={set.logoUrl} alt={set.name} className="max-h-24 w-full object-contain brightness-110" />
+            <div className="relative h-24 w-full">
+              <SafeImage
+                src={set.logoUrl}
+                alt={set.name}
+                fill
+                sizes="224px"
+                className="object-contain brightness-110"
+                fallback={
+                  <div className="grid h-full place-items-center text-center text-lg font-bold text-white">
+                    {set.name}
+                  </div>
+                }
+              />
+            </div>
           ) : (
             <div className="text-center text-lg font-bold text-white">{set.name}</div>
           )}
@@ -341,7 +362,15 @@ function BoosterPackArt({
             <div className="h-6 w-6 rounded-full border-4 border-ink bg-white" />
           </div>
           {set.symbolUrl && (
-            <img src={set.symbolUrl} alt="" className="h-6 opacity-80 brightness-200" />
+            <div className="relative h-6 w-6">
+              <SafeImage
+                src={set.symbolUrl}
+                alt=""
+                fill
+                sizes="24px"
+                className="object-contain opacity-80 brightness-200"
+              />
+            </div>
           )}
         </div>
       </div>
@@ -398,18 +427,20 @@ function RevealStack({
               card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : ""
             }`}
           >
-            {card.imageLarge || card.imageSmall ? (
-              <img
-                src={card.imageLarge ?? card.imageSmall ?? ""}
-                alt={card.name}
-                className="h-full w-full object-contain"
-                draggable={false}
-              />
-            ) : (
-              <div className="grid h-full w-full place-items-center bg-surface-2 text-center">
-                {card.name}
-              </div>
-            )}
+            <SafeImage
+              src={card.imageLarge ?? card.imageSmall}
+              alt={card.name}
+              fill
+              sizes="(max-width: 640px) 70vw, 288px"
+              quality={90}
+              draggable={false}
+              className="object-contain"
+              fallback={
+                <div className="grid h-full w-full place-items-center bg-surface-2 text-center">
+                  {card.name}
+                </div>
+              }
+            />
           </div>
 
           {isBig && (

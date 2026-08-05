@@ -1,10 +1,9 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { rarityTier } from "@/lib/packs/rarity";
+import { SafeImage } from "@/components/safe-image";
 import { Button } from "./ui";
 import {
   CollectionCardPicker,
@@ -155,24 +154,25 @@ export function BinderEditor({
                 className={`absolute inset-0 ${editable ? "cursor-grab active:cursor-grabbing" : ""}`}
               >
                 <div
-                  className={`h-full w-full overflow-hidden rounded-xl ${
+                  className={`relative h-full w-full overflow-hidden rounded-xl ${
                     rarityTier(slot.rarity) >= 3
                       ? `glow-tier-${Math.min(rarityTier(slot.rarity), 6)}`
                       : ""
                   }`}
                 >
-                  {slot.imageSmall ? (
-                    <img
-                      src={slot.imageSmall}
-                      alt={slot.name}
-                      className="h-full w-full object-cover"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center p-1 text-center text-[10px]">
-                      {slot.name}
-                    </div>
-                  )}
+                  <SafeImage
+                    src={slot.imageSmall}
+                    alt={slot.name}
+                    fill
+                    sizes="(max-width: 640px) 28vw, 120px"
+                    draggable={false}
+                    className="object-cover"
+                    fallback={
+                      <div className="grid h-full w-full place-items-center p-1 text-center text-[10px]">
+                        {slot.name}
+                      </div>
+                    }
+                  />
                 </div>
                 {slot.isFavourite && (
                   <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 text-lg drop-shadow">
