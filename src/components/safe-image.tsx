@@ -12,10 +12,18 @@ type SafeImageProps = Omit<ImageProps, "src" | "alt" | "onError"> & {
   onError?: ImageProps["onError"];
 };
 
+type LoadState = {
+  src: string | null;
+  /** Try `/_next/image` first; degrade to the original URL on optimizer failure. */
+  direct: boolean;
+  dead: boolean;
+};
+
 /**
  * `next/image` wrapper with dead-art fallbacks.
- * Optimizable CDN hosts go through `/_next/image`; other remote URLs use a
- * native `<img>` so arbitrary user avatar/banner URLs still work.
+ * Optimizable CDN hosts go through `/_next/image` first; on failure (common on
+ * Safari with broken optimized payloads) we retry the original URL before
+ * showing the dead-art fallback.
  */
 export function SafeImage({
   src,
@@ -29,25 +37,39 @@ export function SafeImage({
   sizes,
   ...rest
 }: SafeImageProps) {
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const active = typeof src === "string" && src.length > 0 ? src : null;
-  const failed = active !== null && failedSrc === active;
+  const [load, setLoad] = useState<LoadState>({
+    src: active,
+    direct: false,
+    dead: false,
+  });
 
-  if (!active || failed) {
+  // Reset when the URL changes (React-recommended render-time adjustment).
+  if (active !== load.src) {
+    setLoad({ src: active, direct: false, dead: false });
+  }
+
+  if (!active || (load.src === active && load.dead)) {
     return <>{fallback}</>;
   }
 
+  const useOptimizer = isOptimizableImageUrl(active) && !load.direct;
+
   const handleError = (event: SyntheticEvent<HTMLImageElement, Event>) => {
-    setFailedSrc(active);
+    if (useOptimizer) {
+      // Optimizer payload failed — serve the original remote URL before
+      // declaring the art dead (Safari often trips on Next-encoded AVIF/WebP).
+      setLoad({ src: active, direct: true, dead: false });
+      return;
+    }
+    setLoad({ src: active, direct: true, dead: true });
     onError?.(event);
   };
 
-  const optimizable = isOptimizableImageUrl(active);
-
-  if (!optimizable) {
+  if (!useOptimizer) {
     if (fill) {
       return (
-        // eslint-disable-next-line @next/next/no-img-element -- arbitrary remote hosts
+        // eslint-disable-next-line @next/next/no-img-element -- direct / arbitrary hosts
         <img
           src={active}
           alt={alt}
@@ -65,7 +87,7 @@ export function SafeImage({
     }
 
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- arbitrary remote hosts
+      // eslint-disable-next-line @next/next/no-img-element -- direct / arbitrary hosts
       <img
         src={active}
         alt={alt}

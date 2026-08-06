@@ -8,7 +8,9 @@ const nextConfig: NextConfig = {
   images: {
     // Pokémon TCG art is immutable by URL; cache optimized variants longer.
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    formats: ["image/avif", "image/webp"],
+    // WebP only — Safari often fails to decode Next-encoded AVIF and then
+    // SafeImage's onError permanently swaps to the dead-art fallback.
+    formats: ["image/webp"],
     qualities: [60, 75, 90],
     remotePatterns: [
       {
