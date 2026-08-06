@@ -94,7 +94,10 @@ export async function openTrainerPack(
 ): Promise<TrainerOpenResult> {
   const today = utcToday();
   const yesterday = utcYesterday();
+  const { set, setCards, config } = await loadSetForOpening(setId);
 
+  // Validate the set before consuming a daily slot so bad data/config cannot
+  // burn one of the trainer's limited packs for the day.
   // Atomically claim a pack slot for today (guards concurrent requests).
   const claimed = await db
     .update(profiles)
@@ -117,8 +120,6 @@ export async function openTrainerPack(
 
   if (claimed.length === 0) throw new PackLimitError();
   const updated = claimed[0];
-
-  const { set, setCards, config } = await loadSetForOpening(setId);
   const pack = openPack(setCards, config);
 
   // --- Persist pulled cards -------------------------------------------------
