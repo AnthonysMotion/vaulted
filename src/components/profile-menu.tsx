@@ -65,7 +65,7 @@ export function ProfileMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 flex min-w-48 flex-col rounded-lg border border-white/10 bg-black/40 p-1 shadow-2xl backdrop-blur-xl"
+          className="absolute right-0 mt-2 flex min-w-48 flex-col rounded-lg border border-white/10 bg-zinc-950/95 p-1 shadow-2xl backdrop-blur-xl"
         >
           <Link
             href="/dashboard"
