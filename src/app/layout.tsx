@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
@@ -9,6 +10,7 @@ const display = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 /** Closest stand-in for PP Neue Montreal Mono (uppercase UI labels). */
@@ -16,6 +18,7 @@ const mono = IBM_Plex_Mono({
   variable: "--font-mono-label",
   subsets: ["latin"],
   weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -26,6 +29,18 @@ export const metadata: Metadata = {
   description:
     "Open Pokémon TCG booster packs with realistic pull rates, build your collection, showcase your binder and compete with friends. A non-profit fan project.",
 };
+
+function NavbarFallback() {
+  return (
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden px-4 py-4 pt-[max(1rem,env(safe-area-inset-top))] md:block">
+      <div className="pointer-events-auto mx-auto flex h-10 max-w-[1200px] items-center justify-between gap-3">
+        <div className="h-10 w-24 animate-pulse rounded-lg bg-zinc-900" />
+        <div className="h-10 w-64 animate-pulse rounded-lg bg-zinc-900/70" />
+        <div className="h-10 w-40 animate-pulse rounded-lg bg-zinc-900/70" />
+      </div>
+    </header>
+  );
+}
 
 export default function RootLayout({
   children,
@@ -38,7 +53,9 @@ export default function RootLayout({
       className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-black text-white selection:bg-white selection:text-black">
-        <Navbar />
+        <Suspense fallback={<NavbarFallback />}>
+          <Navbar />
+        </Suspense>
         {children}
         <footer className="border-t border-zinc-900 bg-black px-5 pb-28 pt-10 sm:px-10 sm:pt-12 md:pb-12">
           <div className="mx-auto flex max-w-[1200px] flex-col gap-8">

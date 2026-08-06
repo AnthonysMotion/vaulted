@@ -12,7 +12,26 @@ const PROTECTED_PREFIXES = [
   "/dev",
 ];
 
+function hasSupabaseAuthCookie(request: NextRequest) {
+  return request.cookies
+    .getAll()
+    .some(
+      (c) =>
+        c.name.startsWith("sb-") &&
+        (c.name.includes("auth-token") || c.name.includes("access-token")),
+    );
+}
+
 export async function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const needsAuth = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
+  const maybeSignedIn = hasSupabaseAuthCookie(request);
+
+  // Public page, no session cookie — skip the Supabase round-trip.
+  if (!needsAuth && !maybeSignedIn) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -39,9 +58,6 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const path = request.nextUrl.pathname;
-  const needsAuth = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
 
   if (needsAuth && !user) {
     const url = request.nextUrl.clone();

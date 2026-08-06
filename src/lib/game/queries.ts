@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { db } from "@/db";
 import {
   activityFeed,
@@ -23,28 +24,64 @@ export async function getProfileByUsername(username: string) {
   });
 }
 
-export async function getAllSets() {
-  return db.query.sets.findMany({ orderBy: [desc(sets.releaseDate)] });
-}
+/** Catalog rarely changes — cache across requests on Vercel. */
+export const getAllSets = unstable_cache(
+  async () =>
+    db.query.sets.findMany({
+      columns: {
+        id: true,
+        name: true,
+        series: true,
+        printedTotal: true,
+        total: true,
+        ptcgoCode: true,
+        releaseDate: true,
+        symbolUrl: true,
+        logoUrl: true,
+      },
+      orderBy: [desc(sets.releaseDate)],
+    }),
+  ["catalog-all-sets"],
+  { revalidate: 3600, tags: ["catalog", "sets"] },
+);
 
-export async function getSetById(setId: string) {
-  return db.query.sets.findFirst({ where: eq(sets.id, setId) });
-}
+export const getSetById = unstable_cache(
+  async (setId: string) =>
+    db.query.sets.findFirst({
+      where: eq(sets.id, setId),
+      columns: {
+        id: true,
+        name: true,
+        series: true,
+        printedTotal: true,
+        total: true,
+        ptcgoCode: true,
+        releaseDate: true,
+        symbolUrl: true,
+        logoUrl: true,
+      },
+    }),
+  ["catalog-set-by-id"],
+  { revalidate: 3600, tags: ["catalog", "sets"] },
+);
 
-export async function getCardsForSet(setId: string) {
-  return db.query.cards.findMany({
-    where: eq(cards.setId, setId),
-    columns: {
-      id: true,
-      name: true,
-      number: true,
-      rarity: true,
-      imageSmall: true,
-      imageLarge: true,
-    },
-    orderBy: [asc(cards.number), asc(cards.name)],
-  });
-}
+export const getCardsForSet = unstable_cache(
+  async (setId: string) =>
+    db.query.cards.findMany({
+      where: eq(cards.setId, setId),
+      columns: {
+        id: true,
+        name: true,
+        number: true,
+        rarity: true,
+        imageSmall: true,
+        imageLarge: true,
+      },
+      orderBy: [asc(cards.number), asc(cards.name)],
+    }),
+  ["catalog-cards-for-set"],
+  { revalidate: 3600, tags: ["catalog", "cards"] },
+);
 
 export async function getOwnedCardCountsForSet(userId: string, setId: string) {
   return db

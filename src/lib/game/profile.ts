@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/db";
 import { binders, profiles, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -29,12 +30,21 @@ function avatarFromUser(user: User): string | null {
   return typeof url === "string" && url.startsWith("http") ? url : null;
 }
 
-/** Fetch the profile for the current session, creating it on first login. */
-export async function getOrCreateProfile(): Promise<Profile | null> {
+/** One Supabase auth round-trip per request (navbar + page share this). */
+const getAuthUser = cache(async () => {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  return user;
+});
+
+/**
+ * Fetch the profile for the current session, creating it on first login.
+ * Wrapped in React `cache()` so layout + page only hit auth/DB once per request.
+ */
+export const getOrCreateProfile = cache(async (): Promise<Profile | null> => {
+  const user = await getAuthUser();
   if (!user) return null;
 
   const existing = await db.query.profiles.findFirst({
@@ -82,12 +92,6 @@ export async function getOrCreateProfile(): Promise<Profile | null> {
   if (fallback) return fallback;
 
   throw new Error("Could not allocate a username");
-}
+});
 
-export async function getSessionUser() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
-}
+export const getSessionUser = cache(async () => getAuthUser());
