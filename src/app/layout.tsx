@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 /** Closest widely-available stand-in for MWG's LayGrotesk. */
 const display = Space_Grotesk({
@@ -57,6 +58,7 @@ export default function RootLayout({
           <Navbar />
         </Suspense>
         {children}
+        <ScrollToTop />
         <footer className="border-t border-zinc-900 bg-black px-5 pb-28 pt-10 sm:px-10 sm:pt-12 md:pb-12">
           <div className="mx-auto flex max-w-[1200px] flex-col gap-8">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
