@@ -4,12 +4,13 @@ import Image, { type ImageProps } from "next/image";
 import { useState, type ReactNode, type SyntheticEvent } from "react";
 import { isOptimizableImageUrl } from "@/lib/images";
 
-type SafeImageProps = Omit<ImageProps, "src" | "alt" | "onError"> & {
+type SafeImageProps = Omit<ImageProps, "src" | "alt" | "onError" | "onLoad"> & {
   src: string | null | undefined;
   alt: string;
   /** Rendered when `src` is missing or the image fails to load. */
   fallback?: ReactNode;
   onError?: ImageProps["onError"];
+  onLoad?: ImageProps["onLoad"];
 };
 
 type LoadState = {
@@ -31,6 +32,7 @@ export function SafeImage({
   fallback = null,
   className,
   onError,
+  onLoad,
   fill,
   width,
   height,
@@ -75,6 +77,7 @@ export function SafeImage({
           alt={alt}
           className={className}
           onError={handleError}
+          onLoad={onLoad}
           decoding="async"
           style={{
             position: "absolute",
@@ -95,6 +98,7 @@ export function SafeImage({
         width={typeof width === "number" ? width : undefined}
         height={typeof height === "number" ? height : undefined}
         onError={handleError}
+        onLoad={onLoad}
         decoding="async"
         loading={rest.loading}
         draggable={rest.draggable as boolean | undefined}
@@ -111,6 +115,7 @@ export function SafeImage({
         sizes={sizes ?? "100vw"}
         className={className}
         onError={handleError}
+        onLoad={onLoad}
         {...rest}
       />
     );
@@ -125,6 +130,7 @@ export function SafeImage({
       sizes={sizes}
       className={className}
       onError={handleError}
+      onLoad={onLoad}
       {...rest}
     />
   );

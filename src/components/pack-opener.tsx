@@ -1,13 +1,22 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { SerialisedPack, SerialisedPulledCard } from "@/lib/game/open-pack";
-import { CARD_IMAGE } from "@/lib/images";
+import { CARD_IMAGE, preloadCardArt } from "@/lib/images";
 import { SafeImage } from "@/components/safe-image";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
 import { CardLightbox } from "./card-lightbox";
+
+function packArtUrls(pack: SerialisedPack): string[] {
+  const urls: string[] = [];
+  for (const card of pack.cards) {
+    if (card.imageLarge) urls.push(card.imageLarge);
+    if (card.imageSmall) urls.push(card.imageSmall);
+  }
+  return urls;
+}
 
 /**
  * Sound effect placeholder. Wire real audio here later:
@@ -82,15 +91,22 @@ export function PackOpener({
         setPhase("idle");
         return;
       }
-      setPack(data.pack);
+      const nextPack = data.pack as SerialisedPack;
+      setPack(nextPack);
       if (mode === "trainer") {
         setMeta(data as TrainerMeta);
         setPacksRemaining(data.packsRemainingToday);
       }
-      if (data.pack.isGodPack) playSound("god");
+      if (nextPack.isGodPack) playSound("god");
       setRevealIndex(0);
       setPhase("ripping");
-      setTimeout(() => setPhase("revealing"), 900);
+
+      // Warm art during the rip so the first flip isn't a blank card.
+      await Promise.all([
+        preloadCardArt(packArtUrls(nextPack)),
+        new Promise((resolve) => setTimeout(resolve, 900)),
+      ]);
+      setPhase("revealing");
     } catch {
       setError("Network error — try again");
       setPhase("idle");
@@ -388,7 +404,30 @@ function RevealStack({
   onReveal: () => void;
 }) {
   const card = cards[revealIndex];
+  const nextCard = cards[revealIndex + 1];
+  const artSrc = card.imageLarge ?? card.imageSmall;
+  const cardKey = `${card.id}-${revealIndex}`;
   const isBig = card.rarityTier >= 4;
+  const [readyFor, setReadyFor] = useState<string | null>(null);
+  const artReady = readyFor === cardKey;
+
+  useEffect(() => {
+    if (!artSrc) {
+      setReadyFor(cardKey);
+      return;
+    }
+    // Dead/slow URLs shouldn't stall the flip forever.
+    const failSafe = window.setTimeout(() => setReadyFor(cardKey), 1200);
+    return () => window.clearTimeout(failSafe);
+  }, [cardKey, artSrc]);
+
+  // Keep the next couple of cards warm while the player looks at this one.
+  useEffect(() => {
+    const upcoming = cards
+      .slice(revealIndex + 1, revealIndex + 3)
+      .flatMap((c) => [c.imageLarge, c.imageSmall]);
+    void preloadCardArt(upcoming, { timeoutMs: 3000 });
+  }, [cards, revealIndex]);
 
   return (
     <div
@@ -404,20 +443,38 @@ function RevealStack({
         </>
       )}
 
+      {/* Hidden prefetch so the following flip is already decoded. */}
+      {nextCard && (nextCard.imageLarge || nextCard.imageSmall) && (
+        <div className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden>
+          <SafeImage
+            src={nextCard.imageLarge ?? nextCard.imageSmall}
+            alt=""
+            width={CARD_IMAGE.xl.width}
+            height={CARD_IMAGE.xl.height}
+            sizes="288px"
+            quality={90}
+          />
+        </div>
+      )}
+
       <AnimatePresence mode="popLayout">
         <motion.div
-          key={`${card.id}-${revealIndex}`}
+          key={cardKey}
           initial={{ rotateY: 180, scale: isBig ? 0.7 : 0.95, opacity: 0.6 }}
-          animate={{
-            rotateY: 0,
-            scale: 1,
-            opacity: 1,
-            transition: {
-              duration: isBig ? 0.9 : 0.45,
-              type: "spring",
-              bounce: isBig ? 0.45 : 0.2,
-            },
-          }}
+          animate={
+            artReady
+              ? {
+                  rotateY: 0,
+                  scale: 1,
+                  opacity: 1,
+                  transition: {
+                    duration: isBig ? 0.9 : 0.45,
+                    type: "spring",
+                    bounce: isBig ? 0.45 : 0.2,
+                  },
+                }
+              : { rotateY: 180, scale: isBig ? 0.7 : 0.95, opacity: 0.85 }
+          }
           exit={{ x: -260, rotateZ: -12, opacity: 0, transition: { duration: 0.25 } }}
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
@@ -428,13 +485,16 @@ function RevealStack({
             }`}
           >
             <SafeImage
-              src={card.imageLarge ?? card.imageSmall}
+              src={artSrc}
               alt={card.name}
               fill
               sizes="(max-width: 640px) 70vw, 288px"
               quality={90}
+              preload
+              loading="eager"
               draggable={false}
               className="object-contain"
+              onLoad={() => setReadyFor(cardKey)}
               fallback={
                 <div className="grid h-full w-full place-items-center bg-surface-2 text-center">
                   {card.name}
@@ -443,7 +503,7 @@ function RevealStack({
             />
           </div>
 
-          {isBig && (
+          {isBig && artReady && (
             <motion.div
               initial={{ opacity: 0, scale: 0.6 }}
               animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
