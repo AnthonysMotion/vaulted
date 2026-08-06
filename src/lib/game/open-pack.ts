@@ -173,11 +173,27 @@ export async function openTrainerPack(
     collectibleCards.length > 0
       ? collectibleCards.reduce((a, b) => (b.rarityTier > a.rarityTier ? b : a))
       : null;
-  const newTotalXp = updated.xp + xpAwarded;
-  const newLevel = levelForXp(newTotalXp);
-  const leveledUp = newLevel > updated.level;
+  const packTotalXp = updated.xp + xpAwarded;
+  const packLevel = levelForXp(packTotalXp);
 
   const cardsInPack = pack.cards.length;
+
+  // --- Achievements --------------------------------------------------------------
+  const achievementResult = await checkAchievements(profile.id, {
+    totalPacks: updated.totalPacksOpened,
+    totalCards: updated.totalCardsCollected + cardsInPack,
+    streak: updated.currentStreak,
+    level: packLevel,
+    bestTier: bestPull?.rarityTier ?? 0,
+    pulledSecret: collectibleCards.some((c) => isSecretTier(c.card.rarity)),
+    pulledUltra: collectibleCards.some((c) => c.rarityTier >= ULTRA_RARE_TIER),
+    completedSet,
+    godPack: pack.isGodPack,
+  });
+
+  const newTotalXp = packTotalXp + achievementResult.bonusXp;
+  const newLevel = levelForXp(newTotalXp);
+  const leveledUp = newLevel > updated.level;
 
   await db
     .update(profiles)
@@ -225,19 +241,6 @@ export async function openTrainerPack(
       .values(feedEvents.map((e) => ({ userId: profile.id, ...e })));
   }
 
-  // --- Achievements --------------------------------------------------------------
-  const newAchievements = await checkAchievements(profile.id, {
-    totalPacks: updated.totalPacksOpened,
-    totalCards: updated.totalCardsCollected + cardsInPack,
-    streak: updated.currentStreak,
-    level: newLevel,
-    bestTier: bestPull?.rarityTier ?? 0,
-    pulledSecret: collectibleCards.some((c) => isSecretTier(c.card.rarity)),
-    pulledUltra: collectibleCards.some((c) => c.rarityTier >= ULTRA_RARE_TIER),
-    completedSet,
-    godPack: pack.isGodPack,
-  });
-
   // --- Record the opening ----------------------------------------------------------
   await db.insert(packOpenings).values({
     userId: profile.id,
@@ -258,7 +261,7 @@ export async function openTrainerPack(
     leveledUp,
     streak: updated.currentStreak,
     packsRemainingToday: Math.max(0, DAILY_PACK_LIMIT - updated.packsOpenedToday),
-    newAchievements,
+    newAchievements: achievementResult.unlocked,
     newCardIds,
     completedSet,
   };
@@ -294,7 +297,9 @@ async function checkAchievements(userId: string, ctx: AchievementContext) {
   if (ctx.level >= 10) candidates.push("level-10");
   if (ctx.level >= 50) candidates.push("level-50");
 
-  if (candidates.length === 0) return [];
+  if (candidates.length === 0) {
+    return { unlocked: [], bonusXp: 0 };
+  }
 
   const inserted = await db
     .insert(userAchievements)
@@ -302,7 +307,9 @@ async function checkAchievements(userId: string, ctx: AchievementContext) {
     .onConflictDoNothing()
     .returning({ achievementId: userAchievements.achievementId });
 
-  if (inserted.length === 0) return [];
+  if (inserted.length === 0) {
+    return { unlocked: [], bonusXp: 0 };
+  }
 
   const defs = await db.query.achievements.findMany();
   const defById = new Map(defs.map((d) => [d.id, d]));
@@ -328,7 +335,10 @@ async function checkAchievements(userId: string, ctx: AchievementContext) {
     );
   }
 
-  return unlocked.map((d) => ({ id: d.id, name: d.name, icon: d.icon }));
+  return {
+    unlocked: unlocked.map((d) => ({ id: d.id, name: d.name, icon: d.icon })),
+    bonusXp,
+  };
 }
 
 /** Serialisable card payload sent to the client after opening. */
