@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import {
@@ -8,12 +9,11 @@ import {
   getProfileByUsername,
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
-import { CARD_IMAGE } from "@/lib/images";
-import { SafeImage } from "@/components/safe-image";
 import { Card, EmptyState, ProgressBar } from "@/components/ui";
+import { SectionSkeleton } from "@/components/skeletons";
+import { CompareMissingList } from "@/components/compare-missing-list";
 
 export const metadata = { title: "Compare Collections" };
-export const dynamic = "force-dynamic";
 
 export default async function ComparePage({
   params,
@@ -24,14 +24,22 @@ export default async function ComparePage({
 }) {
   const [{ username }, { set: setId }] = await Promise.all([params, searchParams]);
 
-  const me = await getOrCreateProfile();
+  const mePromise = getOrCreateProfile();
+  const themPromise = getProfileByUsername(username);
+  const setsPromise = getAllSets();
+
+  const me = await mePromise;
   if (!me) redirect(`/login?next=/compare/${username}`);
 
-  const them = await getProfileByUsername(username);
+  const them = await themPromise;
   if (!them) notFound();
   if (them.id === me.id) redirect("/collection");
 
-  const friends = await areFriends(me.id, them.id);
+  const [friends, allSets] = await Promise.all([
+    areFriends(me.id, them.id),
+    setsPromise,
+  ]);
+
   if (!friends) {
     return (
       <EmptyState icon="🔒" title="Friends only">
@@ -43,10 +51,8 @@ export default async function ComparePage({
     );
   }
 
-  const allSets = await getAllSets();
   const selectedSetId = setId ?? "sv3pt5";
   const selectedSet = allSets.find((s) => s.id === selectedSetId) ?? allSets[0];
-  const comparison = await compareCollections(me.id, them.id, selectedSet.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -69,98 +75,78 @@ export default async function ComparePage({
             </option>
           ))}
         </select>
-        <button className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-slate-900 cursor-pointer">
+        <button className="cursor-pointer rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-slate-900">
           Compare
         </button>
       </form>
 
-      {comparison && (
-        <>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <div className="text-sm text-muted">You</div>
-              <div className="mt-1 text-3xl font-black text-primary">
-                {Math.floor((comparison.myOwned / comparison.totalCards) * 100)}%
-              </div>
-              <div className="text-sm text-muted">
-                {comparison.myOwned}/{comparison.totalCards} cards
-              </div>
-              <ProgressBar className="mt-3" value={comparison.myOwned} max={comparison.totalCards} />
-            </Card>
-            <Card>
-              <div className="text-sm text-muted">{them.username}</div>
-              <div className="mt-1 text-3xl font-black">
-                {Math.floor((comparison.theirOwned / comparison.totalCards) * 100)}%
-              </div>
-              <div className="text-sm text-muted">
-                {comparison.theirOwned}/{comparison.totalCards} cards
-              </div>
-              <ProgressBar className="mt-3" value={comparison.theirOwned} max={comparison.totalCards} />
-            </Card>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <MissingList
-              title={`Cards you're missing · ${comparison.myMissing.length}`}
-              cards={comparison.myMissing}
-            />
-            <MissingList
-              title={`${them.username} is missing · ${comparison.theirMissing.length}`}
-              cards={comparison.theirMissing}
-              highlight={new Set(comparison.iHaveTheyNeed.map((c) => c.id))}
-              highlightLabel="You own this!"
-            />
-          </div>
-        </>
-      )}
+      <Suspense fallback={<SectionSkeleton />}>
+        <CompareResults
+          myUserId={me.id}
+          theirUserId={them.id}
+          theirUsername={them.username}
+          setId={selectedSet.id}
+        />
+      </Suspense>
     </div>
   );
 }
 
-function MissingList({
-  title,
-  cards,
-  highlight,
-  highlightLabel,
+async function CompareResults({
+  myUserId,
+  theirUserId,
+  theirUsername,
+  setId,
 }: {
-  title: string;
-  cards: { id: string; name: string; rarity: string | null; number: string; imageSmall: string | null }[];
-  highlight?: Set<string>;
-  highlightLabel?: string;
+  myUserId: string;
+  theirUserId: string;
+  theirUsername: string;
+  setId: string;
 }) {
-  const sorted = [...cards].sort((a, b) => rarityTier(b.rarity) - rarityTier(a.rarity));
+  const comparison = await compareCollections(myUserId, theirUserId, setId);
+  if (!comparison) return null;
+
   return (
-    <Card>
-      <h2 className="font-bold">{title}</h2>
-      {sorted.length === 0 ? (
-        <p className="mt-3 text-sm text-emerald-400">Set complete! 🏆</p>
-      ) : (
-        <ul className="mt-3 flex max-h-96 flex-col gap-1.5 overflow-y-auto pr-2">
-          {sorted.map((c) => (
-            <li key={c.id} className="flex items-center gap-2 text-sm">
-              {c.imageSmall && (
-                <SafeImage
-                  src={c.imageSmall}
-                  alt=""
-                  width={CARD_IMAGE.thumb.width}
-                  height={CARD_IMAGE.thumb.height}
-                  sizes="32px"
-                  className="h-8 w-auto rounded-sm"
-                />
-              )}
-              <span className="min-w-0 flex-1 truncate">
-                {c.name} <span className="text-xs text-muted">#{c.number}</span>
-              </span>
-              <span className="text-xs text-muted">{c.rarity}</span>
-              {highlight?.has(c.id) && (
-                <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
-                  {highlightLabel}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
+    <>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card>
+          <div className="text-sm text-muted">You</div>
+          <div className="mt-1 text-3xl font-black text-primary">
+            {Math.floor((comparison.myOwned / comparison.totalCards) * 100)}%
+          </div>
+          <div className="text-sm text-muted">
+            {comparison.myOwned}/{comparison.totalCards} cards
+          </div>
+          <ProgressBar className="mt-3" value={comparison.myOwned} max={comparison.totalCards} />
+        </Card>
+        <Card>
+          <div className="text-sm text-muted">{theirUsername}</div>
+          <div className="mt-1 text-3xl font-black">
+            {Math.floor((comparison.theirOwned / comparison.totalCards) * 100)}%
+          </div>
+          <div className="text-sm text-muted">
+            {comparison.theirOwned}/{comparison.totalCards} cards
+          </div>
+          <ProgressBar className="mt-3" value={comparison.theirOwned} max={comparison.totalCards} />
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <CompareMissingList
+          title={`Cards you're missing · ${comparison.myMissing.length}`}
+          cards={[...comparison.myMissing].sort(
+            (a, b) => rarityTier(b.rarity) - rarityTier(a.rarity),
+          )}
+        />
+        <CompareMissingList
+          title={`${theirUsername} is missing · ${comparison.theirMissing.length}`}
+          cards={[...comparison.theirMissing].sort(
+            (a, b) => rarityTier(b.rarity) - rarityTier(a.rarity),
+          )}
+          highlightIds={comparison.iHaveTheyNeed.map((c) => c.id)}
+          highlightLabel="You own this!"
+        />
+      </div>
+    </>
   );
 }

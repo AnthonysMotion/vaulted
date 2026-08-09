@@ -10,6 +10,15 @@ const OPTIMIZABLE_HOST_SUFFIXES = [
   "supabase.co",
 ] as const;
 
+/** Pokémon TCG small art → hires (`…/1.png` → `…/1_hires.png`). */
+export function hiresCardImageUrl(
+  small: string | null | undefined,
+): string | null {
+  if (!small) return null;
+  if (small.includes("_hires")) return small;
+  return small.replace(/\.png(\?.*)?$/i, "_hires.png$1");
+}
+
 export function isOptimizableImageUrl(src: string): boolean {
   try {
     const { protocol, hostname } = new URL(src);

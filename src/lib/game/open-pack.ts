@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { db } from "@/db";
 import {
   activityFeed,
@@ -8,6 +9,7 @@ import {
   sets,
   userAchievements,
   userCards,
+  type Card,
   type FeedPayload,
   type Profile,
 } from "@/db/schema";
@@ -46,24 +48,60 @@ function utcYesterday(): string {
   return d.toISOString().slice(0, 10);
 }
 
+const PACK_CARD_COLUMNS = {
+  id: true,
+  setId: true,
+  name: true,
+  supertype: true,
+  subtypes: true,
+  rarity: true,
+  number: true,
+  types: true,
+  imageSmall: true,
+  imageLarge: true,
+} as const;
+
+const getCachedSetForOpening = unstable_cache(
+  async (setId: string) => {
+    const set = await db.query.sets.findFirst({
+      where: eq(sets.id, setId),
+      columns: {
+        id: true,
+        name: true,
+        series: true,
+        total: true,
+        logoUrl: true,
+        symbolUrl: true,
+      },
+    });
+    if (!set) throw new Error(`Unknown set: ${setId}`);
+
+    const config = packConfigForSet(set.id, set.series);
+    const companionIds = config.companionSetIds ?? companionSetIdsFor(setId);
+    const poolSetIds = [setId, ...companionIds];
+
+    const setCards = await db.query.cards.findMany({
+      where:
+        poolSetIds.length === 1
+          ? eq(cards.setId, setId)
+          : inArray(cards.setId, poolSetIds),
+      columns: PACK_CARD_COLUMNS,
+    });
+    if (setCards.length === 0) throw new Error(`Set ${setId} has no cards`);
+
+    return { set, setCards, config };
+  },
+  ["catalog-set-for-opening"],
+  { revalidate: 3600, tags: ["catalog", "sets", "cards"] },
+);
+
 export async function loadSetForOpening(setId: string) {
-  const set = await db.query.sets.findFirst({ where: eq(sets.id, setId) });
-  if (!set) throw new Error(`Unknown set: ${setId}`);
-
-  // Code configs are the source of truth (era layouts + set overrides).
-  const config = packConfigForSet(set.id, set.series);
-  const companionIds = config.companionSetIds ?? companionSetIdsFor(setId);
-  const poolSetIds = [setId, ...companionIds];
-
-  const setCards = await db.query.cards.findMany({
-    where:
-      poolSetIds.length === 1
-        ? eq(cards.setId, setId)
-        : inArray(cards.setId, poolSetIds),
-  });
-  if (setCards.length === 0) throw new Error(`Set ${setId} has no cards`);
-
-  return { set, setCards, config };
+  const loaded = await getCachedSetForOpening(setId);
+  return {
+    set: loaded.set,
+    setCards: loaded.setCards as Card[],
+    config: loaded.config,
+  };
 }
 
 /** Sandbox mode: pure simulation, nothing persisted. */

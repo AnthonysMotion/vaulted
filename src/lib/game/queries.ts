@@ -75,7 +75,6 @@ export const getCardsForSet = unstable_cache(
         number: true,
         rarity: true,
         imageSmall: true,
-        imageLarge: true,
       },
       orderBy: [asc(cards.number), asc(cards.name)],
     }),
@@ -116,35 +115,36 @@ export async function getUserCollection(userId: string, filters: CollectionFilte
   if (filters.search) conditions.push(ilike(cards.name, `%${filters.search}%`));
 
   const page = Math.max(1, filters.page ?? 1);
+  const whereClause = and(...conditions);
 
-  const rows = await db
-    .select({
-      cardId: userCards.cardId,
-      quantity: userCards.quantity,
-      firstObtainedAt: userCards.firstObtainedAt,
-      card: {
-        id: cards.id,
-        name: cards.name,
-        number: cards.number,
-        rarity: cards.rarity,
-        imageSmall: cards.imageSmall,
-        imageLarge: cards.imageLarge,
-      },
-    })
-    .from(userCards)
-    .innerJoin(cards, eq(userCards.cardId, cards.id))
-    .where(and(...conditions))
-    .orderBy(desc(userCards.firstObtainedAt))
-    .limit(PAGE_SIZE)
-    .offset((page - 1) * PAGE_SIZE);
+  const [rows, countRows] = await Promise.all([
+    db
+      .select({
+        cardId: userCards.cardId,
+        quantity: userCards.quantity,
+        firstObtainedAt: userCards.firstObtainedAt,
+        card: {
+          id: cards.id,
+          name: cards.name,
+          number: cards.number,
+          rarity: cards.rarity,
+          imageSmall: cards.imageSmall,
+        },
+      })
+      .from(userCards)
+      .innerJoin(cards, eq(userCards.cardId, cards.id))
+      .where(whereClause)
+      .orderBy(desc(userCards.firstObtainedAt))
+      .limit(PAGE_SIZE)
+      .offset((page - 1) * PAGE_SIZE),
+    db
+      .select({ total: count() })
+      .from(userCards)
+      .innerJoin(cards, eq(userCards.cardId, cards.id))
+      .where(whereClause),
+  ]);
 
-  const [{ total }] = await db
-    .select({ total: count() })
-    .from(userCards)
-    .innerJoin(cards, eq(userCards.cardId, cards.id))
-    .where(and(...conditions));
-
-  return { rows, total, page, pageSize: PAGE_SIZE };
+  return { rows, total: countRows[0]?.total ?? 0, page, pageSize: PAGE_SIZE };
 }
 
 export async function getCollectionSummary(userId: string) {
@@ -165,17 +165,6 @@ export async function getCollectionSummary(userId: string) {
   ]);
 
   return { rarityDistribution: rarityRows, ...totals };
-}
-
-/** Total cards pulled from trainer packs (sum of each opening's card count). */
-export async function getCardsCollectedFromPacks(userId: string) {
-  const [row] = await db
-    .select({
-      total: sql<number>`coalesce(sum(jsonb_array_length(${packOpenings.cards})), 0)::int`,
-    })
-    .from(packOpenings)
-    .where(eq(packOpenings.userId, userId));
-  return row?.total ?? 0;
 }
 
 /** Daily pack-open counts for the last ~53 weeks (UTC days). */
@@ -224,7 +213,11 @@ export async function getUserActivityByDay(userId: string, weeks = 53) {
 export async function getSetProgress(userId: string) {
   return db
     .select({
-      set: sets,
+      set: {
+        id: sets.id,
+        name: sets.name,
+        total: sets.total,
+      },
       uniqueOwned: collections.uniqueOwned,
       completedAt: collections.completedAt,
     })
@@ -234,6 +227,18 @@ export async function getSetProgress(userId: string) {
     .orderBy(desc(sql`${collections.uniqueOwned}::float / ${sets.total}`));
 }
 
+export async function getCollectionForSet(userId: string, setId: string) {
+  const [row] = await db
+    .select({
+      uniqueOwned: collections.uniqueOwned,
+      completedAt: collections.completedAt,
+    })
+    .from(collections)
+    .where(and(eq(collections.userId, userId), eq(collections.setId, setId)))
+    .limit(1);
+  return row ?? null;
+}
+
 // ---------------------------------------------------------------------------
 // Binder
 // ---------------------------------------------------------------------------
@@ -241,7 +246,20 @@ export async function getSetProgress(userId: string) {
 export async function getBinder(userId: string) {
   return db.query.binders.findFirst({
     where: eq(binders.userId, userId),
-    with: { slots: { with: { card: true } } },
+    with: {
+      slots: {
+        with: {
+          card: {
+            columns: {
+              id: true,
+              name: true,
+              rarity: true,
+              imageSmall: true,
+            },
+          },
+        },
+      },
+    },
   });
 }
 
@@ -296,10 +314,7 @@ export async function compareCollections(
   theirUserId: string,
   setId: string,
 ) {
-  const setCards = await db.query.cards.findMany({
-    where: eq(cards.setId, setId),
-    columns: { id: true, name: true, rarity: true, number: true, imageSmall: true },
-  });
+  const setCards = await getCardsForSet(setId);
   const ids = setCards.map((c) => c.id);
   if (ids.length === 0) return null;
 

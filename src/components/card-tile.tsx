@@ -1,14 +1,4 @@
-"use client";
-
-import {
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import type { PointerEvent as ReactPointerEvent } from "react";
-import { SafeImage } from "@/components/safe-image";
+import { CatalogImage } from "@/components/catalog-image";
 
 export type CardTileData = {
   id: string;
@@ -31,47 +21,13 @@ export function CardTile({
   onClick?: () => void;
 }) {
   const glow = card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
-  const sizes = { sm: "w-24", md: "w-36", lg: "w-56" };
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springX = useSpring(rotateX, { stiffness: 180, damping: 18, mass: 0.75 });
-  const springY = useSpring(rotateY, { stiffness: 180, damping: 18, mass: 0.75 });
-  const glareX = useTransform(springY, [-10, 10], ["30%", "70%"]);
-  const glareY = useTransform(springX, [-10, 10], ["65%", "35%"]);
-  const glarePosition = useMotionTemplate`${glareX} ${glareY}`;
+  const sizes = { sm: "w-24", md: "w-36", lg: "w-full max-w-56" };
+  const className = `relative ${sizes[size]} shrink-0 [content-visibility:auto] [contain-intrinsic-size:auto_280px] transition-transform duration-200 hover:scale-105 ${onClick ? "cursor-pointer" : ""}`;
 
-  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / Math.max(rect.width / 2, 1);
-    const dy = (e.clientY - cy) / Math.max(rect.height / 2, 1);
-    rotateY.set(dx * 10);
-    rotateX.set(-dy * 8);
-  };
-
-  const resetTilt = () => {
-    rotateX.set(0);
-    rotateY.set(0);
-  };
-
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      className={`relative ${sizes[size]} shrink-0 ${onClick ? "cursor-pointer" : ""}`}
-      onClick={onClick}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={resetTilt}
-      onPointerCancel={resetTilt}
-      style={{
-        rotateX: springX,
-        rotateY: springY,
-        transformPerspective: 900,
-        willChange: "transform",
-      }}
-    >
+  const body = (
+    <>
       <div className={`relative aspect-[63/88] overflow-hidden rounded-lg ${glow}`}>
-        <SafeImage
+        <CatalogImage
           src={card.imageSmall}
           alt={card.name}
           fill
@@ -89,15 +45,6 @@ export function CardTile({
             </div>
           }
         />
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-[3] opacity-70 mix-blend-screen"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.08) 22%, rgba(255,255,255,0) 48%)",
-            backgroundPosition: glarePosition,
-          }}
-        />
       </div>
       {card.quantity !== undefined && card.quantity > 1 && (
         <span className="absolute -right-1.5 -top-1.5 grid min-w-6 place-items-center rounded-full border border-border bg-surface px-1 text-xs font-bold text-primary shadow">
@@ -109,6 +56,16 @@ export function CardTile({
           Reverse
         </span>
       )}
-    </motion.div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button type="button" className={className} onClick={onClick}>
+        {body}
+      </button>
+    );
+  }
+
+  return <div className={className}>{body}</div>;
 }

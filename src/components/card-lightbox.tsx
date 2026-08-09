@@ -11,6 +11,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { SafeImage } from "@/components/safe-image";
+import { hiresCardImageUrl } from "@/lib/images";
 import type { CardTileData } from "./card-tile";
 
 export function CardLightbox({
@@ -102,7 +103,11 @@ export function CardLightbox({
               className={`relative w-[min(80vw,20rem)] sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow}`}
             >
               <SafeImage
-                src={card.imageLarge ?? card.imageSmall}
+                src={
+                  card.imageLarge ??
+                  hiresCardImageUrl(card.imageSmall) ??
+                  card.imageSmall
+                }
                 alt={card.name}
                 fill
                 sizes="(max-width: 640px) 80vw, 320px"

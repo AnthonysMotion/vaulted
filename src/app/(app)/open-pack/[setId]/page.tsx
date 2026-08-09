@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { db } from "@/db";
-import { sets } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { getSetById } from "@/lib/game/queries";
 import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { packsRemainingToday, resolvePackMode } from "@/lib/game/pack-mode";
 import { PackOpener } from "@/components/pack-opener";
@@ -17,10 +15,12 @@ export default async function OpenSetPage({
 }) {
   const [{ setId }, { mode: rawMode }] = await Promise.all([params, searchParams]);
 
-  const set = await db.query.sets.findFirst({ where: eq(sets.id, setId) });
+  const [set, profile] = await Promise.all([
+    getSetById(setId),
+    getOrCreateProfile().catch(() => null),
+  ]);
   if (!set) notFound();
 
-  const profile = await getOrCreateProfile().catch(() => null);
   const mode = resolvePackMode(rawMode, profile);
   if (mode === "trainer") redirectIfNeedsOnboarding(profile);
 

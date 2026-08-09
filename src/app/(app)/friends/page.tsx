@@ -11,7 +11,6 @@ import {
 } from "@/components/friend-actions";
 
 export const metadata = { title: "Friends" };
-export const dynamic = "force-dynamic";
 
 export default async function FriendsPage({
   searchParams,

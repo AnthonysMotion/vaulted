@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { VAULTED_USER_ID_HEADER } from "@/lib/auth/session-header";
 
 const PROTECTED_PREFIXES = [
   "/dashboard",
@@ -23,16 +24,26 @@ function hasSupabaseAuthCookie(request: NextRequest) {
 }
 
 export async function proxy(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  // Never trust a client-supplied user id — strip on every path, including
+  // the public fast-path that skips Auth.
+  requestHeaders.delete(VAULTED_USER_ID_HEADER);
+
   const path = request.nextUrl.pathname;
   const needsAuth = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
   const maybeSignedIn = hasSupabaseAuthCookie(request);
 
-  // Public page, no session cookie — skip the Supabase round-trip.
   if (!needsAuth && !maybeSignedIn) {
-    return NextResponse.next({ request });
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
 
-  let response = NextResponse.next({ request });
+  let cookiesToApply: {
+    name: string;
+    value: string;
+    options?: Parameters<NextResponse["cookies"]["set"]>[2];
+  }[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,10 +57,7 @@ export async function proxy(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
+          cookiesToApply = cookiesToSet;
         },
       },
     },
@@ -64,6 +72,18 @@ export async function proxy(request: NextRequest) {
     url.pathname = "/login";
     url.searchParams.set("next", path);
     return NextResponse.redirect(url);
+  }
+
+  if (user) {
+    requestHeaders.set(VAULTED_USER_ID_HEADER, user.id);
+  }
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+
+  for (const { name, value, options } of cookiesToApply) {
+    response.cookies.set(name, value, options);
   }
 
   return response;

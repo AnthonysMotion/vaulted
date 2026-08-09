@@ -4,7 +4,6 @@ import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 
 export const metadata = { title: "Getting started" };
-export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
   const profile = await getOrCreateProfile();

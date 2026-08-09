@@ -1,14 +1,16 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { SafeImage } from "@/components/safe-image";
+import { CatalogImage } from "@/components/catalog-image";
 import { SetCardGallery } from "@/components/set-card-gallery";
-import { Badge, Card, LinkButton, ProgressBar } from "@/components/ui";
+import { Badge, LinkButton, ProgressBar } from "@/components/ui";
+import { GallerySkeleton } from "@/components/skeletons";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import {
   getCardsForSet,
+  getCollectionForSet,
   getOwnedCardCountsForSet,
   getSetById,
-  getSetProgress,
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
 
@@ -19,36 +21,22 @@ export default async function SetDetailPage({
 }) {
   const { setId } = await params;
 
-  const [set, profile, cards] = await Promise.all([
+  const [set, profile] = await Promise.all([
     getSetById(setId),
     getOrCreateProfile().catch(() => null),
-    getCardsForSet(setId),
   ]);
   if (!set) notFound();
-
-  const [progress, ownedRows] = await Promise.all([
-    profile ? getSetProgress(profile.id) : Promise.resolve([]),
-    profile ? getOwnedCardCountsForSet(profile.id, setId) : Promise.resolve([]),
-  ]);
-
-  const setProgress = progress.find((entry) => entry.set.id === set.id) ?? null;
-  const ownedByCardId = new Map(ownedRows.map((row) => [row.cardId, row.quantity]));
-  const ownedCount = setProgress?.uniqueOwned ?? ownedByCardId.size;
-  const completionPct = set.total > 0 ? Math.floor((ownedCount / set.total) * 100) : 0;
-  const sortedCards = [...cards].sort((a, b) =>
-    a.number.localeCompare(b.number, undefined, { numeric: true, sensitivity: "base" }),
-  );
 
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <Link href="/sets" className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+          <Link href="/sets" className="text-xs font-bold uppercase tracking-widest text-zinc-600 transition-colors hover:text-white">
             ← Back to all sets
           </Link>
           <div className="mt-8 flex items-start gap-6">
             <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-xl">
-              <SafeImage
+              <CatalogImage
                 src={set.logoUrl ?? set.symbolUrl}
                 alt={set.logoUrl ? set.name : ""}
                 fill
@@ -62,7 +50,7 @@ export default async function SetDetailPage({
                 <h1 className="text-4xl font-black tracking-tighter text-white">{set.name}</h1>
                 <Badge color="gold">{set.id.toUpperCase()}</Badge>
               </div>
-              <p className="mt-3 text-zinc-500 font-medium">
+              <p className="mt-3 font-medium text-zinc-500">
                 {set.series} Series · {set.releaseDate.split("-")[0]} · {set.total} cards
               </p>
             </div>
@@ -83,65 +71,100 @@ export default async function SetDetailPage({
         </div>
       </div>
 
-      <div className="grid gap-px bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden md:grid-cols-2 lg:grid-cols-3">
-        <div className="bg-black p-8">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Completion</span>
-            <span className="text-sm font-black text-white">
-              {ownedCount} / {set.total}
-            </span>
-          </div>
-          <ProgressBar value={ownedCount} max={set.total} className="h-1" />
-          <div className="mt-2 text-[10px] font-bold text-zinc-700 text-right uppercase tracking-widest">
-            {completionPct}% Complete
-          </div>
-        </div>
-
-        <div className="bg-black p-8 flex flex-col justify-center">
-          <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-600 mb-2">Metadata</div>
-          <div className="flex flex-wrap gap-2">
-            <Badge>{set.printedTotal} Printed</Badge>
-            <Badge>{cards.length} Indexed</Badge>
-            {setProgress?.completedAt && <Badge color="gold">🏆 Mastered</Badge>}
-          </div>
-        </div>
-
-        <div className="bg-black p-8 flex flex-col justify-center lg:col-span-1 md:col-span-2">
-          {!profile ? (
-            <Link href="/login" className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors uppercase tracking-widest">
-              Sign in to track progress →
-            </Link>
-          ) : (
-            <div className="text-xs font-bold text-emerald-500 uppercase tracking-widest">
-              ✓ Tracking collection
-            </div>
-          )}
-        </div>
-      </div>
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl border border-zinc-900 bg-zinc-950/50" />}>
+        <SetProgressStats set={set} userId={profile?.id ?? null} />
+      </Suspense>
 
       <section className="mt-8">
         <div className="mb-10 flex items-end justify-between border-b border-zinc-900 pb-6">
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Card Gallery</h2>
+            <h2 className="text-xl font-bold tracking-tight text-white">Card Gallery</h2>
             <p className="mt-1 text-sm text-zinc-500">
               Checklist for {set.name}. Owned cards show quantities.
             </p>
           </div>
         </div>
 
-        <SetCardGallery
-          cards={sortedCards.map((card) => ({
-            id: card.id,
-            name: card.name,
-            number: card.number,
-            rarity: card.rarity,
-            imageSmall: card.imageSmall,
-            imageLarge: card.imageLarge,
-            rarityTier: rarityTier(card.rarity),
-            quantity: ownedByCardId.get(card.id),
-          }))}
-        />
+        <Suspense fallback={<GallerySkeleton count={15} />}>
+          <SetGallery setId={set.id} userId={profile?.id ?? null} />
+        </Suspense>
       </section>
     </div>
+  );
+}
+
+async function SetProgressStats({
+  set,
+  userId,
+}: {
+  set: { id: string; total: number; printedTotal: number };
+  userId: string | null;
+}) {
+  const progress = userId ? await getCollectionForSet(userId, set.id) : null;
+  const ownedCount = progress?.uniqueOwned ?? 0;
+  const completionPct = set.total > 0 ? Math.floor((ownedCount / set.total) * 100) : 0;
+
+  return (
+    <div className="grid gap-px overflow-hidden rounded-xl border border-zinc-900 bg-zinc-900 md:grid-cols-2 lg:grid-cols-3">
+      <div className="bg-black p-8">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Completion</span>
+          <span className="text-sm font-black text-white">
+            {ownedCount} / {set.total}
+          </span>
+        </div>
+        <ProgressBar value={ownedCount} max={set.total} className="h-1" />
+        <div className="mt-2 text-right text-[10px] font-bold uppercase tracking-widest text-zinc-700">
+          {completionPct}% Complete
+        </div>
+      </div>
+
+      <div className="flex flex-col justify-center bg-black p-8">
+        <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">Metadata</div>
+        <div className="flex flex-wrap gap-2">
+          <Badge>{set.printedTotal} Printed</Badge>
+          <Badge>{set.total} Indexed</Badge>
+          {progress?.completedAt && <Badge color="gold">🏆 Mastered</Badge>}
+        </div>
+      </div>
+
+      <div className="flex flex-col justify-center bg-black p-8 md:col-span-2 lg:col-span-1">
+        {!userId ? (
+          <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-blue-500 transition-colors hover:text-blue-400">
+            Sign in to track progress →
+          </Link>
+        ) : (
+          <div className="text-xs font-bold uppercase tracking-widest text-emerald-500">
+            ✓ Tracking collection
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+async function SetGallery({ setId, userId }: { setId: string; userId: string | null }) {
+  const [cards, ownedRows] = await Promise.all([
+    getCardsForSet(setId),
+    userId ? getOwnedCardCountsForSet(userId, setId) : Promise.resolve([]),
+  ]);
+
+  const ownedByCardId = new Map(ownedRows.map((row) => [row.cardId, row.quantity]));
+  const sortedCards = [...cards].sort((a, b) =>
+    a.number.localeCompare(b.number, undefined, { numeric: true, sensitivity: "base" }),
+  );
+
+  return (
+    <SetCardGallery
+      cards={sortedCards.map((card) => ({
+        id: card.id,
+        name: card.name,
+        number: card.number,
+        rarity: card.rarity,
+        imageSmall: card.imageSmall,
+        rarityTier: rarityTier(card.rarity),
+        quantity: ownedByCardId.get(card.id),
+      }))}
+    />
   );
 }

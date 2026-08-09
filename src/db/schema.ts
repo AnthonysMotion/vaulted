@@ -177,6 +177,7 @@ export const userCards = pgTable(
   (t) => [
     uniqueIndex("user_cards_user_card_idx").on(t.userId, t.cardId),
     index("user_cards_user_idx").on(t.userId),
+    index("user_cards_user_obtained_idx").on(t.userId, t.firstObtainedAt),
   ],
 );
 

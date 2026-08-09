@@ -5,11 +5,10 @@ import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
 import { packsRemainingToday, resolvePackMode } from "@/lib/game/pack-mode";
 import { COMPANION_ONLY_SET_IDS } from "@/lib/packs/companions";
-import { SafeImage } from "@/components/safe-image";
+import { CatalogImage } from "@/components/catalog-image";
 import { Badge } from "@/components/ui";
 
 export const metadata = { title: "Open Packs" };
-export const dynamic = "force-dynamic";
 
 export default async function OpenPackPage({
   searchParams,
@@ -17,12 +16,15 @@ export default async function OpenPackPage({
   searchParams: Promise<{ mode?: string }>;
 }) {
   const { mode: rawMode } = await searchParams;
-  const profile = await getOrCreateProfile().catch(() => null);
+  const [profile, catalogSets] = await Promise.all([
+    getOrCreateProfile().catch(() => null),
+    getAllSets(),
+  ]);
   const packsLeft = profile ? packsRemainingToday(profile) : 0;
   const mode = resolvePackMode(rawMode, profile);
   if (mode === "trainer") redirectIfNeedsOnboarding(profile);
 
-  const allSets = (await getAllSets()).filter(
+  const allSets = catalogSets.filter(
     (s) => !COMPANION_ONLY_SET_IDS.has(s.id),
   );
   const bySeries = new Map<string, typeof allSets>();
@@ -88,11 +90,11 @@ export default async function OpenPackPage({
                 className="group flex flex-col items-center gap-5 bg-black p-5 transition-all hover:bg-zinc-950 sm:p-8"
               >
                 <div className="relative grid h-24 w-full place-items-center bg-zinc-900/30 rounded-xl border border-transparent transition-all group-hover:border-zinc-800 group-hover:bg-zinc-900/50">
-                  <SafeImage
+                  <CatalogImage
                     src={s.logoUrl}
                     alt={s.name}
                     fill
-                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 20vw"
+                    sizes="96px"
                     className="object-contain p-3 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
                     fallback={
                       <span className="font-bold text-zinc-700">{s.name}</span>

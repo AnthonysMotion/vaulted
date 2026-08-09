@@ -1,8 +1,13 @@
 import { cache } from "react";
+import { headers } from "next/headers";
 import { db } from "@/db";
 import { binders, profiles, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isBootstrapDeveloperUsername } from "@/lib/game/developer";
+import {
+  parseVaultedUserId,
+  VAULTED_USER_ID_HEADER,
+} from "@/lib/auth/session-header";
 import { eq } from "drizzle-orm";
 import type { User } from "@supabase/supabase-js";
 
@@ -30,8 +35,8 @@ function avatarFromUser(user: User): string | null {
   return typeof url === "string" && url.startsWith("http") ? url : null;
 }
 
-/** One Supabase auth round-trip per request (navbar + page share this). */
-const getAuthUser = cache(async () => {
+/** Validate with the Auth server. Used by API routes (proxy is skipped) and first-login create. */
+const fetchAuthUser = cache(async () => {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -40,18 +45,19 @@ const getAuthUser = cache(async () => {
 });
 
 /**
- * Fetch the profile for the current session, creating it on first login.
- * Wrapped in React `cache()` so layout + page only hit auth/DB once per request.
+ * Session user id for this request. Prefers the proxy header (already
+ * validated via `getUser()`) so RSC pages skip a second Auth round-trip.
  */
-export const getOrCreateProfile = cache(async (): Promise<Profile | null> => {
-  const user = await getAuthUser();
-  if (!user) return null;
+const getAuthUserId = cache(async (): Promise<string | null> => {
+  const headerStore = await headers();
+  const fromProxy = parseVaultedUserId(headerStore.get(VAULTED_USER_ID_HEADER));
+  if (fromProxy) return fromProxy;
 
-  const existing = await db.query.profiles.findFirst({
-    where: eq(profiles.id, user.id),
-  });
-  if (existing) return existing;
+  const user = await fetchAuthUser();
+  return user?.id ?? null;
+});
 
+async function createProfileForUser(user: User): Promise<Profile> {
   const base = usernameFromUser(user);
   const avatarUrl = avatarFromUser(user);
   let username = base;
@@ -80,18 +86,37 @@ export const getOrCreateProfile = cache(async (): Promise<Profile | null> => {
       });
       if (raced) return raced;
 
-      // Otherwise it was a username collision — try a suffix.
       username = `${base.slice(0, 16)}${Math.floor(Math.random() * 9000) + 1000}`;
     }
   }
 
-  // Last resort: another request may have finished creating mid-loop.
   const fallback = await db.query.profiles.findFirst({
     where: eq(profiles.id, user.id),
   });
   if (fallback) return fallback;
 
   throw new Error("Could not allocate a username");
+}
+
+/**
+ * Fetch the profile for the current session, creating it on first login.
+ * Wrapped in React `cache()` so layout + page only hit DB once per request.
+ */
+export const getOrCreateProfile = cache(async (): Promise<Profile | null> => {
+  const userId = await getAuthUserId();
+  if (!userId) return null;
+
+  const existing = await db.query.profiles.findFirst({
+    where: eq(profiles.id, userId),
+  });
+  if (existing) return existing;
+
+  const user = await fetchAuthUser();
+  if (!user) return null;
+  return createProfileForUser(user);
 });
 
-export const getSessionUser = cache(async () => getAuthUser());
+export const getSessionUser = cache(async () => {
+  const id = await getAuthUserId();
+  return id ? { id } : null;
+});

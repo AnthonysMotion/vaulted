@@ -5,7 +5,6 @@ import { userAchievements } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import {
   getBinder,
-  getCardsCollectedFromPacks,
   getProfileByUsername,
   getSetProgress,
   getUserRecentPackOpenings,
@@ -26,9 +25,8 @@ export default async function ProfilePage({
   const profile = await getProfileByUsername(username);
   if (!profile) notFound();
 
-  const [cardsCollected, progress, binder, unlocked, viewer, recentPacks] =
+  const [progress, binder, unlocked, viewer, recentPacks] =
     await Promise.all([
-      getCardsCollectedFromPacks(profile.id),
       getSetProgress(profile.id),
       getBinder(profile.id),
       db.query.userAchievements.findMany({
@@ -38,6 +36,8 @@ export default async function ProfilePage({
       getOrCreateProfile().catch(() => null),
       getUserRecentPackOpenings(profile.id, 5),
     ]);
+
+  const cardsCollected = profile.totalCardsCollected;
 
   const isOwner = viewer?.id === profile.id;
   const completedSets = progress.filter((p) => p.completedAt);
