@@ -130,19 +130,19 @@ export function BinderEditor({
       className={`flex flex-col gap-4 ${align === "start" ? "items-start" : "items-center"}`}
     >
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+        <div className="border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {error}
         </div>
       )}
 
-      <div className="grid w-full max-w-xl grid-cols-3 gap-2 rounded-3xl border border-border bg-surface p-3 sm:gap-3 sm:p-5">
+      <div className="grid w-full max-w-xl grid-cols-3 gap-2 border border-border bg-surface p-3 sm:gap-3 sm:p-5">
         {slots.map((slot, i) => (
           <div
             key={i}
             ref={(el) => {
               cellRefs.current[i] = el;
             }}
-            className="relative aspect-[63/88] rounded-xl border border-dashed border-border bg-surface-2"
+            className="relative aspect-[63/88] border border-dashed border-border bg-surface-2"
           >
             {slot ? (
               <motion.div
@@ -154,7 +154,7 @@ export function BinderEditor({
                 className={`absolute inset-0 ${editable ? "cursor-grab active:cursor-grabbing" : ""}`}
               >
                 <div
-                  className={`relative h-full w-full overflow-hidden rounded-xl ${
+                  className={`relative h-full w-full overflow-hidden ${
                     rarityTier(slot.rarity) >= 3
                       ? `glow-tier-${Math.min(rarityTier(slot.rarity), 6)}`
                       : ""
@@ -180,7 +180,7 @@ export function BinderEditor({
                   </span>
                 )}
                 {editable && (
-                  <div className="absolute inset-x-0 bottom-0 flex justify-center gap-1 rounded-b-xl bg-black/60 py-1 opacity-0 transition-opacity hover:opacity-100">
+                  <div className="absolute inset-x-0 bottom-0 flex justify-center gap-1-xl bg-black/60 py-1 opacity-0 transition-opacity hover:opacity-100">
                     <button
                       onClick={() => toggleFavourite(i)}
                       title="Favourite showcase card"

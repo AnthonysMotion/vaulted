@@ -29,16 +29,16 @@ export default async function OpenSetPage({
 
   return (
     <div className="flex flex-col gap-8 md:gap-10">
-      <div className="flex flex-col gap-5 border-b border-zinc-900 pb-6 lg:flex-row lg:items-center lg:justify-between lg:pb-8">
+      <div className="flex flex-col gap-5 border-b border-border pb-6 lg:flex-row lg:items-center lg:justify-between lg:pb-8">
         <div>
-          <Link href={`/open-pack?mode=${mode}`} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+          <Link href={`/open-pack?mode=${mode}`} className="text-xs font-bold uppercase tracking-widest text-muted-2 hover:text-white transition-colors">
             ← Change booster
           </Link>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <h1 className="text-3xl font-black tracking-tighter text-white">{set.name}</h1>
-            <div className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-lg ${
+            <div className={`text-[10px] font-black px-3 py-1 uppercase tracking-[0.2em] shadow-lg ${
               mode === "sandbox" 
-                ? "bg-zinc-800 text-zinc-400 border border-zinc-700" 
+                ? "bg-border text-muted border border-border" 
                 : "bg-white text-black border border-white"
             }`}>
               {mode === "sandbox" ? "Sandbox" : "Trainer"}
@@ -47,7 +47,7 @@ export default async function OpenSetPage({
         </div>
         <Link 
           href={`/sets/${set.id}`} 
-          className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-all flex items-center gap-2"
+          className="text-xs font-bold uppercase tracking-widest text-muted-2 hover:text-white transition-all flex items-center gap-2"
         >
           Browse cards
           <span className="text-lg opacity-50">→</span>
@@ -57,7 +57,13 @@ export default async function OpenSetPage({
       <div className="relative py-6 sm:py-12">
         <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none" />
         <PackOpener
-          set={{ id: set.id, name: set.name, logoUrl: set.logoUrl, symbolUrl: set.symbolUrl }}
+          set={{
+            id: set.id,
+            name: set.name,
+            series: set.series,
+            logoUrl: set.logoUrl,
+            symbolUrl: set.symbolUrl,
+          }}
           mode={mode}
           initialPacksRemaining={packsRemaining}
         />

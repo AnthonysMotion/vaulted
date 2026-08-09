@@ -78,13 +78,13 @@ export default async function AccountPage({
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">
+        <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-2">
           Account
         </div>
         <h1 className="mt-4 text-4xl font-black tracking-tighter text-white">
           Edit account
         </h1>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-500">
+        <p className="mt-3 max-w-2xl text-sm text-muted-2">
           Update your public profile details, images, and trainer identity.
         </p>
       </div>
@@ -93,7 +93,7 @@ export default async function AccountPage({
         <form action={updateAccount} className="flex flex-col gap-6">
           {message && (
             <div
-              className={`rounded-xl border px-4 py-3 text-sm ${
+              className={` border px-4 py-3 text-sm ${
                 params.error
                   ? "border-red-500/30 bg-red-500/10 text-red-300"
                   : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
@@ -105,7 +105,7 @@ export default async function AccountPage({
 
           <div className="grid gap-6 sm:grid-cols-2">
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
                 Username
               </span>
               <input
@@ -115,25 +115,25 @@ export default async function AccountPage({
                 maxLength={20}
                 pattern="[a-z0-9_]+"
                 defaultValue={profile.username}
-                className="h-12 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-white outline-none transition-colors focus:border-zinc-600"
+                className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors focus:border-zinc-600"
               />
             </label>
 
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
                 Favourite Pokemon
               </span>
               <input
                 name="favouritePokemon"
                 maxLength={40}
                 defaultValue={profile.favouritePokemon ?? ""}
-                className="h-12 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-white outline-none transition-colors focus:border-zinc-600"
+                className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors focus:border-zinc-600"
               />
             </label>
           </div>
 
           <label className="flex flex-col gap-2 text-sm">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
               Bio
             </span>
             <textarea
@@ -141,32 +141,32 @@ export default async function AccountPage({
               rows={4}
               maxLength={240}
               defaultValue={profile.bio ?? ""}
-              className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white outline-none transition-colors focus:border-zinc-600"
+              className="border border-border bg-surface px-4 py-3 text-white outline-none transition-colors focus:border-zinc-600"
             />
           </label>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
                 Avatar image URL
               </span>
               <input
                 name="avatarUrl"
                 type="url"
                 defaultValue={profile.avatarUrl ?? ""}
-                className="h-12 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-white outline-none transition-colors focus:border-zinc-600"
+                className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors focus:border-zinc-600"
               />
             </label>
 
             <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
                 Banner image URL
               </span>
               <input
                 name="bannerUrl"
                 type="url"
                 defaultValue={profile.bannerUrl ?? ""}
-                className="h-12 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-white outline-none transition-colors focus:border-zinc-600"
+                className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors focus:border-zinc-600"
               />
             </label>
           </div>

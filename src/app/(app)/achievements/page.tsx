@@ -48,7 +48,7 @@ export default async function AchievementsPage() {
           <h1 className="mt-4 text-4xl font-black tracking-tighter text-white sm:text-5xl">
             Achievements.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm font-medium text-zinc-500 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm font-medium text-muted-2 sm:text-base">
             Track every unlock in Vaulted and see which milestones you&apos;ve already collected.
           </p>
         </div>
@@ -63,10 +63,10 @@ export default async function AchievementsPage() {
         {grouped.map((group) => (
           <section key={group.category} className="flex flex-col gap-5">
             <div className="flex items-center gap-4">
-              <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
+              <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-2">
                 {group.label}
               </h2>
-              <div className="h-px flex-1 bg-zinc-900" />
+              <div className="h-px flex-1 bg-surface-2" />
               <Badge>{group.items.length}</Badge>
             </div>
 
@@ -77,18 +77,18 @@ export default async function AchievementsPage() {
                   <Card
                     key={achievement.id}
                     variant="surface"
-                    className={`flex h-full flex-col gap-4 border-zinc-800 ${
-                      unlocked ? "bg-zinc-950" : "opacity-75"
+                    className={`flex h-full flex-col gap-4 border-border ${
+                      unlocked ? "bg-surface" : "opacity-75"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-zinc-800 bg-black text-2xl">
+                        <div className="grid h-12 w-12 shrink-0 place-items-center border border-border bg-black text-2xl">
                           {achievement.icon}
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-white">{achievement.name}</h3>
-                          <p className="mt-1 text-sm text-zinc-500">{achievement.description}</p>
+                          <p className="mt-1 text-sm text-muted-2">{achievement.description}</p>
                         </div>
                       </div>
                       <Badge color={unlocked ? "green" : "default"}>

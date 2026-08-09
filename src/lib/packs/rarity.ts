@@ -49,6 +49,15 @@ export function rarityTier(rarity: string | null | undefined): number {
   return RARITY_TIERS[rarity] ?? 2;
 }
 
+/** Badge color token for a rarity tier (safe for server + client). */
+export function rarityBadgeColor(tier: number) {
+  if (tier >= 6) return "pink" as const;
+  if (tier >= 5) return "gold" as const;
+  if (tier >= 4) return "purple" as const;
+  if (tier >= 3) return "blue" as const;
+  return "default" as const;
+}
+
 /** Tier at which a pull is feed-worthy ("X pulled ...!"). */
 export const FEED_WORTHY_TIER = 4;
 

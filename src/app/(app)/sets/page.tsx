@@ -13,7 +13,7 @@ export default async function SetsPage() {
     <div className="flex flex-col gap-12">
       <div>
         <h1 className="text-4xl font-black tracking-tighter text-white">Expansions</h1>
-        <p className="mt-4 max-w-md text-zinc-500">
+        <p className="mt-4 max-w-md text-muted-2">
           Explore every set from the 1999 Base Set to today.
         </p>
       </div>
@@ -51,29 +51,29 @@ async function SetsGrid() {
   return (
     <>
       {profile && (
-        <p className="-mt-8 text-sm text-zinc-600">
+        <p className="-mt-8 text-sm text-muted-2">
           Your collection progress is tracked automatically.
         </p>
       )}
       {[...bySeries.entries()].map(([series, seriesSets]) => (
         <section key={series}>
           <div className="mb-6 flex items-center gap-4">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-muted">
               {series}
             </h2>
-            <div className="h-px flex-1 bg-zinc-900" />
+            <div className="h-px flex-1 bg-surface-2" />
             <Badge>{seriesSets.length}</Badge>
           </div>
-          <div className="grid gap-px overflow-hidden rounded-xl border border-zinc-900 bg-zinc-900 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-px overflow-hidden border border-border bg-surface-2 sm:grid-cols-2 lg:grid-cols-3">
             {seriesSets.map((s) => {
               const prog = progressBySet.get(s.id);
               return (
                 <Link
                   key={s.id}
                   href={`/sets/${s.id}`}
-                  className="group flex items-center gap-4 bg-black p-6 transition-all hover:bg-zinc-950"
+                  className="group flex items-center gap-4 bg-black p-6 transition-all hover:bg-surface"
                 >
-                  <div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-zinc-800 bg-zinc-900/50 transition-colors group-hover:border-zinc-700">
+                  <div className="relative grid h-12 w-12 shrink-0 place-items-center border border-border bg-surface-2/50 transition-colors group-hover:border-border">
                     <CatalogImage
                       src={s.logoUrl ?? s.symbolUrl}
                       alt={s.logoUrl ? s.name : ""}
@@ -88,7 +88,7 @@ async function SetsGrid() {
                       <span className="truncate font-bold text-white transition-colors group-hover:text-white">{s.name}</span>
                       {prog?.completed && <span title="Completed" className="text-xs">🏆</span>}
                     </div>
-                    <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+                    <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-muted-2">
                       {s.releaseDate.split("-")[0]} · {s.total} cards
                     </div>
                     {prog && (

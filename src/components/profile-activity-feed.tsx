@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ProfilePackOpening } from "@/lib/game/queries";
 import { SafeImage } from "@/components/safe-image";
-import { rarityBadgeColor, Badge } from "@/components/ui";
+import { Badge } from "@/components/ui";
+import { rarityBadgeColor } from "@/lib/packs/rarity";
 
 function timeAgo(date: Date | string): string {
   const diff = Date.now() - new Date(date).getTime();
@@ -26,40 +27,29 @@ export function ProfileActivityFeed({
   username: string;
 }) {
   return (
-    <section className="min-w-0">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
-          Recent packs
-        </h2>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">
-          Trainer
-        </span>
-      </div>
-
+    <div className="min-w-0">
       {openings.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-900 px-4 py-8 text-center">
-          <p className="text-xs text-zinc-500">
-            No packs yet for {username}.
-          </p>
+        <div className="border border-dashed border-border px-6 py-12 text-center">
+          <p className="text-sm text-muted-2">No packs yet for {username}.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-px overflow-hidden border border-border bg-border">
           {openings.map((opening) => (
             <PackOpeningRow key={opening.id} opening={opening} />
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
 function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
   return (
-    <article className="rounded-lg border border-zinc-900 bg-zinc-950/80 px-3 py-2.5">
-      <div className="flex items-center gap-2.5">
+    <article className="bg-background px-4 py-4 transition-colors hover:bg-surface sm:px-5">
+      <div className="flex items-center gap-3">
         <Link
           href={`/sets/${opening.set.id}`}
-          className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-md border border-zinc-800 bg-black"
+          className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden border border-border bg-surface"
         >
           {opening.set.logoUrl ? (
             <div className="relative h-6 w-[80%]">
@@ -67,37 +57,37 @@ function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
                 src={opening.set.logoUrl}
                 alt=""
                 fill
-                sizes="36px"
+                sizes="40px"
                 className="object-contain"
                 fallback={
-                  <span className="text-[8px] font-bold text-zinc-600">SET</span>
+                  <span className="font-mono text-[8px] text-muted-2">SET</span>
                 }
               />
             </div>
           ) : (
-            <span className="text-[8px] font-bold text-zinc-600">SET</span>
+            <span className="font-mono text-[8px] text-muted-2">SET</span>
           )}
         </Link>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/sets/${opening.set.id}`}
-              className="truncate text-sm font-medium text-white hover:underline"
+              className="truncate text-sm font-medium tracking-[-0.02em] text-white transition-colors hover:text-accent"
             >
               {opening.set.name}
             </Link>
             {opening.isGodPack && (
-              <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-px text-[9px] font-bold uppercase tracking-wider text-amber-300">
+              <span className="border border-amber-500/40 bg-amber-500/10 px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-amber-300">
                 God
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-[11px] text-zinc-500">
+          <p className="mt-1 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
             {timeAgo(opening.openedAt)}
-            <span className="mx-1 text-zinc-700">·</span>
+            <span className="mx-1.5 text-border">/</span>
             {opening.cardCount} cards
-            <span className="mx-1 text-zinc-700">·</span>+{opening.xpAwarded} XP
+            <span className="mx-1.5 text-border">/</span>+{opening.xpAwarded} XP
           </p>
         </div>
 
@@ -106,7 +96,7 @@ function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
             {opening.highlights.slice(0, 3).map((hit) => (
               <div
                 key={`${opening.id}-${hit.cardId}`}
-                className="w-8 overflow-hidden rounded border border-zinc-800 bg-black sm:w-9"
+                className="w-8 overflow-hidden border border-border bg-black sm:w-9"
                 title={hit.card?.name ?? hit.cardId}
               >
                 <div className="relative aspect-[63/88]">
@@ -117,7 +107,7 @@ function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
                     sizes="36px"
                     className="object-cover"
                     fallback={
-                      <div className="grid h-full place-items-center text-[7px] text-zinc-600">
+                      <div className="grid h-full place-items-center text-[7px] text-muted-2">
                         ?
                       </div>
                     }
@@ -130,11 +120,11 @@ function PackOpeningRow({ opening }: { opening: ProfilePackOpening }) {
       </div>
 
       {opening.highlights[0] && opening.highlights[0].tier >= 4 && (
-        <div className="mt-1.5 flex items-center gap-1.5 pl-11">
+        <div className="mt-2 flex items-center gap-2 pl-[3.25rem]">
           <Badge color={rarityBadgeColor(opening.highlights[0].tier)}>
             {opening.highlights[0].rarity ?? "Hit"}
           </Badge>
-          <span className="truncate text-[11px] text-zinc-400">
+          <span className="truncate text-xs text-muted">
             {opening.highlights[0].card?.name}
           </span>
         </div>

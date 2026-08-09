@@ -1,63 +1,123 @@
 @import "tailwindcss";
 
 /*
-  Vercel-inspired visual language:
-  Pure black, high contrast white, subtle borders, sharp geometric layout.
+  Sui-inspired visual language:
+  https://www.sui.io/ — black stage, grey-900 chrome, primary blue accents, sharp edges.
+
+  Theme knobs (change once → updates everywhere):
+    --color-blur   brand / accent / CTA / banner blue
+    --glass-blur   backdrop-filter strength on frosted chrome
 */
 
+:root {
+  /* ——— change this to retheme the brand blue everywhere ——— */
+  --color-blur: #298dff;
+
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-grey-50: #f4f5f7;
+  --color-grey-100: #e0e2e6;
+  --color-grey-200: #c2c6cd;
+  --color-grey-300: #a1a7b2;
+  --color-grey-400: #89919f;
+  --color-grey-500: #6c7584;
+  --color-grey-600: #4b515b;
+  --color-grey-700: #343940;
+  --color-grey-800: #222529;
+  --color-grey-900: #131518;
+  --color-orange: #ff6c3d;
+
+  --glass-blur: 12px;
+  --glass-bg: color-mix(in srgb, var(--color-grey-900) 88%, transparent);
+  --glass-border: color-mix(in srgb, var(--color-grey-800) 90%, transparent);
+  --glass-outline: color-mix(in srgb, var(--color-white) 6%, transparent);
+
+  --ease-sui: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-sui-smooth: cubic-bezier(0.4, 0, 0.05, 1);
+
+  /* Matches SiteHeader spacer; updated at runtime when banner toggles */
+  --site-header-offset: 7.25rem;
+}
+
 @theme inline {
-  --color-background: #000000;
-  --color-surface: #0a0a0a;
-  --color-surface-2: #111111;
-  --color-border: #333333;
-  --color-primary: #ffffff; /* Vercel's primary action is usually white on black */
-  --color-primary-dark: #cccccc;
-  --color-accent: #0070f3; /* Vercel Blue */
-  --color-ink: #ffffff;
-  --color-foreground: #ffffff;
-  --color-muted: #888888;
-  --color-anthracite: #111111;
-  --color-dark-grey: #222222;
+  --color-background: var(--color-black);
+  --color-surface: var(--color-grey-900);
+  --color-surface-2: var(--color-grey-800);
+  --color-border: var(--color-grey-700);
+  /* Accent utilities track :root --color-blur */
+  --color-accent: var(--color-blur);
+  --color-primary: var(--color-blur);
+  --color-primary-dark: color-mix(in srgb, var(--color-blur) 80%, black);
+  --color-ink: var(--color-white);
+  --color-foreground: var(--color-white);
+  --color-muted: var(--color-grey-400);
+  --color-muted-2: var(--color-grey-500);
+  --color-category: var(--color-grey-300);
+  --color-anthracite: var(--color-grey-900);
+  --color-dark-grey: var(--color-grey-800);
   --font-sans: var(--font-display);
   --font-mono: var(--font-mono-label);
-  --radius-s: 4px;
-  --radius-m: 8px;
-  --radius-l: 12px;
-  --glass-bg: rgba(0, 0, 0, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-outline: rgba(255, 255, 255, 0.05);
-  --glass-blur: 12px;
+  --radius-s: 0px;
+  --radius-m: 0px;
+  --radius-l: 0px;
 }
 
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.8);
+  background: color-mix(in srgb, var(--color-black) 80%, transparent);
   backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid color-mix(in srgb, var(--color-white) 12%, transparent);
 }
 
 .glass-primary {
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--color-blur) 92%, transparent);
   backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid rgba(255, 255, 255, 1);
-  color: #000;
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--color-blur);
+  color: var(--color-white);
 }
 
 .grid-bg {
-  background-image: 
-    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, var(--color-grey-800) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grey-800) 1px, transparent 1px);
   background-size: 40px 40px;
   mask-image: radial-gradient(circle at center, black, transparent 80%);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Sui hard corners — kill soft radius project-wide */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+/* Opt-in round only where a circle is required (e.g. spinner) */
+.keep-round {
+  border-radius: 9999px !important;
+}
+
+/* Card silhouettes — era radius via --card-corner-radius (see lib/cards/corners) */
+.card-corners {
+  border-radius: var(--card-corner-radius, 4.25%) !important;
+}
+
+input,
+textarea,
+select,
+button {
+  border-radius: 0;
 }
 
 html {
@@ -69,71 +129,73 @@ body {
   color: var(--color-foreground);
   min-height: 100vh;
   overflow-x: clip;
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Arial, system-ui, sans-serif;
   font-weight: 400;
-  letter-spacing: -0.02em;
+  font-size: 1rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: #ffffff;
-  color: #000000;
+  background: var(--color-blur);
+  color: var(--color-white);
 }
 
 /* ------------------------------------------------------------------ */
-/* Type scale (Vercel-inspired)                                       */
+/* Type scale (Sui-like: lighter weight, tight tracking)               */
 /* ------------------------------------------------------------------ */
 
 .mwg-label {
   font-family: var(--font-mono-label), ui-monospace, monospace;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.05em;
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-category);
 }
 
 .mwg-label-s {
   font-family: var(--font-mono-label), ui-monospace, monospace;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.05em;
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-category);
 }
 
 .title-xl {
-  font-size: clamp(3rem, 10vw, 6rem);
-  font-weight: 800;
-  line-height: 0.85;
-  letter-spacing: -0.05em;
+  font-size: clamp(3rem, 10vw, 5.625rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
 }
 
 .title-l {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 700;
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  font-weight: 400;
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.05em;
 }
 
 .title-m {
-  font-size: clamp(1.75rem, 4vw, 3rem);
-  font-weight: 600;
-  line-height: 1;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.05;
   letter-spacing: -0.03em;
 }
 
 .title-s {
-  font-size: clamp(1.25rem, 3vw, 2rem);
-  font-weight: 600;
-  line-height: 1.1;
+  font-size: clamp(1.125rem, 3vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.15;
   letter-spacing: -0.02em;
 }
 
 /* ------------------------------------------------------------------ */
-/* Rarity glows (Vercel dark edition)                                  */
+/* Rarity glows                                                        */
 /* ------------------------------------------------------------------ */
 
 .glow-tier-3,
@@ -145,8 +207,47 @@ body {
 }
 
 @keyframes vercel-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 1px #ff0080, 0 0 30px rgba(255, 0, 128, 0.3); }
-  50% { opacity: 0.8; box-shadow: 0 0 0 2px #ff0080, 0 0 40px rgba(255, 0, 128, 0.5); }
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow:
+      0 0 0 1px var(--color-blur),
+      0 0 30px color-mix(in srgb, var(--color-blur) 35%, transparent);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow:
+      0 0 0 2px var(--color-blur),
+      0 0 40px color-mix(in srgb, var(--color-blur) 50%, transparent);
+  }
+}
+
+/* Sui navbar-dd: GSAP back.out(10) on margin-top 0 → 0.2em (~250ms) */
+/* Use transform (not margin) so the hover hit-box stays attached to the bar. */
+@keyframes vaulted-dd-bounce {
+  0% {
+    transform: translateY(0);
+  }
+  55% {
+    transform: translateY(0.58em);
+  }
+  78% {
+    transform: translateY(0.1em);
+  }
+  100% {
+    transform: translateY(0.2em);
+  }
+}
+
+.vaulted-dd-bounce {
+  animation: vaulted-dd-bounce 0.25s var(--ease-sui) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vaulted-dd-bounce {
+    animation: none;
+    transform: translateY(0.2em);
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -158,14 +259,43 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: var(--color-black);
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: var(--color-grey-700);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: var(--color-grey-600);
+}
+
+/* ------------------------------------------------------------------ */
+/* Home hero                                                           */
+/* ------------------------------------------------------------------ */
+
+@keyframes vaulted-hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-title-block {
+  animation: vaulted-hero-rise 0.7s var(--ease-sui-smooth) both;
+}
+
+.hero-aside {
+  animation: vaulted-hero-rise 0.7s var(--ease-sui-smooth) 0.12s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title-block,
+  .hero-aside {
+    animation: none;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -175,7 +305,7 @@ body {
 .feature-slide {
   opacity: 0;
   visibility: hidden;
-  transition: all 0.5s ease;
+  transition: all 0.5s var(--ease-sui-smooth);
 }
 
 .feature-slide:first-child {

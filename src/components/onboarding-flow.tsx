@@ -109,21 +109,21 @@ export function OnboardingFlow({
     <div className="relative mx-auto flex w-full max-w-2xl flex-col">
       <div className="mb-10">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-2">
             Getting started · {stepIndex + 1} / {steps.length}
           </p>
           <button
             type="button"
             disabled={pending}
             onClick={() => finish("/dashboard")}
-            className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 transition-colors hover:text-zinc-300 disabled:opacity-50"
+            className="text-[10px] font-bold uppercase tracking-widest text-muted-2 transition-colors hover:text-category disabled:opacity-50"
           >
             Skip
           </button>
         </div>
-        <div className="mt-4 h-1 overflow-hidden rounded-full bg-zinc-900">
+        <div className="mt-4 h-1 overflow-hidden bg-surface-2">
           <motion.div
-            className="h-full rounded-full bg-white"
+            className="h-full bg-white"
             initial={false}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.35, ease: "easeOut" }}
@@ -141,29 +141,29 @@ export function OnboardingFlow({
             transition={{ duration: 0.25 }}
             className="flex flex-col"
           >
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-2">
               {step.eyebrow}
             </p>
             <h1 className="mt-4 text-4xl font-black tracking-tighter text-white sm:text-5xl">
               {step.title}
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-zinc-400">{step.body}</p>
+            <p className="mt-6 text-lg leading-relaxed text-muted">{step.body}</p>
 
             {step.id === "welcome" && (
-              <p className="mt-4 text-sm text-zinc-500">
+              <p className="mt-4 text-sm text-muted-2">
                 Signed in as{" "}
-                <span className="font-medium text-zinc-300">{username}</span>
+                <span className="font-medium text-category">{username}</span>
               </p>
             )}
 
             {step.points && (
-              <ul className="mt-8 space-y-3 border-t border-zinc-900 pt-8">
+              <ul className="mt-8 space-y-3 border-t border-border pt-8">
                 {step.points.map((point) => (
                   <li
                     key={point}
-                    className="flex gap-3 text-sm leading-relaxed text-zinc-400"
+                    className="flex gap-3 text-sm leading-relaxed text-muted"
                   >
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-600" />
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-zinc-600" />
                     <span>{point}</span>
                   </li>
                 ))}
@@ -171,9 +171,9 @@ export function OnboardingFlow({
             )}
 
             {isProfileStep && (
-              <div className="mt-8 flex flex-col gap-4 border-t border-zinc-900 pt-8">
+              <div className="mt-8 flex flex-col gap-4 border-t border-border pt-8">
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
                     Favourite Pokémon{" "}
                     <span className="text-zinc-700">(optional)</span>
                   </span>
@@ -182,11 +182,11 @@ export function OnboardingFlow({
                     onChange={(e) => setFavouritePokemon(e.target.value)}
                     maxLength={40}
                     placeholder="e.g. Gengar"
-                    className="h-12 rounded-xl border border-zinc-800 bg-zinc-950 px-4 text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-zinc-600"
+                    className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors placeholder:text-muted-2 focus:border-zinc-600"
                   />
                 </label>
                 <label className="flex flex-col gap-2 text-sm">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
                     Short bio <span className="text-zinc-700">(optional)</span>
                   </span>
                   <textarea
@@ -195,7 +195,7 @@ export function OnboardingFlow({
                     maxLength={280}
                     rows={3}
                     placeholder="Collector, chase card hunter, etc."
-                    className="resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-zinc-600"
+                    className="resize-none border border-border bg-surface px-4 py-3 text-white outline-none transition-colors placeholder:text-muted-2 focus:border-zinc-600"
                   />
                 </label>
               </div>
@@ -203,25 +203,25 @@ export function OnboardingFlow({
 
             {step.id === "ready" && (
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                <div className="border border-border bg-surface p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-2">
                     Next
                   </p>
                   <p className="mt-2 text-sm font-medium text-white">
                     Open a Trainer pack
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-muted-2">
                     Cards save to your collection.
                   </p>
                 </div>
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                <div className="border border-border bg-surface p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-2">
                     Later
                   </p>
                   <p className="mt-2 text-sm font-medium text-white">
                     Fill your binder
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-muted-2">
                     Showcase hits from Collection → Binder.
                   </p>
                 </div>
@@ -231,7 +231,7 @@ export function OnboardingFlow({
         </AnimatePresence>
       </div>
 
-      <div className="mt-12 flex items-center justify-between gap-3 border-t border-zinc-900 pt-8">
+      <div className="mt-12 flex items-center justify-between gap-3 border-t border-border pt-8">
         <Button
           type="button"
           variant="ghost"
@@ -246,12 +246,12 @@ export function OnboardingFlow({
           {steps.map((s, i) => (
             <span
               key={s.id}
-              className={`h-1.5 rounded-full transition-all ${
+              className={`h-1.5 transition-all ${
                 i === stepIndex
                   ? "w-6 bg-white"
                   : i < stepIndex
                     ? "w-1.5 bg-zinc-500"
-                    : "w-1.5 bg-zinc-800"
+                    : "w-1.5 bg-border"
               }`}
             />
           ))}

@@ -67,7 +67,7 @@ export default async function ComparePage({
         <select
           name="set"
           defaultValue={selectedSet.id}
-          className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm"
+          className="border border-border bg-surface-2 px-3 py-2 text-sm"
         >
           {allSets.map((s) => (
             <option key={s.id} value={s.id}>
@@ -75,7 +75,7 @@ export default async function ComparePage({
             </option>
           ))}
         </select>
-        <button className="cursor-pointer rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-slate-900">
+        <button className="cursor-pointer bg-primary px-4 py-2 text-sm font-semibold text-slate-900">
           Compare
         </button>
       </form>

@@ -10,10 +10,11 @@ import {
   type AuthMethod,
 } from "@/lib/auth/last-method";
 import { Button, Card } from "@/components/ui";
+import { VaultedWordmark } from "@/components/vaulted-logo";
 
 function LastUsedTag() {
   return (
-    <span className="absolute -top-2 right-3 rounded-full border border-zinc-700 bg-zinc-950 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-zinc-300 shadow-sm">
+    <span className="absolute -top-2 right-3 border border-border bg-surface px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-category shadow-sm">
       Last used
     </span>
   );
@@ -150,6 +151,9 @@ function LoginForm() {
   return (
     <div className="mx-auto mt-10 w-full max-w-md">
       <Card>
+        <div className="mb-4">
+          <VaultedWordmark logoSize={36} />
+        </div>
         <p className="mwg-label text-muted">Account</p>
         <h1 className="title-s mt-2">
           {mode === "signin" ? "Welcome back, trainer" : "Start your journey"}
@@ -167,7 +171,7 @@ function LoginForm() {
               type="button"
               disabled={busy}
               onClick={() => signInWithOAuth("google")}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-zinc-800 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-3 border border-border bg-surface text-sm font-medium text-white transition-colors hover:border-zinc-600 hover:bg-surface-2 disabled:opacity-50"
             >
               <GoogleIcon className="h-4 w-4" />
               {oauthLoading === "google" ? "Redirecting…" : "Continue with Google"}
@@ -180,7 +184,7 @@ function LoginForm() {
               type="button"
               disabled={busy}
               onClick={() => signInWithOAuth("discord")}
-              className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-zinc-800 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-600 hover:bg-zinc-900 disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-3 border border-border bg-surface text-sm font-medium text-white transition-colors hover:border-zinc-600 hover:bg-surface-2 disabled:opacity-50"
             >
               <DiscordIcon className="h-4 w-4" />
               {oauthLoading === "discord"
@@ -191,11 +195,11 @@ function LoginForm() {
         </div>
 
         <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-zinc-800" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-2">
             or email
           </span>
-          <div className="h-px flex-1 bg-zinc-800" />
+          <div className="h-px flex-1 bg-border" />
         </div>
 
         <form onSubmit={submit} className="flex flex-col gap-4">
@@ -210,7 +214,7 @@ function LoginForm() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="ash_ketchum"
-                className="h-12 rounded-full border border-border bg-surface-2 px-4 text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
+                className="h-12 border border-border bg-surface-2 px-4 text-white placeholder:text-muted-2 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
               />
             </label>
           )}
@@ -222,7 +226,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="h-12 rounded-full border border-border bg-surface-2 px-4 text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
+              className="h-12 border border-border bg-surface-2 px-4 text-white placeholder:text-muted-2 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">
@@ -234,7 +238,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-12 rounded-full border border-border bg-surface-2 px-4 text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
+              className="h-12 border border-border bg-surface-2 px-4 text-white placeholder:text-muted-2 outline-none transition-colors focus:border-anthracite focus:bg-white focus:text-black"
             />
           </label>
 

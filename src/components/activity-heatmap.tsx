@@ -1,5 +1,5 @@
 const LEVEL_CLASS = [
-  "bg-zinc-900",
+  "bg-surface-2",
   "bg-zinc-700",
   "bg-zinc-500",
   "bg-zinc-300",
@@ -78,13 +78,13 @@ export function ActivityHeatmap({
   return (
     <div className="w-full min-w-0">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted">
           Opening activity
         </h2>
-        <p className="text-xs text-zinc-500">
-          <span className="font-medium text-zinc-300">{totalPacks}</span> packs
+        <p className="text-xs text-muted-2">
+          <span className="font-medium text-category">{totalPacks}</span> packs
           across{" "}
-          <span className="font-medium text-zinc-300">{activeDays}</span> days
+          <span className="font-medium text-category">{activeDays}</span> days
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export function ActivityHeatmap({
             {monthLabels.map((m) => (
               <span
                 key={`${m.label}-${m.weekIndex}`}
-                className="absolute text-[9px] leading-none text-zinc-600"
+                className="absolute text-[9px] leading-none text-muted-2"
                 style={{ left: m.weekIndex * STEP }}
               >
                 {m.label}
@@ -110,7 +110,7 @@ export function ActivityHeatmap({
 
           <div className="flex" style={{ gap: GAP }}>
             <div
-              className="flex shrink-0 flex-col text-[9px] text-zinc-600"
+              className="flex shrink-0 flex-col text-[9px] text-muted-2"
               style={{ width: LABEL_WIDTH - GAP, gap: GAP }}
             >
               {["", "Mon", "", "Wed", "", "Fri", ""].map((label, i) => (
@@ -133,7 +133,7 @@ export function ActivityHeatmap({
                       <div
                         key={di}
                         style={{ width: CELL, height: CELL }}
-                        className="rounded-[2px]"
+                        className=""
                       />
                     );
                   }
@@ -143,7 +143,7 @@ export function ActivityHeatmap({
                       key={day.date}
                       title={`${formatDayLabel(day.date)}: ${day.count} pack${day.count === 1 ? "" : "s"}`}
                       style={{ width: CELL, height: CELL }}
-                      className={`rounded-[2px] ${LEVEL_CLASS[level]}`}
+                      className={` ${LEVEL_CLASS[level]}`}
                     />
                   );
                 })}
@@ -153,13 +153,13 @@ export function ActivityHeatmap({
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-zinc-600">
+      <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-muted-2">
         <span>Less</span>
         {LEVEL_CLASS.map((cls, i) => (
           <div
             key={i}
             style={{ width: CELL, height: CELL }}
-            className={`rounded-[2px] ${cls}`}
+            className={` ${cls}`}
           />
         ))}
         <span>More</span>

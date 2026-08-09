@@ -26,7 +26,7 @@ export function CardTile({
 
   const body = (
     <>
-      <div className={`relative aspect-[63/88] overflow-hidden rounded-lg ${glow}`}>
+      <div className={`relative aspect-[63/88] overflow-hidden ${glow}`}>
         <CatalogImage
           src={card.imageSmall}
           alt={card.name}
@@ -47,12 +47,12 @@ export function CardTile({
         />
       </div>
       {card.quantity !== undefined && card.quantity > 1 && (
-        <span className="absolute -right-1.5 -top-1.5 grid min-w-6 place-items-center rounded-full border border-border bg-surface px-1 text-xs font-bold text-primary shadow">
+        <span className="absolute -right-1.5 -top-1.5 grid min-w-6 place-items-center border border-border bg-surface px-1 font-mono text-xs font-normal text-accent">
           ×{card.quantity}
         </span>
       )}
       {card.reverseHolo && (
-        <span className="absolute bottom-1 left-1 rounded bg-sky-500/80 px-1 py-px text-[9px] font-bold uppercase text-white">
+        <span className="absolute bottom-1 left-1 bg-accent/90 px-1 py-px font-mono text-[9px] font-normal uppercase text-white">
           Reverse
         </span>
       )}

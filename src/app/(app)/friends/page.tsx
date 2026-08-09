@@ -91,7 +91,7 @@ export default async function FriendsPage({
             {friends.map(({ friendshipId, friend }) => (
               <Card key={friendshipId} className="flex flex-wrap items-center justify-between gap-3 !p-4">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+                  <span className="grid h-9 w-9 place-items-center bg-primary/15 text-sm font-bold text-primary">
                     {friend.level}
                   </span>
                   <Link

@@ -8,6 +8,8 @@ import { SafeImage } from "@/components/safe-image";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
 import { CardLightbox } from "./card-lightbox";
+import { VaultedLogo } from "@/components/vaulted-logo";
+import { cardCornerRadiusForSet } from "@/lib/cards/corners";
 
 function packArtUrls(pack: SerialisedPack): string[] {
   const urls: string[] = [];
@@ -42,6 +44,7 @@ export type TrainerMeta = {
 type SetInfo = {
   id: string;
   name: string;
+  series: string;
   logoUrl: string | null;
   symbolUrl: string | null;
 };
@@ -67,6 +70,11 @@ export function PackOpener({
   const bestTier = useMemo(
     () => (pack ? Math.max(...pack.cards.map((c) => c.rarityTier)) : 0),
     [pack],
+  );
+
+  const cardCornerRadius = useMemo(
+    () => cardCornerRadiusForSet(set.id, set.series),
+    [set.id, set.series],
   );
 
   const openPack = useCallback(async () => {
@@ -136,7 +144,7 @@ export function PackOpener({
   return (
     <div className="flex flex-col items-center gap-6">
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+        <div className="border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {error}
         </div>
       )}
@@ -188,7 +196,7 @@ export function PackOpener({
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="rounded-full border border-yellow-400/50 bg-yellow-400/10 px-6 py-2 text-lg font-black text-yellow-300"
+                className="border border-yellow-400/50 bg-yellow-400/10 px-6 py-2 text-lg font-black text-yellow-300"
               >
                 ✨ GOD PACK ✨
               </motion.div>
@@ -201,6 +209,7 @@ export function PackOpener({
               cards={pack.cards}
               revealIndex={revealIndex}
               onReveal={revealNext}
+              cornerRadius={cardCornerRadius}
             />
 
             <p className="text-xs text-muted">Tap the card to reveal the next one</p>
@@ -250,7 +259,7 @@ export function PackOpener({
                 >
                   <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
                   {meta?.newCardIds.includes(card.id) && (
-                    <span className="absolute -left-1 -top-1 rounded bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                    <span className="absolute -left-1 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
                       NEW
                     </span>
                   )}
@@ -277,14 +286,14 @@ export function PackOpener({
             {history.map((h, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 overflow-x-auto rounded-[20px] border border-border bg-surface p-3"
+                className="flex items-center gap-2 overflow-x-auto border border-border bg-surface p-3"
               >
                 {h.cards.map((c, j) => (
                   <button
                     key={`${c.id}-${j}`}
                     type="button"
                     onClick={() => setLightboxCard(c)}
-                    className={`shrink-0 overflow-hidden rounded transition-transform hover:-translate-y-0.5 ${
+                    className={`shrink-0 overflow-hidden transition-transform hover:-translate-y-0.5 ${
                       c.rarityTier >= 4 ? "ring-2 ring-primary" : ""
                     }`}
                     title={`${c.name} · ${c.rarity ?? "?"}`}
@@ -296,9 +305,9 @@ export function PackOpener({
                       width={CARD_IMAGE.thumb.width}
                       height={CARD_IMAGE.thumb.height}
                       sizes="64px"
-                      className="h-16 w-auto rounded"
+                      className="h-16 w-auto"
                       fallback={
-                        <div className="grid h-16 w-11 place-items-center rounded bg-surface-2 text-[8px] text-muted">
+                        <div className="grid h-16 w-11 place-items-center bg-surface-2 text-[8px] text-muted">
                           ?
                         </div>
                       }
@@ -317,6 +326,34 @@ export function PackOpener({
 }
 
 // ---------------------------------------------------------------------------
+
+function PackCrimp({ edge }: { edge: "top" | "bottom" }) {
+  return (
+    <div
+      aria-hidden
+      className={`absolute inset-x-0 z-20 h-4 ${edge === "top" ? "top-0" : "bottom-0"}`}
+    >
+      <div
+        className={`h-full w-full ${
+          edge === "top"
+            ? "bg-gradient-to-b from-[#c8ccd4] via-[#8b919c] to-[#5c636e]"
+            : "bg-gradient-to-t from-[#c8ccd4] via-[#8b919c] to-[#5c636e]"
+        }`}
+        style={{
+          maskImage:
+            "repeating-linear-gradient(90deg, #000 0 5px, transparent 5px 8px)",
+          WebkitMaskImage:
+            "repeating-linear-gradient(90deg, #000 0 5px, transparent 5px 8px)",
+        }}
+      />
+      <div
+        className={`absolute inset-x-0 h-px bg-black/40 ${
+          edge === "top" ? "bottom-0" : "top-0"
+        }`}
+      />
+    </div>
+  );
+}
 
 function BoosterPackArt({
   set,
@@ -337,7 +374,10 @@ function BoosterPackArt({
         ripping
           ? { rotateZ: [0, -3, 3, 0], scale: [1, 1.06, 1.12], opacity: [1, 1, 0] }
           : shaking
-            ? { x: [0, -6, 6, -8, 8, -10, 10, -6, 0], rotateZ: [0, -2, 2, -3, 3, -2, 0] }
+            ? {
+                x: [0, -6, 6, -8, 8, -10, 10, -6, 0],
+                rotateZ: [0, -2, 2, -3, 3, -2, 0],
+              }
             : { y: [0, -8, 0] }
       }
       transition={
@@ -347,48 +387,123 @@ function BoosterPackArt({
             ? { duration: 0.7, repeat: Infinity }
             : { duration: 3, repeat: Infinity, ease: "easeInOut" }
       }
-      className={`relative h-80 w-56 select-none ${interactive ? "cursor-pointer" : ""}`}
+      className={`relative h-[22.5rem] w-[15.25rem] select-none sm:h-[26rem] sm:w-[17.5rem] ${
+        interactive ? "cursor-pointer" : ""
+      }`}
       onClick={onClick}
-      style={{ perspective: 800 }}
+      style={{ perspective: 900 }}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={
+        interactive && onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+      aria-label={interactive ? `Open ${set.name} booster pack` : undefined}
     >
-      <div className="absolute inset-0 overflow-hidden rounded-[20px] border border-border bg-anthracite shadow-[0_24px_60px_rgba(10,10,11,0.25)]">
-        {/* crimp */}
-        <div className="absolute inset-x-0 top-0 h-6 rounded-t-[20px] bg-gradient-to-b from-white/15 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
-        <div className="absolute inset-x-0 bottom-0 h-6 rounded-b-[20px] bg-gradient-to-t from-white/15 to-transparent [mask-image:repeating-linear-gradient(90deg,black_0_6px,transparent_6px_9px)]" />
-        <div className="flex h-full flex-col items-center justify-center gap-6 p-6">
-          {set.logoUrl ? (
-            <div className="relative h-24 w-full">
-              <SafeImage
-                src={set.logoUrl}
-                alt={set.name}
-                fill
-                sizes="224px"
-                className="object-contain brightness-110"
-                fallback={
-                  <div className="grid h-full place-items-center text-center text-lg font-bold text-white">
-                    {set.name}
-                  </div>
-                }
-              />
-            </div>
-          ) : (
-            <div className="text-center text-lg font-bold text-white">{set.name}</div>
-          )}
-          <div className="grid h-20 w-20 place-items-center rounded-full bg-primary shadow-[0_0_30px_rgba(201,254,110,0.35)]">
-            <div className="h-6 w-6 rounded-full border-4 border-ink bg-white" />
+      {/* Table shadow */}
+      <div
+        aria-hidden
+        className="absolute -bottom-5 left-1/2 h-6 w-[70%] -translate-x-1/2 rounded-[100%] bg-black/70 blur-xl"
+      />
+
+      <div className="absolute inset-0 overflow-hidden rounded-[3px] border border-white/20 shadow-[0_28px_70px_rgba(0,0,0,0.55)]">
+        {/* Pack body — black / white only */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-black to-[#0a0a0a]"
+        />
+
+        {/* Side edge bevel */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/50 to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-3 bg-gradient-to-l from-white/8 to-transparent"
+        />
+
+        <PackCrimp edge="top" />
+        <PackCrimp edge="bottom" />
+
+        {/* Pack face content */}
+        <div className="relative z-10 flex h-full flex-col px-4 pb-6 pt-7 sm:px-5 sm:pb-7 sm:pt-8">
+          {/* Brand mark */}
+          <div className="flex justify-center">
+            <VaultedLogo size={34} />
           </div>
-          {set.symbolUrl && (
-            <div className="relative h-6 w-6">
-              <SafeImage
-                src={set.symbolUrl}
-                alt=""
-                fill
-                sizes="24px"
-                className="object-contain opacity-80 brightness-200"
-              />
+
+          {/* Set logo */}
+          <div className="relative mt-5 flex min-h-0 flex-1 items-center justify-center px-2">
+            {set.logoUrl ? (
+              <div className="relative h-[55%] w-full max-w-[12rem]">
+                <SafeImage
+                  src={set.logoUrl}
+                  alt={set.name}
+                  fill
+                  sizes="200px"
+                  className="object-contain"
+                  fallback={
+                    <div className="grid h-full place-items-center px-2 text-center text-base font-bold leading-tight text-white">
+                      {set.name}
+                    </div>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="px-3 text-center text-lg font-bold leading-tight tracking-tight text-white">
+                {set.name}
+              </div>
+            )}
+          </div>
+
+          {/* Footer strip */}
+          <div className="mt-4 flex flex-col items-center gap-2.5">
+            <div className="flex w-full items-center gap-2">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+              {set.symbolUrl ? (
+                <div className="relative h-7 w-7 shrink-0">
+                  <SafeImage
+                    src={set.symbolUrl}
+                    alt=""
+                    fill
+                    sizes="28px"
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="h-1.5 w-1.5 rotate-45 bg-white/70" />
+              )}
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
-          )}
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-white">
+              Booster Pack
+            </div>
+          </div>
         </div>
+
+        {/* Rip tear when opening */}
+        {ripping && (
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-[42%] z-30 h-8 -translate-y-1/2"
+            initial={{ opacity: 0, scaleX: 0.2 }}
+            animate={{ opacity: [0, 1, 0.4], scaleX: [0.2, 1.05, 1.1] }}
+            transition={{ duration: 0.7 }}
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent)",
+              clipPath:
+                "polygon(0 40%, 8% 55%, 18% 35%, 30% 60%, 45% 30%, 58% 58%, 72% 38%, 85% 62%, 100% 42%, 100% 58%, 85% 78%, 72% 55%, 58% 75%, 45% 48%, 30% 78%, 18% 52%, 8% 72%, 0 58%)",
+            }}
+          />
+        )}
       </div>
     </motion.div>
   );
@@ -398,10 +513,12 @@ function RevealStack({
   cards,
   revealIndex,
   onReveal,
+  cornerRadius,
 }: {
   cards: SerialisedPulledCard[];
   revealIndex: number;
   onReveal: () => void;
+  cornerRadius: string;
 }) {
   const card = cards[revealIndex];
   const nextCard = cards[revealIndex + 1];
@@ -410,6 +527,9 @@ function RevealStack({
   const isBig = card.rarityTier >= 4;
   const [readyFor, setReadyFor] = useState<string | null>(null);
   const artReady = readyFor === cardKey;
+  const cornerStyle = {
+    ["--card-corner-radius" as string]: cornerRadius,
+  };
 
   useEffect(() => {
     if (!artSrc) {
@@ -433,13 +553,13 @@ function RevealStack({
     <div
       className="relative h-[22rem] w-64 cursor-pointer sm:h-[26rem] sm:w-72"
       onClick={onReveal}
-      style={{ perspective: 1200 }}
+      style={{ perspective: 1200, ...cornerStyle }}
     >
-      {/* face-down stack behind */}
+      {/* face-down stack behind — era-matched corners */}
       {cards.length - revealIndex > 1 && (
         <>
-          <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-[20px] border border-border bg-surface-2" />
-          <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-[20px] border border-border bg-surface" />
+          <div className="card-corners absolute inset-0 translate-x-2 translate-y-2 border border-border bg-surface-2" />
+          <div className="card-corners absolute inset-0 translate-x-1 translate-y-1 border border-border bg-surface" />
         </>
       )}
 
@@ -480,7 +600,7 @@ function RevealStack({
           style={{ transformStyle: "preserve-3d" }}
         >
           <div
-            className={`relative h-full w-full overflow-hidden rounded-xl ${
+            className={`relative h-full w-full overflow-hidden ${
               card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : ""
             }`}
           >

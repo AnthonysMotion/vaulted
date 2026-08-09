@@ -100,7 +100,7 @@ export function CardLightbox({
                 transformPerspective: 1200,
                 willChange: "transform",
               }}
-              className={`relative w-[min(80vw,20rem)] sm:w-80 aspect-[63/88] overflow-hidden rounded-[22px] shadow-2xl ${glow}`}
+              className={`relative w-[min(80vw,20rem)] sm:w-80 aspect-[63/88] overflow-hidden shadow-2xl ${glow}`}
             >
               <SafeImage
                 src={
@@ -134,7 +134,7 @@ export function CardLightbox({
             <div className="flex flex-col items-center gap-1">
               <p className="text-base font-bold text-white">{card.name}</p>
               {card.rarity && (
-                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-2">
                   {card.rarity}
                 </p>
               )}

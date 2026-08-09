@@ -32,7 +32,7 @@ export function ScrollToTop() {
       aria-label="Scroll to top"
       tabIndex={visible ? 0 : -1}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className={`fixed right-4 z-[250] grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-zinc-950/95 text-white shadow-2xl backdrop-blur-xl transition-all duration-200 hover:bg-white hover:text-black active:scale-[0.96] bottom-[max(5.75rem,calc(env(safe-area-inset-bottom)+4.75rem))] md:right-6 md:bottom-6 ${
+      className={`fixed right-4 z-[250] grid h-10 w-10 place-items-center border border-border bg-surface/95 text-white backdrop-blur-[var(--glass-blur)] transition-all duration-200 hover:bg-accent hover:text-white active:scale-[0.96] bottom-[max(5.75rem,calc(env(safe-area-inset-bottom)+4.75rem))] md:right-6 md:bottom-6 ${
         visible
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none translate-y-2 opacity-0"
@@ -45,8 +45,8 @@ export function ScrollToTop() {
         fill="none"
         stroke="currentColor"
         strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
       >
         <path d="M12 19V5" />
         <path d="M5 12l7-7 7 7" />

@@ -67,7 +67,7 @@ export function CompareMissingList({
                       width={CARD_IMAGE.thumb.width}
                       height={CARD_IMAGE.thumb.height}
                       sizes="32px"
-                      className="h-8 w-auto rounded-sm"
+                      className="h-8 w-auto"
                     />
                   )}
                   <span className="min-w-0 flex-1 truncate">
@@ -75,7 +75,7 @@ export function CompareMissingList({
                   </span>
                   <span className="text-xs text-muted">{c.rarity}</span>
                   {highlight?.has(c.id) && (
-                    <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                    <span className="bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
                       {highlightLabel}
                     </span>
                   )}

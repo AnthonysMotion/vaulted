@@ -43,7 +43,7 @@ function GalleryCell({ card }: { card: GalleryCard }) {
             #{card.number}
           </div>
           {card.rarity && (
-            <div className="text-[9px] font-bold uppercase text-zinc-600">
+            <div className="text-[9px] font-bold uppercase text-muted-2">
               {card.rarity.split(" ").pop()}
             </div>
           )}

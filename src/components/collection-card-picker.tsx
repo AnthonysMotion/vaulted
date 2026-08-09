@@ -180,10 +180,10 @@ function PickerDialog({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 8 }}
         transition={{ duration: 0.18 }}
-        className="flex h-[min(640px,90vh)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl"
+        className="flex h-[min(640px,90vh)] w-full max-w-3xl flex-col overflow-hidden border border-border bg-surface shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-zinc-900 px-4 py-3 sm:px-5">
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
           <div className="min-w-0">
             <h3
               id={titleId}
@@ -191,19 +191,19 @@ function PickerDialog({
             >
               {title}
             </h3>
-            <p className="mt-0.5 text-xs text-zinc-500">{description}</p>
+            <p className="mt-0.5 text-xs text-muted-2">{description}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-zinc-800 text-sm text-zinc-400 transition-colors hover:border-zinc-600 hover:text-white"
+            className="grid h-8 w-8 shrink-0 place-items-center border border-border text-sm text-muted transition-colors hover:border-zinc-600 hover:text-white"
             aria-label="Close"
           >
             ✕
           </button>
         </header>
 
-        <div className="shrink-0 border-b border-zinc-900 px-4 py-2.5 sm:px-5">
+        <div className="shrink-0 border-b border-border px-4 py-2.5 sm:px-5">
           <label className="relative block">
             <span className="sr-only">Search collection</span>
             <input
@@ -211,13 +211,13 @@ function PickerDialog({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by card name…"
-              className="w-full rounded-lg border border-zinc-800 bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-zinc-600 focus:border-zinc-500"
+              className="w-full border border-border bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-muted-2 focus:border-zinc-500"
             />
             {query ? (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-500 hover:text-white"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-2 hover:text-white"
               >
                 Clear
               </button>
@@ -232,17 +232,17 @@ function PickerDialog({
                 {Array.from({ length: 20 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-[63/88] animate-pulse rounded-md bg-zinc-900"
+                    className="aspect-[63/88] animate-pulse bg-surface-2"
                   />
                 ))}
               </div>
             ) : results.length === 0 ? (
               <div className="grid h-full place-items-center px-4 py-10 text-center">
                 <div>
-                  <p className="text-sm font-medium text-zinc-300">
+                  <p className="text-sm font-medium text-category">
                     {query ? "No matching cards" : "Collection is empty"}
                   </p>
-                  <p className="mt-2 max-w-xs text-xs text-zinc-600">
+                  <p className="mt-2 max-w-xs text-xs text-muted-2">
                     {query
                       ? "Try another search. Only owned cards can be selected."
                       : emptyHint}
@@ -259,10 +259,10 @@ function PickerDialog({
                       key={owned.id}
                       type="button"
                       onClick={() => setSelected(owned)}
-                      className={`relative min-w-0 overflow-hidden rounded-md border bg-black transition ${
+                      className={`relative min-w-0 overflow-hidden border bg-black transition ${
                         isSelected
                           ? "border-white ring-1 ring-white/40"
-                          : "border-zinc-800 hover:border-zinc-500"
+                          : "border-border hover:border-zinc-500"
                       }`}
                       title={owned.name}
                     >
@@ -274,19 +274,19 @@ function PickerDialog({
                           sizes="(max-width: 768px) 18vw, 96px"
                           className="object-cover"
                           fallback={
-                            <div className="absolute inset-0 grid place-items-center p-1 text-center text-[9px] text-zinc-600">
+                            <div className="absolute inset-0 grid place-items-center p-1 text-center text-[9px] text-muted-2">
                               {owned.name}
                             </div>
                           }
                         />
                       </div>
                       {isCurrent && (
-                        <span className="absolute left-1 top-1 rounded bg-black/80 px-1 py-px text-[8px] font-bold uppercase tracking-wide text-zinc-300">
+                        <span className="absolute left-1 top-1 bg-black/80 px-1 py-px text-[8px] font-bold uppercase tracking-wide text-category">
                           Current
                         </span>
                       )}
                       {isSelected && (
-                        <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-white text-[9px] font-bold text-black">
+                        <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center bg-white text-[9px] font-bold text-black">
                           ✓
                         </span>
                       )}
@@ -297,7 +297,7 @@ function PickerDialog({
             )}
           </div>
 
-          <aside className="hidden min-h-0 flex-col border-l border-zinc-900 bg-black/50 p-4 md:flex">
+          <aside className="hidden min-h-0 flex-col border-l border-border bg-black/50 p-4 md:flex">
             <PreviewPane card={selected} />
             <div className="mt-auto flex shrink-0 flex-col gap-2 pt-4">
               <Button
@@ -323,10 +323,10 @@ function PickerDialog({
           </aside>
         </div>
 
-        <div className="flex shrink-0 items-center gap-3 border-t border-zinc-900 px-3 py-3 md:hidden">
+        <div className="flex shrink-0 items-center gap-3 border-t border-border px-3 py-3 md:hidden">
           {selected ? (
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded border border-zinc-800">
+              <div className="relative h-12 w-9 shrink-0 overflow-hidden border border-border">
                 <SafeImage
                   src={selected.imageSmall}
                   alt=""
@@ -339,13 +339,13 @@ function PickerDialog({
                 <p className="truncate text-sm font-medium text-white">
                   {selected.name}
                 </p>
-                <p className="truncate text-[11px] text-zinc-500">
+                <p className="truncate text-[11px] text-muted-2">
                   {selected.setName ?? "Owned card"}
                 </p>
               </div>
             </div>
           ) : (
-            <p className="flex-1 text-sm text-zinc-500">Select a card</p>
+            <p className="flex-1 text-sm text-muted-2">Select a card</p>
           )}
           <Button
             type="submit"
@@ -365,18 +365,18 @@ function PreviewPane({ card }: { card: CollectionOwnedCard | null }) {
   if (!card) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <div className="aspect-[63/88] w-28 rounded-lg border border-dashed border-zinc-700" />
-        <p className="mt-3 text-xs text-zinc-500">Select a card to preview</p>
+        <div className="aspect-[63/88] w-28 border border-dashed border-border" />
+        <p className="mt-3 text-xs text-muted-2">Select a card to preview</p>
       </div>
     );
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <p className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+      <p className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-muted-2">
         Preview
       </p>
-      <div className="mx-auto mt-3 w-full max-w-[148px] shrink-0 overflow-hidden rounded-xl border border-zinc-800 bg-black">
+      <div className="mx-auto mt-3 w-full max-w-[148px] shrink-0 overflow-hidden border border-border bg-black">
         <div className="relative aspect-[63/88] w-full">
           <SafeImage
             src={card.imageLarge ?? card.imageSmall}
@@ -385,7 +385,7 @@ function PreviewPane({ card }: { card: CollectionOwnedCard | null }) {
             sizes="148px"
             className="object-cover"
             fallback={
-              <div className="absolute inset-0 grid place-items-center p-2 text-center text-[10px] text-zinc-600">
+              <div className="absolute inset-0 grid place-items-center p-2 text-center text-[10px] text-muted-2">
                 {card.name}
               </div>
             }
@@ -394,7 +394,7 @@ function PreviewPane({ card }: { card: CollectionOwnedCard | null }) {
       </div>
       <div className="mt-3 min-h-0 text-center">
         <p className="truncate text-sm font-semibold text-white">{card.name}</p>
-        <p className="mt-1 truncate text-[11px] text-zinc-500">
+        <p className="mt-1 truncate text-[11px] text-muted-2">
           {[card.setName, card.number ? `#${card.number}` : null]
             .filter(Boolean)
             .join(" · ")}
@@ -406,7 +406,7 @@ function PreviewPane({ card }: { card: CollectionOwnedCard | null }) {
             </Badge>
           </div>
         )}
-        <p className="mt-2 text-[11px] text-zinc-600">{card.quantity} owned</p>
+        <p className="mt-2 text-[11px] text-muted-2">{card.quantity} owned</p>
       </div>
     </div>
   );

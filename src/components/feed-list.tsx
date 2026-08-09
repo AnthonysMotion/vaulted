@@ -115,7 +115,7 @@ function FeedRow({
   }
 
   return (
-    <div className="flex gap-3 rounded-xl border border-border bg-surface p-4">
+    <div className="flex gap-3 border border-border bg-surface p-4">
       {!compact && (
         <SafeImage
           src={item.payload.cardImage}
@@ -123,7 +123,7 @@ function FeedRow({
           width={CARD_IMAGE.sm.width}
           height={CARD_IMAGE.sm.height}
           sizes="80px"
-          className="h-20 w-auto rounded shadow-lg"
+          className="h-20 w-auto shadow-lg"
         />
       )}
       <div className="min-w-0 flex-1">
@@ -131,7 +131,7 @@ function FeedRow({
           <span className="mr-1">{icon}</span>
           <Link
             href={`/profile/${item.user.username}`}
-            className="font-semibold text-white underline decoration-primary underline-offset-2 transition-colors hover:text-zinc-300"
+            className="font-semibold text-white underline decoration-primary underline-offset-2 transition-colors hover:text-category"
           >
             {item.user.username}
           </Link>{" "}
@@ -146,7 +146,7 @@ function FeedRow({
                 key={r.key}
                 onClick={() => toggle(r.key)}
                 disabled={!viewerId}
-                className={`rounded-full border px-2 py-0.5 text-xs transition-colors ${
+                className={` border px-2 py-0.5 text-xs transition-colors ${
                   state.mine
                     ? "border-anthracite bg-anthracite text-white"
                     : "border-border bg-surface-2 text-muted hover:text-foreground"

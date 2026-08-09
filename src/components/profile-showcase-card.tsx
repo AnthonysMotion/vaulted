@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Badge, Card, rarityBadgeColor } from "@/components/ui";
+import { Badge, rarityBadgeColor } from "@/components/ui";
 import { CardLightbox } from "@/components/card-lightbox";
 import { CardTile, type CardTileData } from "@/components/card-tile";
 import { CollectionCardPicker } from "@/components/collection-card-picker";
@@ -55,49 +55,46 @@ export function ProfileShowcaseCard({
   }
 
   return (
-    <Card>
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
-          Showcase
-        </h2>
-        {isOwner && card && (
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => setOpen(true)}
-              className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 transition-colors hover:text-white disabled:opacity-50"
-            >
-              Change
-            </button>
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => selectCard(null)}
-              className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 transition-colors hover:text-white disabled:opacity-50"
-            >
-              Clear
-            </button>
-          </div>
-        )}
-      </div>
+    <div className="border border-border bg-background p-6 sm:p-8">
+      {isOwner && card ? (
+        <div className="mb-5 flex items-center justify-end gap-4">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => setOpen(true)}
+            className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white disabled:opacity-50"
+          >
+            Change
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => selectCard(null)}
+            className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted transition-colors hover:text-white disabled:opacity-50"
+          >
+            Clear
+          </button>
+        </div>
+      ) : null}
 
       {card && tileCard ? (
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <CardTile
             card={tileCard}
             size="sm"
             onClick={() => setLightbox(tileCard)}
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-base font-semibold text-white">
+            <p className="truncate text-lg font-medium tracking-[-0.02em] text-white">
               {card.name}
             </p>
             {card.setName && (
-              <p className="mt-1 truncate text-xs text-zinc-500">{card.setName}</p>
+              <p className="mt-1 truncate font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
+                {card.setName}
+              </p>
             )}
             {card.rarity && (
-              <div className="mt-2">
+              <div className="mt-3">
                 <Badge color={rarityBadgeColor(rarityTier(card.rarity))}>
                   {card.rarity}
                 </Badge>
@@ -109,25 +106,25 @@ export function ProfileShowcaseCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="group flex w-full flex-col items-center gap-3 rounded-xl border border-dashed border-zinc-800 bg-black/40 px-4 py-8 text-center transition-colors hover:border-zinc-600 hover:bg-zinc-950"
+          className="group flex w-full flex-col items-center gap-4 border border-dashed border-border bg-surface/40 px-4 py-10 text-center transition-colors hover:border-muted hover:bg-surface"
         >
           <div className="relative w-16 opacity-40 transition-opacity group-hover:opacity-70">
-            <div className="aspect-[63/88] w-full rounded-lg border border-zinc-700 bg-gradient-to-b from-zinc-900 to-black" />
-            <span className="absolute inset-0 grid place-items-center text-2xl text-zinc-500">
+            <div className="aspect-[63/88] w-full border border-border bg-gradient-to-b from-surface-2 to-black" />
+            <span className="absolute inset-0 grid place-items-center text-2xl text-muted-2">
               +
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-zinc-300">
+            <p className="text-sm font-medium tracking-[-0.02em] text-white">
               Choose a showcase card
             </p>
-            <p className="mt-1 text-xs text-zinc-600">
+            <p className="mt-1 text-xs text-muted-2">
               Pick any card you own to feature on your profile
             </p>
           </div>
         </button>
       ) : (
-        <p className="py-2 text-sm text-zinc-500">No showcase card yet.</p>
+        <p className="py-2 text-sm text-muted-2">No showcase card yet.</p>
       )}
 
       <CardLightbox card={lightbox} onClose={() => setLightbox(null)} />
@@ -147,6 +144,6 @@ export function ProfileShowcaseCard({
           onConfirm={(picked) => selectCard(picked.id)}
         />
       )}
-    </Card>
+    </div>
   );
 }

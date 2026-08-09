@@ -105,7 +105,7 @@ async function CollectionIntro({
         <div>
           <SectionEyebrow>Vault</SectionEyebrow>
           <h1 className="mt-4 text-4xl font-black tracking-tighter text-white sm:text-5xl">Your collection.</h1>
-          <p className="mt-4 font-medium text-zinc-500">
+          <p className="mt-4 font-medium text-muted-2">
             {summary.unique.toLocaleString()} unique cards indexed from your packs.
           </p>
         </div>
@@ -123,7 +123,7 @@ async function CollectionIntro({
       </div>
 
       {selectedSetProgress && (
-        <div className="rounded-xl border border-zinc-900 bg-zinc-950 p-8">
+        <div className="border border-border bg-surface p-8">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="font-bold tracking-tight text-white">{selectedSetProgress.set.name}</span>
@@ -141,20 +141,20 @@ async function CollectionIntro({
         </div>
       )}
 
-      <div className="sticky top-4 z-20 rounded-xl border border-zinc-900 bg-black/80 p-4 shadow-2xl backdrop-blur-xl md:top-28 md:p-6">
+      <div className="sticky top-4 z-20 border border-border bg-black/80 p-4 shadow-2xl backdrop-blur-xl md:top-28 md:p-6">
         <form className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4" action="/collection" method="get">
           <div className="min-w-[200px] flex-1">
             <input
               name="q"
               defaultValue={sp.q ?? ""}
               placeholder="Search by card name..."
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-sm text-white outline-none transition-colors focus:border-white/20"
+              className="w-full border border-border bg-surface-2/50 px-4 py-2 text-sm text-white outline-none transition-colors focus:border-white/20"
             />
           </div>
           <select
             name="set"
             defaultValue={sp.set ?? ""}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none sm:w-auto"
+            className="w-full border border-border bg-surface-2/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-muted outline-none sm:w-auto"
           >
             <option value="">All Sets</option>
             {allSets.map((s) => (
@@ -164,18 +164,18 @@ async function CollectionIntro({
           <select
             name="rarity"
             defaultValue={sp.rarity ?? ""}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 outline-none sm:w-auto"
+            className="w-full border border-border bg-surface-2/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-muted outline-none sm:w-auto"
           >
             <option value="">All Rarities</option>
             {RARITY_OPTIONS.map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
-          <button className="h-10 cursor-pointer rounded-lg bg-white px-6 text-xs font-black uppercase tracking-widest text-black transition-colors hover:bg-zinc-200 sm:h-9">
+          <button className="h-10 cursor-pointer bg-white px-6 text-xs font-black uppercase tracking-widest text-black transition-colors hover:bg-zinc-200 sm:h-9">
             Filter
           </button>
           {(sp.set || sp.rarity || sp.type || sp.q) && (
-            <Link href="/collection" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+            <Link href="/collection" className="text-[10px] font-black uppercase tracking-widest text-muted-2 hover:text-white transition-colors">
               Clear
             </Link>
           )}
@@ -217,9 +217,9 @@ async function CollectionResults({
       />
 
       {totalPages > 1 && (
-        <div className="mt-20 flex items-center justify-center gap-8 border-t border-zinc-900 py-10">
+        <div className="mt-20 flex items-center justify-center gap-8 border-t border-border py-10">
           {collection.page > 1 && (
-            <Link href={buildUrl(sp, { page: String(collection.page - 1) })} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+            <Link href={buildUrl(sp, { page: String(collection.page - 1) })} className="text-xs font-bold uppercase tracking-widest text-muted-2 hover:text-white transition-colors">
               ← Prev
             </Link>
           )}
@@ -227,7 +227,7 @@ async function CollectionResults({
             {collection.page} / {totalPages}
           </span>
           {collection.page < totalPages && (
-            <Link href={buildUrl(sp, { page: String(collection.page + 1) })} className="text-xs font-bold uppercase tracking-widest text-zinc-600 hover:text-white transition-colors">
+            <Link href={buildUrl(sp, { page: String(collection.page + 1) })} className="text-xs font-bold uppercase tracking-widest text-muted-2 hover:text-white transition-colors">
               Next →
             </Link>
           )}

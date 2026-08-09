@@ -42,7 +42,7 @@ export function AddFriendForm({ initialUsername = "" }: { initialUsername?: stri
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Trainer username"
-        className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-primary"
+        className="border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-primary"
       />
       <Button type="submit" disabled={busy}>
         {busy ? "..." : "Send request"}

@@ -70,7 +70,7 @@ function GradeBadge({ grade }: { grade: RarityAccuracy["grade"] }) {
   const style = GRADE_STYLES[grade];
   return (
     <span
-      className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${style.className}`}
+      className={`inline-flex border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${style.className}`}
     >
       {style.label}
     </span>
@@ -120,7 +120,7 @@ export function SimulatorClient({
           <select
             value={setId}
             onChange={(e) => setSetId(e.target.value)}
-            className="max-w-60 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
+            className="max-w-60 border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
           >
             {sets.map((s) => (
               <option key={s.id} value={s.id}>
@@ -137,7 +137,7 @@ export function SimulatorClient({
             max={500000}
             value={packs}
             onChange={(e) => setPacks(Number(e.target.value))}
-            className="w-32 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
+            className="w-32 border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
           />
         </label>
         <Button onClick={run} disabled={running}>
@@ -167,34 +167,34 @@ export function SimulatorClient({
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+              <div className="border border-border bg-surface p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-2">
                   Mean relative error
                 </p>
                 <p className="mt-2 text-2xl font-black tracking-tight text-white">
                   {(data.accuracy.meanRelativeError * 100).toFixed(2)}%
                 </p>
               </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+              <div className="border border-border bg-surface p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-2">
                   Within sampling noise
                 </p>
                 <p className="mt-2 text-2xl font-black tracking-tight text-white">
                   {(data.accuracy.withinNoiseShare * 100).toFixed(0)}%
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-muted-2">
                   {data.accuracy.rows.filter((r) => r.withinNoise).length}/
                   {data.accuracy.gradedCount} rarities
                 </p>
               </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+              <div className="border border-border bg-surface p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-2">
                   Graded rarities
                 </p>
                 <p className="mt-2 text-2xl font-black tracking-tight text-white">
                   {data.accuracy.gradedCount}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-muted-2">
                   Target ≥ 0.05% of packs
                 </p>
               </div>
@@ -208,9 +208,9 @@ export function SimulatorClient({
               </p>
             )}
 
-            <p className="mt-4 text-xs leading-relaxed text-zinc-500">
+            <p className="mt-4 text-xs leading-relaxed text-muted-2">
               Targets are implied by slot weights in{" "}
-              <code className="text-zinc-400">configs.ts</code> for this set&apos;s
+              <code className="text-muted">configs.ts</code> for this set&apos;s
               card pools. Relative error = |observed − target| / target. “Within
               noise” means the gap is inside ~2× the binomial sampling SE for this
               pack count.
@@ -237,7 +237,7 @@ export function SimulatorClient({
                     <td className="py-1.5">
                       <span className="font-medium text-white">{r.rarity}</span>
                       {r.withinNoise && (
-                        <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+                        <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-muted-2">
                           noise ok
                         </span>
                       )}
@@ -245,13 +245,13 @@ export function SimulatorClient({
                     <td className="py-1.5 text-right">
                       {r.observedPercent.toFixed(2)}%
                     </td>
-                    <td className="py-1.5 text-right text-zinc-400">
+                    <td className="py-1.5 text-right text-muted">
                       {r.targetPercent.toFixed(2)}%
                     </td>
                     <td
                       className={`py-1.5 text-right ${
                         Math.abs(r.deltaPp) < 0.05
-                          ? "text-zinc-400"
+                          ? "text-muted"
                           : r.deltaPp > 0
                             ? "text-emerald-400"
                             : "text-amber-400"
@@ -263,7 +263,7 @@ export function SimulatorClient({
                     <td className="py-1.5 text-right">
                       {(r.relativeError * 100).toFixed(1)}%
                     </td>
-                    <td className="py-1.5 text-right text-zinc-400">
+                    <td className="py-1.5 text-right text-muted">
                       {formatOneIn(r.observedOneIn)} / {formatOneIn(r.targetOneIn)}
                     </td>
                     <td className="py-1.5 text-right">

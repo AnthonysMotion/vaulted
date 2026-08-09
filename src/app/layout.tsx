@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { VAULTED_LOGO_SRC, VaultedWordmark } from "@/components/vaulted-logo";
 
-/** Closest widely-available stand-in for MWG's LayGrotesk. */
-const display = Space_Grotesk({
+/** Closest widely-available stand-in for Sui’s TWK Everett. */
+const display = Plus_Jakarta_Sans({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-/** Closest stand-in for PP Neue Montreal Mono (uppercase UI labels). */
+/** Stand-in for TWK Everett Mono (category labels, UI meta). */
 const mono = IBM_Plex_Mono({
   variable: "--font-mono-label",
   subsets: ["latin"],
@@ -29,17 +30,27 @@ export const metadata: Metadata = {
   },
   description:
     "Open Pokémon TCG booster packs with realistic pull rates, build your collection, showcase your binder and compete with friends. A non-profit fan project.",
+  icons: {
+    icon: VAULTED_LOGO_SRC,
+    apple: VAULTED_LOGO_SRC,
+  },
 };
 
 function NavbarFallback() {
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden px-4 py-4 pt-[max(1rem,env(safe-area-inset-top))] md:block">
-      <div className="pointer-events-auto mx-auto flex h-10 max-w-[1200px] items-center justify-between gap-3">
-        <div className="h-10 w-24 animate-pulse rounded-lg bg-zinc-900" />
-        <div className="h-10 w-64 animate-pulse rounded-lg bg-zinc-900/70" />
-        <div className="h-10 w-40 animate-pulse rounded-lg bg-zinc-900/70" />
+    <>
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-[260]">
+        <div className="h-10 w-full bg-accent" />
+        <div className="px-4 pt-3 sm:px-5">
+          <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between bg-surface px-4">
+            <div className="h-5 w-28 animate-pulse bg-surface-2" />
+            <div className="hidden h-5 w-80 animate-pulse bg-surface-2/70 lg:block" />
+            <div className="h-9 w-28 animate-pulse bg-accent" />
+          </div>
+        </div>
       </div>
-    </header>
+      <div aria-hidden className="h-[7.25rem]" />
+    </>
   );
 }
 
@@ -53,18 +64,22 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-black text-white selection:bg-white selection:text-black">
+      <body className="flex min-h-full flex-col bg-background text-foreground selection:bg-accent selection:text-white">
         <Suspense fallback={<NavbarFallback />}>
           <Navbar />
         </Suspense>
         {children}
         <ScrollToTop />
-        <footer className="border-t border-zinc-900 bg-black px-5 pb-28 pt-10 sm:px-10 sm:pt-12 md:pb-12">
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-8">
+        <footer className="border-t border-border bg-background px-[calc(1rem+1.031em)] pb-12 pt-10 sm:px-[calc(1.25rem+1.031em)] sm:pt-12">
+          <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <div className="text-xl font-bold tracking-tighter text-white">VaultedTCG</div>
-                <p className="mt-4 max-w-sm text-xs leading-relaxed text-zinc-500">
+                <VaultedWordmark
+                  logoSize={40}
+                  label="Vaulted"
+                  textClassName="text-xl font-medium tracking-[-0.03em] text-white"
+                />
+                <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-2">
                   Non-profit fan project. Pokémon and Pokémon TCG are trademarks of
                   Nintendo, Creatures Inc. and GAME FREAK inc.
                 </p>
@@ -72,22 +87,22 @@ export default function RootLayout({
               <nav className="flex flex-col items-start gap-3 sm:items-end">
                 <Link
                   href="/about"
-                  className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
+                  className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white"
                 >
                   About
                 </Link>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                <p className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted-2">
                   Card data via{" "}
                   <a
                     href="https://github.com/PokemonTCG/pokemon-tcg-data"
-                    className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors"
+                    className="text-muted underline underline-offset-4 transition-colors hover:text-white"
                   >
                     pokemon-tcg-data
                   </a>
                 </p>
               </nav>
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-700">
+            <p className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted-2">
               This project is still under development.
             </p>
           </div>

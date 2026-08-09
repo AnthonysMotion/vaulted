@@ -31,11 +31,11 @@ export default async function SetDetailPage({
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <Link href="/sets" className="text-xs font-bold uppercase tracking-widest text-zinc-600 transition-colors hover:text-white">
+          <Link href="/sets" className="text-xs font-bold uppercase tracking-widest text-muted-2 transition-colors hover:text-white">
             ← Back to all sets
           </Link>
           <div className="mt-8 flex items-start gap-6">
-            <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-xl">
+            <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden border border-border bg-surface shadow-xl">
               <CatalogImage
                 src={set.logoUrl ?? set.symbolUrl}
                 alt={set.logoUrl ? set.name : ""}
@@ -50,7 +50,7 @@ export default async function SetDetailPage({
                 <h1 className="text-4xl font-black tracking-tighter text-white">{set.name}</h1>
                 <Badge color="gold">{set.id.toUpperCase()}</Badge>
               </div>
-              <p className="mt-3 font-medium text-zinc-500">
+              <p className="mt-3 font-medium text-muted-2">
                 {set.series} Series · {set.releaseDate.split("-")[0]} · {set.total} cards
               </p>
             </div>
@@ -71,15 +71,15 @@ export default async function SetDetailPage({
         </div>
       </div>
 
-      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl border border-zinc-900 bg-zinc-950/50" />}>
+      <Suspense fallback={<div className="h-40 animate-pulse border border-border bg-surface/50" />}>
         <SetProgressStats set={set} userId={profile?.id ?? null} />
       </Suspense>
 
       <section className="mt-8">
-        <div className="mb-10 flex items-end justify-between border-b border-zinc-900 pb-6">
+        <div className="mb-10 flex items-end justify-between border-b border-border pb-6">
           <div>
             <h2 className="text-xl font-bold tracking-tight text-white">Card Gallery</h2>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted-2">
               Checklist for {set.name}. Owned cards show quantities.
             </p>
           </div>
@@ -105,10 +105,10 @@ async function SetProgressStats({
   const completionPct = set.total > 0 ? Math.floor((ownedCount / set.total) * 100) : 0;
 
   return (
-    <div className="grid gap-px overflow-hidden rounded-xl border border-zinc-900 bg-zinc-900 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-px overflow-hidden border border-border bg-surface-2 md:grid-cols-2 lg:grid-cols-3">
       <div className="bg-black p-8">
         <div className="mb-4 flex items-center justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Completion</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-2">Completion</span>
           <span className="text-sm font-black text-white">
             {ownedCount} / {set.total}
           </span>
@@ -120,7 +120,7 @@ async function SetProgressStats({
       </div>
 
       <div className="flex flex-col justify-center bg-black p-8">
-        <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">Metadata</div>
+        <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-2">Metadata</div>
         <div className="flex flex-wrap gap-2">
           <Badge>{set.printedTotal} Printed</Badge>
           <Badge>{set.total} Indexed</Badge>

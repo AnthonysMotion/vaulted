@@ -11,7 +11,7 @@ import {
 } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { SafeImage } from "@/components/safe-image";
-import { Card, LinkButton, ProgressBar, StatCard } from "@/components/ui";
+import { LinkButton, ProgressBar, SectionEyebrow } from "@/components/ui";
 import { BinderEditor } from "@/components/binder-editor";
 import { ProfileActivityFeed } from "@/components/profile-activity-feed";
 import { ProfileShowcaseCard } from "@/components/profile-showcase-card";
@@ -38,10 +38,9 @@ export default async function ProfilePage({
     ]);
 
   const cardsCollected = profile.totalCardsCollected;
-
   const isOwner = viewer?.id === profile.id;
   const completedSets = progress.filter((p) => p.completedAt);
-  const topProgress = progress.slice(0, 3);
+  const topProgress = progress.slice(0, 4);
   const binderSlots = (binder?.slots ?? []).map((s) => ({
     position: s.position,
     cardId: s.cardId,
@@ -56,13 +55,20 @@ export default async function ProfilePage({
     year: "numeric",
   });
 
+  const stats = [
+    { label: "Cards collected", value: cardsCollected.toLocaleString() },
+    { label: "Packs opened", value: profile.totalPacksOpened.toLocaleString() },
+    { label: "Current streak", value: `${profile.currentStreak}d` },
+    { label: "Sets completed", value: String(completedSets.length) },
+  ];
+
   return (
-    <div className="flex flex-col gap-10 md:gap-12">
-      {/* Full-bleed profile header — cancels main top padding so banner hits viewport top */}
-      <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-6 sm:-mt-8 md:-mt-36">
+    <div className="flex flex-col gap-16 md:gap-24">
+      {/* Full-bleed banner under fixed nav */}
+      <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-[calc(var(--site-header-offset)+2rem)] sm:-mt-[calc(var(--site-header-offset)+2.5rem)]">
         <div className="relative isolate">
           <div
-            className="relative h-64 overflow-hidden bg-zinc-950 sm:h-80 md:h-96"
+            className="relative h-[calc(var(--site-header-offset)+14rem)] overflow-hidden bg-surface sm:h-[calc(var(--site-header-offset)+18rem)] md:h-[calc(var(--site-header-offset)+22rem)]"
             style={
               profile.bannerUrl
                 ? {
@@ -76,65 +82,71 @@ export default async function ProfilePage({
             {!profile.bannerUrl && (
               <div
                 aria-hidden
-                className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(255,255,255,0.08),transparent_55%),linear-gradient(180deg,#111_0%,#050505_100%)]"
+                className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(41,141,255,0.18),transparent_55%),linear-gradient(180deg,#131518_0%,#000_100%)]"
               />
             )}
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-x-0 bottom-0 h-px bg-zinc-900"
+              className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20"
             />
           </div>
 
           <div className="mx-auto max-w-[1200px] px-4 sm:px-8 md:px-10">
-            <div className="relative -mt-14 flex flex-col gap-6 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between sm:gap-8 md:-mt-20">
-              <div className="flex min-w-0 flex-1 flex-col gap-5 sm:flex-row sm:items-end sm:gap-6">
-                <div className="relative z-10 grid h-32 w-32 shrink-0 place-items-center overflow-hidden rounded-2xl bg-zinc-950 text-5xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] sm:h-36 sm:w-36 md:h-40 md:w-40">
+            <div className="relative -mt-16 grid gap-8 pb-12 sm:-mt-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-end lg:gap-16 md:-mt-24 md:pb-16">
+              <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-end sm:gap-8">
+                <div className="relative z-10 grid h-28 w-28 shrink-0 place-items-center overflow-hidden border border-border bg-surface sm:h-32 sm:w-32 md:h-36 md:w-36">
                   <SafeImage
                     src={profile.avatarUrl}
                     alt=""
                     fill
-                    sizes="(max-width: 640px) 128px, (max-width: 768px) 144px, 160px"
+                    sizes="(max-width: 640px) 112px, (max-width: 768px) 128px, 144px"
                     className="object-cover"
-                    fallback={<span aria-hidden>🧢</span>}
+                    fallback={
+                      <span className="font-mono text-2xl uppercase text-category">
+                        {profile.username.slice(0, 1)}
+                      </span>
+                    }
                   />
                 </div>
 
                 <div className="min-w-0 flex-1 pb-1">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h1 className="truncate text-3xl font-black tracking-tighter text-white sm:text-4xl">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="title-m truncate text-white">
                       {profile.username}
                     </h1>
                     {profile.isDeveloper && (
-                      <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                      <span className="border border-accent/40 bg-accent/10 px-2.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-accent">
                         Dev
                       </span>
                     )}
                   </div>
 
-                  <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-400">
-                    <span className="font-medium text-zinc-200">
-                      Level {profile.level} trainer
-                    </span>
-                    <span aria-hidden className="text-zinc-700">
-                      ·
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
+                    <span>Level {profile.level}</span>
+                    <span aria-hidden className="text-border">
+                      /
                     </span>
                     <span>Joined {joinedLabel}</span>
+                    {profile.favouritePokemon ? (
+                      <>
+                        <span aria-hidden className="text-border">
+                          /
+                        </span>
+                        <span>{profile.favouritePokemon}</span>
+                      </>
+                    ) : null}
                   </div>
 
                   {profile.bio ? (
-                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-[15px]">
+                    <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-2 sm:text-lg">
                       {profile.bio}
                     </p>
                   ) : isOwner ? (
-                    <p className="mt-3 text-sm text-zinc-600">
+                    <p className="mt-5 text-sm text-muted-2">
                       No bio yet.{" "}
                       <Link
                         href="/account"
-                        className="underline underline-offset-4 hover:text-zinc-300"
+                        className="text-category underline underline-offset-4 transition-colors hover:text-white"
                       >
                         Add one
                       </Link>
@@ -143,26 +155,28 @@ export default async function ProfilePage({
                 </div>
               </div>
 
-              <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:pb-1">
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col lg:items-end">
                 <LinkButton
                   href={`/binder/${profile.username}`}
-                  variant="dark"
-                  className="w-full sm:w-auto"
+                  className="h-12 w-full px-8 text-sm sm:w-auto"
                 >
-                  View binder
+                  View binder{" "}
+                  <span aria-hidden className="ml-2 font-normal opacity-70">
+                    →
+                  </span>
                 </LinkButton>
                 {isOwner ? (
-                  <LinkButton
+                  <Link
                     href="/account"
-                    variant="secondary"
-                    className="w-full sm:w-auto"
+                    className="text-center font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white lg:text-right"
                   >
-                    Edit profile
-                  </LinkButton>
+                    Edit profile →
+                  </Link>
                 ) : viewer ? (
                   <LinkButton
                     href={`/friends?add=${profile.username}`}
-                    className="w-full sm:w-auto"
+                    variant="dark"
+                    className="h-12 w-full px-8 text-sm sm:w-auto"
                   >
                     Add friend
                   </LinkButton>
@@ -173,116 +187,160 @@ export default async function ProfilePage({
         </div>
       </section>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Cards collected" value={cardsCollected.toLocaleString()} icon="⭐" />
-        <StatCard label="Packs opened" value={profile.totalPacksOpened.toLocaleString()} icon="📦" />
-        <StatCard label="Current streak" value={`${profile.currentStreak} days`} icon="🔥" />
-        <StatCard label="Sets completed" value={completedSets.length} icon="🏆" />
-      </div>
+      <section>
+        <div className="grid grid-cols-2 gap-px overflow-hidden border border-border bg-border lg:grid-cols-4">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="group bg-background p-8 transition-colors hover:bg-surface sm:p-10"
+            >
+              <div className="mb-2 text-4xl font-medium tracking-[-0.04em] text-white">
+                {stat.value}
+              </div>
+              <div className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted transition-colors group-hover:text-category">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] lg:items-start">
-        <ProfileActivityFeed
-          openings={recentPacks}
-          username={profile.username}
-        />
+      <section className="grid gap-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start lg:gap-20">
+        <div className="flex min-w-0 flex-col gap-16">
+          <div>
+            <SectionEyebrow>Activity</SectionEyebrow>
+            <h2 className="title-s text-white">Recent packs</h2>
+            <div className="mt-8">
+              <ProfileActivityFeed
+                openings={recentPacks}
+                username={profile.username}
+              />
+            </div>
+          </div>
 
-        <div className="flex flex-col gap-4">
-          <ProfileShowcaseCard
-            isOwner={isOwner}
-            card={
-              profile.favouriteCard
-                ? {
-                    id: profile.favouriteCard.id,
-                    name: profile.favouriteCard.name,
-                    rarity: profile.favouriteCard.rarity,
-                    imageSmall: profile.favouriteCard.imageSmall,
-                    imageLarge: profile.favouriteCard.imageLarge,
-                    setName: profile.favouriteCard.set?.name ?? null,
-                  }
-                : null
-            }
-          />
+          <div>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <SectionEyebrow>Binder</SectionEyebrow>
+                <h2 className="title-s text-white">Showcase binder</h2>
+                <p className="mt-3 max-w-md text-sm text-muted-2">
+                  {isOwner
+                    ? "Arrange the cards you want people to see first."
+                    : `Cards ${profile.username} chose to put on display.`}
+                </p>
+              </div>
+              <Link
+                href={`/binder/${profile.username}`}
+                className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white"
+              >
+                Open binder page →
+              </Link>
+            </div>
+            <div className="mt-8">
+              <BinderEditor
+                initialSlots={binderSlots}
+                editable={isOwner}
+                align="start"
+              />
+            </div>
+          </div>
+        </div>
 
-          <Card>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
-              Set completion
-            </h2>
+        <aside className="flex min-w-0 flex-col gap-10">
+          <div>
+            <SectionEyebrow>Showcase</SectionEyebrow>
+            <h2 className="title-s text-white">Favourite pull</h2>
+            <div className="mt-8">
+              <ProfileShowcaseCard
+                isOwner={isOwner}
+                card={
+                  profile.favouriteCard
+                    ? {
+                        id: profile.favouriteCard.id,
+                        name: profile.favouriteCard.name,
+                        rarity: profile.favouriteCard.rarity,
+                        imageSmall: profile.favouriteCard.imageSmall,
+                        imageLarge: profile.favouriteCard.imageLarge,
+                        setName: profile.favouriteCard.set?.name ?? null,
+                      }
+                    : null
+                }
+              />
+            </div>
+          </div>
+
+          <div>
+            <SectionEyebrow>Progress</SectionEyebrow>
+            <h2 className="title-s text-white">Set completion</h2>
             {topProgress.length === 0 ? (
-              <p className="mt-3 text-sm text-zinc-500">No progress yet.</p>
+              <p className="mt-6 text-sm text-muted-2">No progress yet.</p>
             ) : (
-              <div className="mt-4 flex flex-col gap-3">
+              <ul className="mt-8 divide-y divide-border border-y border-border">
                 {topProgress.map((p) => (
-                  <div key={p.set.id}>
-                    <div className="flex justify-between gap-2 text-sm">
-                      <span className="truncate font-medium text-zinc-200">
-                        {p.completedAt && "🏆 "}
+                  <li key={p.set.id} className="py-5">
+                    <div className="flex justify-between gap-3 text-sm">
+                      <span className="truncate font-medium tracking-[-0.02em] text-white">
                         {p.set.name}
                       </span>
-                      <span className="shrink-0 text-zinc-500">
+                      <span className="shrink-0 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
                         {Math.floor((p.uniqueOwned / p.set.total) * 100)}%
                       </span>
                     </div>
                     <ProgressBar
-                      className="mt-1.5"
+                      className="mt-3"
                       value={p.uniqueOwned}
                       max={p.set.total}
                     />
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
-          </Card>
+            <Link
+              href="/collection"
+              className="mt-6 inline-flex font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white"
+            >
+              Full collection →
+            </Link>
+          </div>
 
-          <Card>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400">
-              Achievements · {unlocked.length}
+          <div>
+            <SectionEyebrow>Milestones</SectionEyebrow>
+            <h2 className="title-s text-white">
+              Achievements{" "}
+              <span className="text-muted-2">· {unlocked.length}</span>
             </h2>
             {unlocked.length === 0 ? (
-              <p className="mt-3 text-sm text-zinc-500">None unlocked yet.</p>
+              <p className="mt-6 text-sm text-muted-2">None unlocked yet.</p>
             ) : (
-              <div className="mt-4 flex flex-col gap-2">
+              <ul className="mt-8 divide-y divide-border border-y border-border">
                 {unlocked.slice(0, 6).map((u) => (
-                  <div
+                  <li
                     key={u.achievementId}
-                    className="flex items-center gap-2.5 text-sm"
+                    className="flex items-center gap-3 py-4"
                   >
-                    <span className="text-lg">{u.achievement.icon}</span>
+                    <span className="grid h-10 w-10 shrink-0 place-items-center border border-border bg-surface text-lg">
+                      {u.achievement.icon}
+                    </span>
                     <div className="min-w-0">
-                      <div className="truncate font-medium text-zinc-200">
+                      <div className="truncate font-medium tracking-[-0.02em] text-white">
                         {u.achievement.name}
                       </div>
-                      <div className="truncate text-xs text-zinc-500">
+                      <div className="truncate text-sm text-muted-2">
                         {u.achievement.description}
                       </div>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
-          </Card>
-
-          {profile.favouritePokemon && (
-            <p className="px-1 text-sm text-zinc-500">
-              Favourite Pokémon:{" "}
-              <span className="font-medium text-zinc-300">
-                {profile.favouritePokemon}
-              </span>
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Showcase binder */}
-      <section>
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-400">
-          Showcase binder
-        </h2>
-        <BinderEditor
-          initialSlots={binderSlots}
-          editable={isOwner}
-          align="start"
-        />
+            <Link
+              href="/achievements"
+              className="mt-6 inline-flex font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white"
+            >
+              All achievements →
+            </Link>
+          </div>
+        </aside>
       </section>
     </div>
   );
