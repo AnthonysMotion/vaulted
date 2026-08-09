@@ -176,12 +176,13 @@ export async function openTrainerPack(
   const packTotalXp = updated.xp + xpAwarded;
   const packLevel = levelForXp(packTotalXp);
 
-  const cardsInPack = pack.cards.length;
+  // Same filter as persistence: fallback Basic Energy is display-only.
+  const collectibleCount = collectibleCards.length;
 
   // --- Achievements --------------------------------------------------------------
   const achievementResult = await checkAchievements(profile.id, {
     totalPacks: updated.totalPacksOpened,
-    totalCards: updated.totalCardsCollected + cardsInPack,
+    totalCards: updated.totalCardsCollected + collectibleCount,
     streak: updated.currentStreak,
     level: packLevel,
     bestTier: bestPull?.rarityTier ?? 0,
@@ -200,7 +201,7 @@ export async function openTrainerPack(
     .set({
       xp: newTotalXp,
       level: newLevel,
-      totalCardsCollected: sql`${profiles.totalCardsCollected} + ${cardsInPack}`,
+      totalCardsCollected: sql`${profiles.totalCardsCollected} + ${collectibleCount}`,
       longestStreak: sql`GREATEST(${profiles.longestStreak}, ${updated.currentStreak})`,
       ...(bestPull && bestPull.rarityTier > updated.rarestPullScore
         ? { rarestPullCardId: bestPull.card.id, rarestPullScore: bestPull.rarityTier }

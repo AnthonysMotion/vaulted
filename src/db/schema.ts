@@ -127,6 +127,12 @@ export const profiles = pgTable(
     xp: integer("xp").notNull().default(0),
     level: integer("level").notNull().default(1),
     totalPacksOpened: integer("total_packs_opened").notNull().default(0),
+    /**
+     * Lifetime collectible cards from trainer pack opens (copies, not uniques).
+     * Excludes display-only fallback Basic Energy (`isFallbackEnergyId`) so the
+     * counter matches what is persisted to `user_cards`. Drives collection
+     * achievements such as cards-100 / cards-1000.
+     */
     totalCardsCollected: integer("total_cards_collected").notNull().default(0),
     rarestPullCardId: text("rarest_pull_card_id").references(() => cards.id),
     rarestPullScore: integer("rarest_pull_score").notNull().default(0),
