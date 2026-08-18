@@ -5,7 +5,6 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LinkButton, SectionEyebrow, Card } from "@/components/ui";
-import WebThreads from "./WebThreads";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -25,7 +24,6 @@ const CONTAINER =
 
 export function LandingExperience({ signedIn }: { signedIn: boolean }) {
   const heroRef = useRef<HTMLElement>(null);
-  const heroBgRef = useRef<HTMLDivElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -48,74 +46,38 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
 
       if (reduceMotion || !heroCopyRef.current) return;
 
-      const scroll = {
-        trigger: heroRef.current,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1.6,
-      };
-
       gsap.to(heroCopyRef.current, {
         yPercent: -55,
         y: -180,
         scale: 0.88,
         opacity: 0,
         ease: "none",
-        scrollTrigger: scroll,
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.6,
+        },
       });
-
-      if (heroBgRef.current) {
-        gsap.to(heroBgRef.current, {
-          yPercent: 8,
-          scale: 1.03,
-          ease: "none",
-          scrollTrigger: scroll,
-        });
-      }
     },
     { scope: heroRef },
   );
 
   return (
-    <div className="relative w-full bg-background text-foreground selection:bg-accent selection:text-white">
+    <div className="relative w-full bg-black text-foreground selection:bg-accent selection:text-white">
       <section
         ref={heroRef}
-        className="hero relative flex min-h-[100svh] -mt-[var(--site-header-offset)] items-center justify-center overflow-hidden bg-background"
+        className="hero relative flex min-h-[100svh] -mt-[var(--site-header-offset)] items-center justify-center overflow-hidden bg-black pt-[var(--site-header-offset)]"
       >
-        <div
-          ref={heroBgRef}
-          aria-hidden
-          className="pointer-events-none absolute inset-[-12%] will-change-transform"
-        >
-          <WebThreads
-            className="absolute inset-0"
-            color1="#298dff"
-            color2="#298dff"
-            color3="#ffffff"
-            spread={0.6}
-            threadCount={7}
-            speed={0.04}
-            frequency={1}
-            falloff={0.5}
-            thickness={1.15}
-            brightness={1}
-            opacity={0.8}
-            mouseStrength={0}
-            mouseInteraction={false}
-          />
-          <div className="absolute inset-0 bg-black/25" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/20 to-background" />
-        </div>
-
         <div className={`${CONTAINER} relative`}>
           <div
             ref={heroCopyRef}
             className="mx-auto flex w-full max-w-[1000px] flex-col items-center text-center will-change-transform"
           >
-            <h1 className="hero-anim hero-title title-xl text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.65)]">
+            <h1 className="hero-anim hero-title title-xl text-white">
               The Next Pack Could Change Everything
             </h1>
-            <p className="hero-anim hero-copy mt-10 max-w-2xl text-lg leading-relaxed text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.55)] sm:text-xl">
+            <p className="hero-anim hero-copy mt-10 max-w-2xl text-lg leading-relaxed text-white sm:text-xl">
               Vaulted is a Pokémon TCG pack simulator. Rip boosters with real slot odds,
               grow a collection, and share pulls with friends.
             </p>
@@ -133,6 +95,11 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
                 </LinkButton>
               )}
             </div>
+            {!signedIn ? (
+              <p className="hero-anim mt-6 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
+                No account required to start
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

@@ -105,15 +105,16 @@ export function LinkButton({
 export function Card({
   className = "",
   children,
-  variant = "glass",
+  variant = "surface",
 }: {
   className?: string;
   children: ReactNode;
-  variant?: "glass" | "surface";
+  variant?: "glass" | "surface" | "tint";
 }) {
   const styles = {
     glass: "glass",
     surface: "bg-surface border border-border",
+    tint: "bg-surface-2 border border-border",
   };
   return (
     <div className={`p-5 sm:p-6 ${styles[variant]} ${className}`}>{children}</div>

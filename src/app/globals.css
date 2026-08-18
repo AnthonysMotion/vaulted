@@ -122,6 +122,7 @@ button {
 
 html {
   overflow-x: clip;
+  background: var(--color-background);
 }
 
 body {
@@ -251,7 +252,7 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
-/* Scrollbar                                                           */
+/* Scrollbar                                                          */
 /* ------------------------------------------------------------------ */
 
 ::-webkit-scrollbar {

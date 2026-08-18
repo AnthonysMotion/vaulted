@@ -148,8 +148,8 @@ function FeedRow({
                 disabled={!viewerId}
                 className={` border px-2 py-0.5 text-xs transition-colors ${
                   state.mine
-                    ? "border-anthracite bg-anthracite text-white"
-                    : "border-border bg-surface-2 text-muted hover:text-foreground"
+                    ? "border-[#8a05ff] bg-[#e7dbff] text-[#48008c]"
+                    : "border-[#e3e3e3] bg-[#fafafa] text-[#6b6b6b] hover:text-[#0d0d0d]"
                 } ${viewerId ? "cursor-pointer" : "cursor-default"}`}
               >
                 {r.emoji} {state.count > 0 && state.count}

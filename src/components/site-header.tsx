@@ -37,7 +37,7 @@ type Profile = {
 
 /** Theme tokens — edit `--color-blur` / greys in `globals.css`. */
 const BLUR = "var(--color-blur)";
-const SURFACE = "var(--color-grey-900)";
+const SURFACE = "var(--color-black)";
 const SURFACE_2 = "var(--color-grey-800)";
 const BORDER = "var(--color-grey-700)";
 const MUTED = "var(--color-grey-400)";
@@ -365,8 +365,6 @@ export function SiteHeader({
               className="relative z-[3] flex items-center justify-between px-[1.031em] py-[1.5em]"
               style={{
                 backgroundColor: SURFACE,
-                backdropFilter: "blur(var(--glass-blur))",
-                WebkitBackdropFilter: "blur(var(--glass-blur))",
               }}
             >
               <Link
