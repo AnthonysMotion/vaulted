@@ -97,15 +97,6 @@ async function SetsGrid() {
                       </div>
                     )}
                   </div>
-                  <div className="font-medium text-[#0d0d0d]">{s.name}</div>
-                  <div className="mt-2 text-xs text-[#6b6b6b]">
-                    {s.releaseDate.split("-")[0]} · {s.total} cards
-                  </div>
-                  {prog && (
-                    <div className="mt-5">
-                      <ProgressBar value={prog.owned} max={s.total} className="h-1.5" />
-                    </div>
-                  )}
                 </Link>
               );
             })}
