@@ -5,7 +5,7 @@ import { Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { ScrollToTop } from "@/components/scroll-to-top";
-import { VAULTED_LOGO_SRC, VaultedWordmark } from "@/components/vaulted-logo";
+import { VISION_LOGO_SRC, VisionWordmark } from "@/components/vision-logo";
 
 /** Closest widely-available stand-in for Sui’s TWK Everett. */
 const display = Plus_Jakarta_Sans({
@@ -25,14 +25,14 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "VaultedTCG — Pokémon Pack Opening Simulator",
-    template: "%s · VaultedTCG",
+    default: "Vision — Pokémon Pack Opening Simulator",
+    template: "%s · Vision",
   },
   description:
     "Open Pokémon TCG booster packs with realistic pull rates, build your collection, showcase your binder and compete with friends. A non-profit fan project.",
   icons: {
-    icon: VAULTED_LOGO_SRC,
-    apple: VAULTED_LOGO_SRC,
+    icon: VISION_LOGO_SRC,
+    apple: VISION_LOGO_SRC,
   },
 };
 
@@ -73,9 +73,9 @@ export default function RootLayout({
           <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8">
             <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <VaultedWordmark
+                <VisionWordmark
                   logoSize={40}
-                  label="Vaulted"
+                  label="Vision"
                   textClassName="text-xl font-medium tracking-[-0.03em] text-white"
                 />
                 <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-2">

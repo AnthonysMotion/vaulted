@@ -1,4 +1,4 @@
-# VaultedTCG
+# Vision
 
 **The next pack could change everything.**
 
@@ -15,9 +15,9 @@ A free, social Pokémon TCG pack-opening simulator. Rip boosters with researched
 
 ---
 
-## Why Vaulted?
+## Why Vision?
 
-Most pack simulators are either pure RNG toys or paywalled gacha. Vaulted aims for the middle:
+Most pack simulators are either pure RNG toys or paywalled gacha. Vision aims for the middle:
 
 - **Era-correct boosters** — slot structures and rarity weights per set, not “random card from the whole set”
 - **Two ways to play** — unlimited Sandbox for vibes, Trainer Mode for a real collection
@@ -195,7 +195,7 @@ set_pull_rates (DB)        ← seeded mirror only — not read at runtime
 ## Project layout
 
 ```
-vaulted/
+vision/
 ├── scripts/                 # seed, prices, migrate, simulate
 ├── src/
 │   ├── app/                 # App Router pages + API routes
@@ -227,7 +227,7 @@ vaulted/
 
 ## Disclaimer
 
-VaultedTCG is a **non-commercial fan project**. It is not affiliated with, endorsed by, or associated with Nintendo, The Pokémon Company, Creatures Inc., or GAME FREAK. No real-money gambling. Pack opens are for fun and collection simulation only.
+Vision is a **non-commercial fan project**. It is not affiliated with, endorsed by, or associated with Nintendo, The Pokémon Company, Creatures Inc., or GAME FREAK. No real-money gambling. Pack opens are for fun and collection simulation only.
 
 ---
 

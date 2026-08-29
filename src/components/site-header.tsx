@@ -11,7 +11,7 @@ import {
 import { SafeImage } from "@/components/safe-image";
 import { ShuffleLabel } from "@/components/shuffle-label";
 import { SignOutButton } from "@/components/sign-out-button";
-import { VaultedWordmark } from "@/components/vaulted-logo";
+import { VisionWordmark } from "@/components/vision-logo";
 
 type NavLink = {
   href: string;
@@ -165,7 +165,7 @@ function buildGroups(profile: Profile | null): NavGroup[] {
         links: [
           {
             href: "/about",
-            label: "About Vaulted",
+            label: "About Vision",
             description: "Fan project notes and credits",
           },
           {
@@ -330,7 +330,7 @@ export function SiteHeader({
                   setMobileOpen(false);
                 }}
               >
-                <VaultedWordmark logoSize={36} priority />
+                <VisionWordmark logoSize={36} priority />
               </Link>
 
               <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center lg:flex">
@@ -399,7 +399,7 @@ export function SiteHeader({
                 }}
               >
                 <div
-                  className="vaulted-dd-bounce grid w-full overflow-hidden border-2"
+                  className="vision-dd-bounce grid w-full overflow-hidden border-2"
                   style={{
                     backgroundColor: SURFACE,
                     borderColor: SURFACE_2,
@@ -445,7 +445,7 @@ export function SiteHeader({
                 className="absolute right-0 top-full z-[2] w-full max-w-[22em]"
               >
                 <div
-                  className="vaulted-dd-bounce w-full overflow-hidden border-2"
+                  className="vision-dd-bounce w-full overflow-hidden border-2"
                   style={{
                     backgroundColor: SURFACE,
                     borderColor: SURFACE_2,
@@ -505,7 +505,7 @@ export function SiteHeader({
               className="text-white"
               onClick={() => setMobileOpen(false)}
             >
-              <VaultedWordmark logoSize={36} />
+              <VisionWordmark logoSize={36} />
             </Link>
             <button
               type="button"

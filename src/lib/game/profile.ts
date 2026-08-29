@@ -5,8 +5,8 @@ import { binders, profiles, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isBootstrapDeveloperUsername } from "@/lib/game/developer";
 import {
-  parseVaultedUserId,
-  VAULTED_USER_ID_HEADER,
+  parseVisionUserId,
+  VISION_USER_ID_HEADER,
 } from "@/lib/auth/session-header";
 import { eq } from "drizzle-orm";
 import type { User } from "@supabase/supabase-js";
@@ -50,7 +50,7 @@ const fetchAuthUser = cache(async () => {
  */
 const getAuthUserId = cache(async (): Promise<string | null> => {
   const headerStore = await headers();
-  const fromProxy = parseVaultedUserId(headerStore.get(VAULTED_USER_ID_HEADER));
+  const fromProxy = parseVisionUserId(headerStore.get(VISION_USER_ID_HEADER));
   if (fromProxy) return fromProxy;
 
   const user = await fetchAuthUser();

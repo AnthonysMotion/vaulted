@@ -8,7 +8,7 @@ import { SafeImage } from "@/components/safe-image";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
 import { CardLightbox } from "./card-lightbox";
-import { VaultedLogo } from "@/components/vaulted-logo";
+import { VisionLogo } from "@/components/vision-logo";
 import { cardCornerRadiusForSet } from "@/lib/cards/corners";
 
 function packArtUrls(pack: SerialisedPack): string[] {
@@ -436,7 +436,7 @@ function BoosterPackArt({
         <div className="relative z-10 flex h-full flex-col px-4 pb-6 pt-7 sm:px-5 sm:pb-7 sm:pt-8">
           {/* Brand mark */}
           <div className="flex justify-center">
-            <VaultedLogo size={34} />
+            <VisionLogo size={34} />
           </div>
 
           {/* Set logo */}

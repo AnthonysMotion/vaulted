@@ -10,7 +10,7 @@ import {
   type AuthMethod,
 } from "@/lib/auth/last-method";
 import { Button, Card } from "@/components/ui";
-import { VaultedWordmark } from "@/components/vaulted-logo";
+import { VisionWordmark } from "@/components/vision-logo";
 
 function LastUsedTag() {
   return (
@@ -152,7 +152,7 @@ function LoginForm() {
     <div className="mx-auto mt-10 w-full max-w-md">
       <Card>
         <div className="mb-4">
-          <VaultedWordmark logoSize={36} />
+          <VisionWordmark logoSize={36} />
         </div>
         <p className="mwg-label text-muted">Account</p>
         <h1 className="title-s mt-2">

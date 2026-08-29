@@ -49,7 +49,7 @@ export default async function AchievementsPage() {
             Achievements.
           </h1>
           <p className="mt-4 max-w-2xl text-sm font-medium text-muted-2 sm:text-base">
-            Track every unlock in Vaulted and see which milestones you&apos;ve already collected.
+            Track every unlock in Vision and see which milestones you&apos;ve already collected.
           </p>
         </div>
         <div className="flex items-center gap-3">

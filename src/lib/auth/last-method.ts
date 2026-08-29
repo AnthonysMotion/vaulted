@@ -2,7 +2,7 @@
 
 export type AuthMethod = "google" | "discord" | "email";
 
-const STORAGE_KEY = "vaulted:last-auth-method";
+const STORAGE_KEY = "vision:last-auth-method";
 
 export function getLastAuthMethod(): AuthMethod | null {
   if (typeof window === "undefined") return null;

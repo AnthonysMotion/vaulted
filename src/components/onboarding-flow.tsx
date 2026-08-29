@@ -21,7 +21,7 @@ function buildSteps(dailyPackLimit: number): Step[] {
       id: "welcome",
       eyebrow: "Welcome",
       title: "You're set up as a trainer.",
-      body: "Vaulted lets you open Pokémon TCG packs, keep what you pull, and show the good ones off. This takes a minute.",
+      body: "Vision lets you open Pokémon TCG packs, keep what you pull, and show the good ones off. This takes a minute.",
     },
     {
       id: "modes",

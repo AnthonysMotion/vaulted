@@ -78,7 +78,7 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
               The Next Pack Could Change Everything
             </h1>
             <p className="hero-anim hero-copy mt-10 max-w-2xl text-lg leading-relaxed text-white sm:text-xl">
-              Vaulted is a Pokémon TCG pack simulator. Rip boosters with real slot odds,
+              Vision is a Pokémon TCG pack simulator. Rip boosters with real slot odds,
               grow a collection, and share pulls with friends.
             </p>
             <div className="hero-anim hero-cta mt-12 flex flex-wrap items-center justify-center gap-3 text-white">

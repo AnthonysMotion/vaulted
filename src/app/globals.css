@@ -225,7 +225,7 @@ body {
 
 /* Sui navbar-dd: GSAP back.out(10) on margin-top 0 → 0.2em (~250ms) */
 /* Use transform (not margin) so the hover hit-box stays attached to the bar. */
-@keyframes vaulted-dd-bounce {
+@keyframes vision-dd-bounce {
   0% {
     transform: translateY(0);
   }
@@ -240,12 +240,12 @@ body {
   }
 }
 
-.vaulted-dd-bounce {
-  animation: vaulted-dd-bounce 0.25s var(--ease-sui) both;
+.vision-dd-bounce {
+  animation: vision-dd-bounce 0.25s var(--ease-sui) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vaulted-dd-bounce {
+  .vision-dd-bounce {
     animation: none;
     transform: translateY(0.2em);
   }
@@ -273,7 +273,7 @@ body {
 /* Home hero                                                           */
 /* ------------------------------------------------------------------ */
 
-@keyframes vaulted-hero-rise {
+@keyframes vision-hero-rise {
   from {
     opacity: 0;
     transform: translateY(1.25rem);
@@ -285,11 +285,11 @@ body {
 }
 
 .hero-title-block {
-  animation: vaulted-hero-rise 0.7s var(--ease-sui-smooth) both;
+  animation: vision-hero-rise 0.7s var(--ease-sui-smooth) both;
 }
 
 .hero-aside {
-  animation: vaulted-hero-rise 0.7s var(--ease-sui-smooth) 0.12s both;
+  animation: vision-hero-rise 0.7s var(--ease-sui-smooth) 0.12s both;
 }
 
 @media (prefers-reduced-motion: reduce) {

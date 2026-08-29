@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LinkButton, SectionEyebrow } from "@/components/ui";
-import { VaultedWordmark } from "@/components/vaulted-logo";
+import { VisionWordmark } from "@/components/vision-logo";
 
 export const metadata = { title: "About" };
 
@@ -9,14 +9,14 @@ export default function AboutPage() {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-16 md:gap-20">
       <header>
         <div className="mb-6">
-          <VaultedWordmark logoSize={36} />
+          <VisionWordmark logoSize={36} />
         </div>
         <SectionEyebrow>About</SectionEyebrow>
         <h1 className="mt-4 text-4xl font-black tracking-tighter text-white sm:text-5xl">
           A pack simulator for people who like opening packs.
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-muted">
-          Vaulted is a free, non-profit fan project. Open Pokémon TCG boosters with
+          Vision is a free, non-profit fan project. Open Pokémon TCG boosters with
           researched slot odds, keep what you pull, and show cards off to friends.
         </p>
       </header>
@@ -86,7 +86,7 @@ export default function AboutPage() {
         </h2>
         <p className="text-muted leading-relaxed">
           Pokémon and Pokémon TCG are trademarks of Nintendo, Creatures Inc., and
-          GAME FREAK inc. Vaulted is an unofficial fan project and is not
+          GAME FREAK inc. Vision is an unofficial fan project and is not
           affiliated with, endorsed by, or connected to The Pokémon Company,
           Nintendo, or related rights holders. No real money packs, gambling, or
           card sales here — just a simulator.

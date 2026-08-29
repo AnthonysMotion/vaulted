@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { VAULTED_USER_ID_HEADER } from "@/lib/auth/session-header";
+import { VISION_USER_ID_HEADER } from "@/lib/auth/session-header";
 
 const PROTECTED_PREFIXES = [
   "/dashboard",
@@ -35,9 +35,9 @@ function requestHeadersWithUser(
 ) {
   const headers = new Headers(request.headers);
   // Never trust a client-supplied user id.
-  headers.delete(VAULTED_USER_ID_HEADER);
+  headers.delete(VISION_USER_ID_HEADER);
   if (userId) {
-    headers.set(VAULTED_USER_ID_HEADER, userId);
+    headers.set(VISION_USER_ID_HEADER, userId);
   }
   return headers;
 }

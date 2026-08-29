@@ -11,11 +11,11 @@ import * as schema from "./schema";
  * (port 5432) is too tight for a Next.js app under concurrent requests.
  */
 const globalForDb = globalThis as unknown as {
-  __vaultedPg?: ReturnType<typeof postgres>;
+  __visionPg?: ReturnType<typeof postgres>;
 };
 
 function getClient() {
-  if (globalForDb.__vaultedPg) return globalForDb.__vaultedPg;
+  if (globalForDb.__visionPg) return globalForDb.__visionPg;
 
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -32,7 +32,7 @@ function getClient() {
     connect_timeout: 10,
   });
 
-  globalForDb.__vaultedPg = client;
+  globalForDb.__visionPg = client;
   return client;
 }
 
