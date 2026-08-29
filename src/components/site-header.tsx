@@ -42,7 +42,6 @@ const SURFACE_2 = "var(--color-grey-800)";
 const BORDER = "var(--color-grey-700)";
 const MUTED = "var(--color-grey-400)";
 const CATEGORY = "var(--color-grey-300)";
-const BANNER_KEY = "vaulted-announcement-dismissed";
 const CLOSE_DELAY_MS = 120;
 
 function buildGroups(profile: Profile | null): NavGroup[] {
@@ -222,24 +221,14 @@ export function SiteHeader({
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [ctaOpen, setCtaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [bannerVisible, setBannerVisible] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    try {
-      setBannerVisible(localStorage.getItem(BANNER_KEY) !== "1");
-    } catch {
-      setBannerVisible(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    const offset = bannerVisible ? "7.25rem" : "5.25rem";
     document.documentElement.style.setProperty(
       "--site-header-offset",
-      offset,
+      "5.25rem",
     );
-  }, [bannerVisible]);
+  }, []);
 
   useEffect(() => {
     setOpenGroup(null);
@@ -266,15 +255,6 @@ export function SiteHeader({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  const dismissBanner = useCallback(() => {
-    setBannerVisible(false);
-    try {
-      localStorage.setItem(BANNER_KEY, "1");
-    } catch {
-      /* ignore */
-    }
   }, []);
 
   const clearCloseTimer = useCallback(() => {
@@ -330,31 +310,6 @@ export function SiteHeader({
       />
 
       <div className="pointer-events-none fixed inset-x-0 top-0 z-[260]">
-        {bannerVisible ? (
-          <div
-            className="pointer-events-auto relative flex items-center justify-center px-10 py-2.5 text-center text-[13px] leading-snug text-white sm:text-sm"
-            style={{ backgroundColor: BLUR }}
-          >
-            <Link
-              href="/about"
-              className="font-medium tracking-[-0.01em] transition-opacity hover:opacity-80"
-            >
-              Non-profit fan project. Open packs, build your vault →
-            </Link>
-            <button
-              type="button"
-              aria-label="Dismiss announcement"
-              onClick={dismissBanner}
-              className="absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center text-white/90 transition-opacity hover:opacity-100"
-            >
-              <span aria-hidden className="relative block h-3 w-3">
-                <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 rotate-45 bg-current" />
-                <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 -rotate-45 bg-current" />
-              </span>
-            </button>
-          </div>
-        ) : null}
-
         <div className="pointer-events-none px-4 pt-3 sm:px-5">
           <div
             className="pointer-events-auto relative mx-auto w-full max-w-[1400px]"
@@ -540,10 +495,7 @@ export function SiteHeader({
       </div>
 
       {/* Spacer so page content clears the fixed floating bar */}
-      <div
-        aria-hidden
-        className={bannerVisible ? "h-[7.25rem]" : "h-[5.25rem]"}
-      />
+      <div aria-hidden className="h-[5.25rem]" />
 
       {mobileOpen ? (
         <div className="fixed inset-0 z-[255] flex flex-col bg-black lg:hidden">

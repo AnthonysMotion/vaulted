@@ -35,8 +35,8 @@
   --ease-sui: cubic-bezier(0.215, 0.61, 0.355, 1);
   --ease-sui-smooth: cubic-bezier(0.4, 0, 0.05, 1);
 
-  /* Matches SiteHeader spacer; updated at runtime when banner toggles */
-  --site-header-offset: 7.25rem;
+  /* Matches SiteHeader spacer (floating nav only) */
+  --site-header-offset: 5.25rem;
 }
 
 @theme inline {
