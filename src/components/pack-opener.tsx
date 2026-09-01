@@ -66,6 +66,7 @@ export function PackOpener({
   const [history, setHistory] = useState<SerialisedPack[]>([]);
   const [packsRemaining, setPacksRemaining] = useState(initialPacksRemaining ?? Infinity);
   const [lightboxCard, setLightboxCard] = useState<SerialisedPulledCard | null>(null);
+  const [skipping, setSkipping] = useState(false);
 
   const bestTier = useMemo(
     () => (pack ? Math.max(...pack.cards.map((c) => c.rarityTier)) : 0),
@@ -122,24 +123,122 @@ export function PackOpener({
   }, [mode, set.id]);
 
   const revealNext = useCallback(() => {
-    if (!pack) return;
-    playSound(pack.cards[revealIndex]?.rarityTier >= 4 ? "rare" : "flip");
+    if (!pack || phase !== "revealing") return;
+    const card = pack.cards[revealIndex];
+    playSound(card && card.rarityTier >= 4 ? "rare" : "flip");
     if (revealIndex + 1 >= pack.cards.length) {
       setHistory((h) => [pack, ...h].slice(0, 20));
       setPhase("summary");
     } else {
       setRevealIndex((i) => i + 1);
     }
-  }, [pack, revealIndex]);
+  }, [pack, phase, revealIndex]);
+
+  const finishToSummary = useCallback(
+    (opened: SerialisedPack) => {
+      setHistory((h) => [opened, ...h].slice(0, 20));
+      setPhase("summary");
+      setSkipping(false);
+    },
+    [],
+  );
+
+  /**
+   * Jump ahead, but still surface unrevealed rare+ pulls with a short sting
+   * so god packs / chase hits aren't silently skipped.
+   */
+  const skipToSummary = useCallback(async () => {
+    if (!pack || phase !== "revealing" || skipping) return;
+
+    const remaining = pack.cards.slice(revealIndex + 1);
+    if (remaining.length === 0) {
+      finishToSummary(pack);
+      return;
+    }
+
+    setSkipping(true);
+    try {
+      for (let i = 0; i < remaining.length; i++) {
+        const index = revealIndex + 1 + i;
+        const card = pack.cards[index];
+        if (card.rarityTier < 4) continue;
+        setRevealIndex(index);
+        playSound("rare");
+        await new Promise((r) =>
+          setTimeout(r, card.rarityTier >= 5 ? 850 : 650),
+        );
+      }
+      setRevealIndex(pack.cards.length - 1);
+      finishToSummary(pack);
+    } catch {
+      setSkipping(false);
+    }
+  }, [pack, phase, revealIndex, skipping, finishToSummary]);
 
   const reset = useCallback(() => {
     setPack(null);
     setMeta(null);
     setPhase("idle");
     setLightboxCard(null);
+    setSkipping(false);
   }, []);
 
   const canOpen = mode === "sandbox" || packsRemaining > 0;
+
+  // Space / Enter: open, reveal next, or open another — never while typing or in lightbox.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== " " && e.key !== "Enter") return;
+      if (e.repeat) return;
+      if (lightboxCard) return;
+      if (skipping) return;
+
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.tagName === "SELECT" ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (phase === "revealing") {
+        // Let focused buttons (e.g. Skip) handle Enter themselves.
+        if (e.key === "Enter" && target?.closest("button")) return;
+        e.preventDefault();
+        revealNext();
+        return;
+      }
+
+      // Idle / summary: don't steal Space/Enter from focused controls.
+      if (target?.closest("button, a, [role='button']")) return;
+
+      e.preventDefault();
+
+      if (phase === "idle" && canOpen) {
+        void openPack();
+        return;
+      }
+      if (phase === "summary" && canOpen) {
+        reset();
+        queueMicrotask(() => {
+          void openPack();
+        });
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [
+    phase,
+    canOpen,
+    openPack,
+    revealNext,
+    reset,
+    lightboxCard,
+    skipping,
+  ]);
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -170,6 +269,9 @@ export function PackOpener({
                 <Button onClick={openPack} disabled={!canOpen} className="px-8 py-3 text-base">
                   {canOpen ? "Open Pack" : "No packs left today"}
                 </Button>
+                {canOpen ? (
+                  <p className="text-xs text-muted">Press Space / Enter to open</p>
+                ) : null}
                 {mode === "trainer" && Number.isFinite(packsRemaining) && (
                   <p className="text-sm text-muted">
                     {packsRemaining} pack{packsRemaining === 1 ? "" : "s"} remaining today
@@ -208,11 +310,26 @@ export function PackOpener({
             <RevealStack
               cards={pack.cards}
               revealIndex={revealIndex}
-              onReveal={revealNext}
+              onReveal={skipping ? undefined : revealNext}
               cornerRadius={cardCornerRadius}
             />
 
-            <p className="text-xs text-muted">Tap the card to reveal the next one</p>
+            <div className="flex flex-col items-center gap-3">
+              <p className="text-xs text-muted">
+                {skipping
+                  ? "Finishing rare pulls…"
+                  : "Tap the card or press Space / Enter"}
+              </p>
+              {!skipping && revealIndex + 1 < pack.cards.length ? (
+                <Button
+                  variant="ghost"
+                  onClick={() => void skipToSummary()}
+                  className="text-xs uppercase tracking-widest text-muted hover:text-white"
+                >
+                  Skip to summary
+                </Button>
+              ) : null}
+            </div>
           </motion.div>
         )}
 
@@ -517,7 +634,7 @@ function RevealStack({
 }: {
   cards: SerialisedPulledCard[];
   revealIndex: number;
-  onReveal: () => void;
+  onReveal?: () => void;
   cornerRadius: string;
 }) {
   const card = cards[revealIndex];
@@ -551,7 +668,9 @@ function RevealStack({
 
   return (
     <div
-      className="relative h-[22rem] w-64 cursor-pointer sm:h-[26rem] sm:w-72"
+      className={`relative h-[22rem] w-64 sm:h-[26rem] sm:w-72 ${
+        onReveal ? "cursor-pointer" : "cursor-default"
+      }`}
       onClick={onReveal}
       style={{ perspective: 1200, ...cornerStyle }}
     >
