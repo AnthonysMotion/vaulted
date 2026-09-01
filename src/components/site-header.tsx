@@ -8,15 +8,20 @@ import {
   useRef,
   useState,
 } from "react";
+import { NavSearch } from "@/components/nav-search";
 import { SafeImage } from "@/components/safe-image";
 import { ShuffleLabel } from "@/components/shuffle-label";
 import { SignOutButton } from "@/components/sign-out-button";
 import { VisionWordmark } from "@/components/vision-logo";
 
+const GITHUB_URL = "https://github.com/AnthonysMotion/visiontcg";
+
 type NavLink = {
   href: string;
   label: string;
   description: string;
+  /** Opens in a new tab and renders an outbound arrow. */
+  external?: boolean;
 };
 
 type NavSection = {
@@ -25,10 +30,20 @@ type NavSection = {
 };
 
 type NavGroup = {
+  kind: "group";
   id: string;
   label: string;
   columns: NavSection[];
 };
+
+/** Opens the same dropdown chrome as a group, but holds the search panel. */
+type NavSearchItem = {
+  kind: "search";
+  id: "search";
+  label: string;
+};
+
+type NavItem = NavGroup | NavSearchItem;
 
 type Profile = {
   username: string;
@@ -44,8 +59,9 @@ const MUTED = "var(--color-grey-400)";
 const CATEGORY = "var(--color-grey-300)";
 const CLOSE_DELAY_MS = 120;
 
-function buildGroups(profile: Profile | null): NavGroup[] {
+function buildNavItems(profile: Profile | null): NavItem[] {
   const play: NavGroup = {
+    kind: "group",
     id: "play",
     label: "Play",
     columns: [
@@ -55,100 +71,69 @@ function buildGroups(profile: Profile | null): NavGroup[] {
           {
             href: "/open-pack",
             label: "Open a pack",
-            description: "Trainer or sandbox booster pulls",
+            description: profile
+              ? "Spend a daily pack, or switch to sandbox"
+              : "Free sandbox pulls — no account needed",
           },
-          {
-            href: "/open-pack?mode=sandbox",
-            label: "Sandbox",
-            description: "Unlimited practice — nothing saved",
-          },
-        ],
-      },
-      {
-        category: "Catalog/",
-        links: [
           {
             href: "/sets",
-            label: "Sets",
-            description: "Browse every expansion checklist",
+            label: "Browse sets",
+            description: "Pick an expansion and see its checklist",
           },
         ],
       },
     ],
   };
 
-  const collection: NavGroup = {
-    id: "collection",
-    label: "Collection",
-    columns: [
-      {
-        category: "Vault/",
-        links: [
-          {
-            href: "/collection",
-            label: "My collection",
-            description: "Cards pulled from your packs",
-          },
-          ...(profile
-            ? [
-                {
-                  href: `/binder/${profile.username}`,
-                  label: "Binder",
-                  description: "Your public showcase page",
-                },
-              ]
-            : []),
-        ],
-      },
-      {
-        category: "Progress/",
-        links: [
-          {
-            href: "/achievements",
-            label: "Achievements",
-            description: "Milestones, streaks, and badges",
-          },
-          ...(profile
-            ? [
-                {
-                  href: "/dashboard",
-                  label: "Dashboard",
-                  description: "Daily packs, XP, and set progress",
-                },
-              ]
-            : []),
-        ],
-      },
-    ],
-  };
-
-  const social: NavGroup | null = profile
+  // Nothing in here exists for a signed-out visitor.
+  const collection: NavGroup | null = profile
     ? {
-        id: "social",
-        label: "Social",
+        kind: "group",
+        id: "collection",
+        label: "Collection",
         columns: [
           {
-            category: "Connect/",
+            category: "Vault/",
             links: [
               {
-                href: "/friends",
-                label: "Friends",
-                description: "Requests, binders, and compare",
+                href: "/collection",
+                label: "My cards",
+                description: "Every card you have pulled",
               },
               {
-                href: "/feed",
-                label: "Feed",
-                description: "Big pulls from every trainer",
+                href: `/binder/${profile.username}`,
+                label: "Binder",
+                description: "Arrange your public showcase",
               },
             ],
           },
           {
-            category: "You/",
+            category: "Progress/",
             links: [
               {
-                href: `/profile/${profile.username}`,
-                label: "Profile",
-                description: "Showcase, activity, and stats",
+                href: "/dashboard",
+                label: "Dashboard",
+                description: "Daily packs, XP, and set completion",
+              },
+              {
+                href: "/achievements",
+                label: "Achievements",
+                description: "Milestones, streaks, and badges",
+              },
+            ],
+          },
+          {
+            category: "Social/",
+            links: [
+              {
+                href: "/friends",
+                label: "Friends",
+                description: "Requests, binders, and collection compare",
+              },
+              {
+                href: "/feed",
+                label: "Activity feed",
+                description: "Big pulls from every trainer",
               },
             ],
           },
@@ -156,7 +141,14 @@ function buildGroups(profile: Profile | null): NavGroup[] {
       }
     : null;
 
+  const search: NavSearchItem = {
+    kind: "search",
+    id: "search",
+    label: "Search",
+  };
+
   const about: NavGroup = {
+    kind: "group",
     id: "about",
     label: "About",
     columns: [
@@ -166,23 +158,20 @@ function buildGroups(profile: Profile | null): NavGroup[] {
           {
             href: "/about",
             label: "About Vision",
-            description: "Fan project notes and credits",
+            description: "Fan project notes, pull-rate research, and credits",
           },
           {
-            href: profile ? "/account" : "/login",
-            label: profile ? "Account" : "Sign in",
-            description: profile
-              ? "Edit bio, avatar, and settings"
-              : "Save packs, streaks, and collection",
+            href: GITHUB_URL,
+            label: "GitHub",
+            description: "Source code, issues, and roadmap",
+            external: true,
           },
         ],
       },
     ],
   };
 
-  return social
-    ? [play, collection, social, about]
-    : [play, collection, about];
+  return collection ? [play, collection, search, about] : [play, search, about];
 }
 
 function PlusIcon({ open }: { open: boolean }) {
@@ -217,7 +206,7 @@ export function SiteHeader({
   profile: Profile | null;
 }) {
   const pathname = usePathname();
-  const groups = buildGroups(profile);
+  const navItems = buildNavItems(profile);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [ctaOpen, setCtaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -276,10 +265,11 @@ export function SiteHeader({
     setCtaOpen(false);
   }, [clearCloseTimer]);
 
+  // Search stays put on mouse-out — losing a half-typed query would be hostile.
   const scheduleClose = () => {
     clearCloseTimer();
     closeTimer.current = setTimeout(() => {
-      setOpenGroup(null);
+      setOpenGroup((current) => (current === "search" ? current : null));
       setCtaOpen(false);
     }, CLOSE_DELAY_MS);
   };
@@ -288,9 +278,12 @@ export function SiteHeader({
     return () => clearCloseTimer();
   }, [clearCloseTimer]);
 
-  const activeGroup = groups.find((g) => g.id === openGroup) ?? null;
-  const menuOpen = Boolean(activeGroup || ctaOpen);
-  const ctaHref = profile ? "/open-pack" : "/login";
+  const activeGroup =
+    navItems.find(
+      (item): item is NavGroup => item.kind === "group" && item.id === openGroup,
+    ) ?? null;
+  const searchOpen = openGroup === "search";
+  const menuOpen = Boolean(activeGroup || ctaOpen || searchOpen);
   const columnCount = Math.max(
     1,
     activeGroup?.columns.filter((c) => c.links.length > 0).length ?? 1,
@@ -335,12 +328,17 @@ export function SiteHeader({
 
               <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center lg:flex">
                 <ul className="pointer-events-auto flex items-stretch">
-                  {groups.map((group) => (
+                  {navItems.map((item) => (
                     <NavGroupButton
-                      key={group.id}
-                      label={group.label}
-                      open={openGroup === group.id}
-                      onOpen={() => openMenu(group.id)}
+                      key={item.id}
+                      label={item.label}
+                      open={openGroup === item.id}
+                      onOpen={() => openMenu(item.id)}
+                      onClick={() =>
+                        setOpenGroup((current) =>
+                          current === item.id ? null : item.id,
+                        )
+                      }
                     />
                   ))}
                 </ul>
@@ -362,14 +360,17 @@ export function SiteHeader({
                     />
                   </div>
                 ) : (
-                  <CtaLink href={ctaHref} label="Get started" />
+                  <div className="flex items-center gap-2">
+                    <CtaLink href="/login" label="Log in" variant="ghost" />
+                    <CtaLink href="/login?mode=signup" label="Sign up" />
+                  </div>
                 )}
               </div>
 
               <div className="relative z-[1] flex items-center gap-2 lg:hidden">
                 <CtaLink
-                  href={ctaHref}
-                  label={profile ? "Open pack" : "Sign in"}
+                  href={profile ? "/open-pack" : "/login?mode=signup"}
+                  label={profile ? "Open pack" : "Sign up"}
                 />
                 <button
                   type="button"
@@ -384,6 +385,23 @@ export function SiteHeader({
               </div>
             </div>
 
+            {searchOpen ? (
+              <div
+                key="search-panel"
+                className="absolute left-1/2 top-full z-[2] w-full max-w-[34em] -translate-x-1/2"
+              >
+                <div
+                  className="vision-dd-bounce w-full overflow-hidden border-2"
+                  style={{
+                    backgroundColor: SURFACE,
+                    borderColor: SURFACE_2,
+                  }}
+                >
+                  <NavSearch onNavigate={closeMenus} />
+                </div>
+              </div>
+            ) : null}
+
             {/* Panels sized to content only — no full-width invisible hover trap */}
             {activeGroup ? (
               <div
@@ -395,7 +413,7 @@ export function SiteHeader({
                       ? "72.5em"
                       : columnCount === 2
                         ? "52em"
-                        : "36em",
+                        : "30em",
                 }}
               >
                 <div
@@ -404,7 +422,7 @@ export function SiteHeader({
                     backgroundColor: SURFACE,
                     borderColor: SURFACE_2,
                     gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-                    minHeight: "16rem",
+                    minHeight: columnCount > 1 ? "16rem" : undefined,
                   }}
                 >
                   {activeGroup.columns
@@ -412,7 +430,9 @@ export function SiteHeader({
                     .map((col, colIndex) => (
                       <div
                         key={col.category}
-                        className="flex h-full min-w-0 flex-col px-2 pb-12 pt-1"
+                        className={`flex h-full min-w-0 flex-col px-2 pt-1 ${
+                          columnCount > 1 ? "pb-12" : "pb-4"
+                        }`}
                         style={
                           colIndex > 0
                             ? { borderLeft: `1px dashed ${BORDER}` }
@@ -465,15 +485,8 @@ export function SiteHeader({
                     <div className="flex flex-col gap-0.5">
                       <MegaLink
                         link={{
-                          href: "/dashboard",
-                          label: "Dashboard",
-                          description: "Daily packs, XP, and set progress",
-                        }}
-                      />
-                      <MegaLink
-                        link={{
                           href: `/profile/${profile.username}`,
-                          label: "Profile",
+                          label: "Your profile",
                           description: "Your public trainer page",
                         }}
                       />
@@ -520,7 +533,11 @@ export function SiteHeader({
 
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-10 pt-4">
             {profile ? (
-              <div className="mb-6 flex items-center gap-3 border border-white/10 px-3 py-3">
+              <Link
+                href="/account"
+                onClick={() => setMobileOpen(false)}
+                className="mb-6 flex items-center gap-3 border border-white/10 px-3 py-3"
+              >
                 <span className="relative grid h-10 w-10 place-items-center overflow-hidden bg-surface">
                   <SafeImage
                     src={profile.avatarUrl}
@@ -535,33 +552,68 @@ export function SiteHeader({
                   <p className="truncate text-sm font-semibold text-white">
                     {profile.username}
                   </p>
-                  <p className="text-xs text-muted-2">Signed in</p>
+                  <p className="text-xs text-muted-2">Manage your account</p>
                 </div>
-              </div>
+              </Link>
             ) : null}
 
             <div className="flex flex-col">
-              {groups.map((group) => {
-                const open = openGroup === group.id;
+              {navItems.map((item) => {
+                const open = openGroup === item.id;
+
+                if (item.kind === "search") {
+                  return (
+                    <div key={item.id} className="border-b border-white/10">
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between py-3 text-left"
+                        onClick={() =>
+                          setOpenGroup((current) =>
+                            current === item.id ? null : item.id,
+                          )
+                        }
+                      >
+                        <span className="text-[17px] font-medium tracking-[-0.02em] text-white">
+                          {item.label}
+                        </span>
+                        <PlusIcon open={open} />
+                      </button>
+                      {open ? (
+                        <div
+                          className="mb-4 border"
+                          style={{ borderColor: BORDER }}
+                        >
+                          <NavSearch
+                            onNavigate={() => {
+                              setMobileOpen(false);
+                              setOpenGroup(null);
+                            }}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                }
+
                 return (
-                  <div key={group.id} className="border-b border-white/10">
+                  <div key={item.id} className="border-b border-white/10">
                     <button
                       type="button"
                       className="flex w-full items-center justify-between py-3 text-left"
                       onClick={() =>
                         setOpenGroup((current) =>
-                          current === group.id ? null : group.id,
+                          current === item.id ? null : item.id,
                         )
                       }
                     >
                       <span className="text-[17px] font-medium tracking-[-0.02em] text-white">
-                        {group.label}
+                        {item.label}
                       </span>
                       <PlusIcon open={open} />
                     </button>
                     {open ? (
                       <div className="flex flex-col gap-4 pb-5">
-                        {group.columns.map((col) => (
+                        {item.columns.map((col) => (
                           <div key={col.category}>
                             <div
                               className="mb-2 px-3 py-2 font-mono text-[0.625rem] uppercase"
@@ -572,24 +624,43 @@ export function SiteHeader({
                             >
                               {col.category}
                             </div>
-                            {col.links.map((link) => (
-                              <Link
-                                key={link.href + link.label}
-                                href={link.href}
-                                onClick={() => setMobileOpen(false)}
-                                className="block px-2 py-2"
-                              >
-                                <div className="text-[15px] text-white">
-                                  {link.label}
-                                </div>
-                                <p
-                                  className="mt-0.5 text-[13px]"
-                                  style={{ color: MUTED }}
+                            {col.links.map((link) => {
+                              const body = (
+                                <>
+                                  <div className="text-[15px] text-white">
+                                    {link.label}
+                                    {link.external ? " ↗" : null}
+                                  </div>
+                                  <p
+                                    className="mt-0.5 text-[13px]"
+                                    style={{ color: MUTED }}
+                                  >
+                                    {link.description}
+                                  </p>
+                                </>
+                              );
+                              return link.external ? (
+                                <a
+                                  key={link.href + link.label}
+                                  href={link.href}
+                                  target="_blank"
+                                  rel="noreferrer noopener"
+                                  onClick={() => setMobileOpen(false)}
+                                  className="block px-2 py-2"
                                 >
-                                  {link.description}
-                                </p>
-                              </Link>
-                            ))}
+                                  {body}
+                                </a>
+                              ) : (
+                                <Link
+                                  key={link.href + link.label}
+                                  href={link.href}
+                                  onClick={() => setMobileOpen(false)}
+                                  className="block px-2 py-2"
+                                >
+                                  {body}
+                                </Link>
+                              );
+                            })}
                           </div>
                         ))}
                       </div>
@@ -599,14 +670,35 @@ export function SiteHeader({
               })}
             </div>
 
-            <Link
-              href={ctaHref}
-              onClick={() => setMobileOpen(false)}
-              className="mt-8 flex h-12 items-center justify-center text-[15px] font-normal text-white"
-              style={{ backgroundColor: BLUR }}
-            >
-              Get started
-            </Link>
+            {profile ? (
+              <Link
+                href="/open-pack"
+                onClick={() => setMobileOpen(false)}
+                className="mt-8 flex h-12 items-center justify-center text-[15px] font-normal text-white"
+                style={{ backgroundColor: BLUR }}
+              >
+                Open a pack
+              </Link>
+            ) : (
+              <div className="mt-8 flex flex-col gap-2">
+                <Link
+                  href="/login?mode=signup"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex h-12 items-center justify-center text-[15px] font-normal text-white"
+                  style={{ backgroundColor: BLUR }}
+                >
+                  Sign up
+                </Link>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex h-12 items-center justify-center border text-[15px] font-normal text-white"
+                  style={{ borderColor: BORDER }}
+                >
+                  Log in
+                </Link>
+              </div>
+            )}
 
             {profile ? (
               <SignOutButton
@@ -625,10 +717,12 @@ function NavGroupButton({
   label,
   open,
   onOpen,
+  onClick,
 }: {
   label: string;
   open: boolean;
   onOpen: () => void;
+  onClick: () => void;
 }) {
   const [scrambleTrigger, setScrambleTrigger] = useState(0);
 
@@ -640,8 +734,11 @@ function NavGroupButton({
         setScrambleTrigger((n) => n + 1);
       }}
     >
-      <div
-        className="flex items-center gap-2 px-[1.125em] py-[0.375em]"
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onClick}
+        className="flex cursor-pointer items-center gap-2 px-[1.125em] py-[0.375em]"
         style={{
           backgroundColor: open ? "rgba(255,255,255,0.03)" : "transparent",
         }}
@@ -652,7 +749,7 @@ function NavGroupButton({
           className="text-[0.875rem] font-normal tracking-[-0.01em] text-white"
         />
         <PlusIcon open={open} />
-      </div>
+      </button>
     </li>
   );
 }
@@ -669,7 +766,7 @@ function ProfileButton({
   return (
     <button
       type="button"
-      className="inline-flex max-w-[14rem] items-center gap-2.5 px-[0.875em] py-[0.375em] text-[0.875rem] font-normal text-white transition-colors duration-150 hover:bg-white/[0.04]"
+      className="inline-flex h-10 max-w-[14rem] cursor-pointer items-center gap-2.5 px-3 text-[0.875rem] font-normal text-white transition-colors duration-150 hover:bg-white/[0.04]"
       style={{ backgroundColor: SURFACE_2 }}
       aria-expanded={open}
       aria-haspopup="menu"
@@ -698,19 +795,33 @@ function ProfileButton({
   );
 }
 
-function CtaLink({ href, label }: { href: string; label: string }) {
+function CtaLink({
+  href,
+  label,
+  variant = "primary",
+}: {
+  href: string;
+  label: string;
+  variant?: "primary" | "ghost";
+}) {
   const [trigger, setTrigger] = useState(0);
+  const ghost = variant === "ghost";
+
   return (
     <Link
       href={href}
-      className="inline-flex items-center px-[1.125em] py-[0.375em] text-[0.875rem] font-normal text-white transition-opacity duration-150 hover:opacity-90"
-      style={{ backgroundColor: BLUR }}
+      className={`inline-flex h-10 items-center justify-center px-5 text-[0.875rem] font-normal text-white transition-colors duration-150 ${
+        ghost ? "border hover:bg-white/[0.06]" : "hover:opacity-90"
+      }`}
+      style={
+        ghost ? { borderColor: BORDER } : { backgroundColor: BLUR }
+      }
       onMouseEnter={() => setTrigger((n) => n + 1)}
     >
       <ShuffleLabel
         text={label}
         trigger={trigger}
-        accentColor="var(--color-black)"
+        accentColor={ghost ? "var(--color-blur)" : "var(--color-black)"}
         className="text-[0.875rem] font-normal tracking-[-0.01em] text-white"
       />
     </Link>
@@ -720,22 +831,60 @@ function CtaLink({ href, label }: { href: string; label: string }) {
 function MegaLink({ link }: { link: NavLink }) {
   const [trigger, setTrigger] = useState(0);
 
-  return (
-    <Link
-      href={link.href}
-      className="group flex w-full items-start gap-1.5 px-3 py-3 text-white transition-colors duration-150 hover:bg-white/[0.04] hover:text-[var(--color-blur)]"
-      onMouseEnter={() => setTrigger((n) => n + 1)}
-    >
-      <span className="min-w-0 flex-1">
+  const className =
+    "group flex w-full items-start gap-1.5 px-3 py-3 text-white transition-colors duration-150 hover:bg-white/[0.04] hover:text-[var(--color-blur)]";
+
+  const body = (
+    <span className="min-w-0 flex-1">
+      <span className="flex items-center gap-1.5">
         <ShuffleLabel
           text={link.label}
           trigger={trigger}
           className="block text-[1rem] font-normal leading-none tracking-[-0.01em]"
         />
-        <span className="mt-1.5 block text-[0.8125rem] font-normal leading-snug tracking-[-0.01em] text-muted transition-colors duration-150 group-hover:text-[var(--color-blur)]">
-          {link.description}
-        </span>
+        {link.external ? (
+          <svg
+            aria-hidden
+            viewBox="0 0 10 10"
+            fill="none"
+            className="h-2.5 w-2.5 shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.215,0.61,0.355,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          >
+            <path
+              d="M1 9 9 1M9 1H3.4M9 1v5.6"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="square"
+            />
+          </svg>
+        ) : null}
       </span>
+      <span className="mt-1.5 block text-[0.8125rem] font-normal leading-snug tracking-[-0.01em] text-muted transition-colors duration-150 group-hover:text-[var(--color-blur)]">
+        {link.description}
+      </span>
+    </span>
+  );
+
+  if (link.external) {
+    return (
+      <a
+        href={link.href}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={className}
+        onMouseEnter={() => setTrigger((n) => n + 1)}
+      >
+        {body}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={link.href}
+      className={className}
+      onMouseEnter={() => setTrigger((n) => n + 1)}
+    >
+      {body}
     </Link>
   );
 }

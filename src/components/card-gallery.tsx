@@ -7,11 +7,14 @@ import type { CardTileData } from "./card-tile";
 export function CardGallery({
   cards,
   children,
+  initialCardId = null,
 }: {
   cards: CardTileData[];
   children: ReactNode;
+  /** Deep link (`?card=…`) — opens straight into the lightbox. */
+  initialCardId?: string | null;
 }) {
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(initialCardId);
   const openCard = openId ? (cards.find((c) => c.id === openId) ?? null) : null;
 
   return (

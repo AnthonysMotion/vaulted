@@ -16,10 +16,15 @@ import { rarityTier } from "@/lib/packs/rarity";
 
 export default async function SetDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ setId: string }>;
+  searchParams: Promise<{ card?: string }>;
 }) {
-  const { setId } = await params;
+  const [{ setId }, { card: focusCardId }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
 
   const [set, profile] = await Promise.all([
     getSetById(setId),
@@ -86,7 +91,11 @@ export default async function SetDetailPage({
         </div>
 
         <Suspense fallback={<GallerySkeleton count={15} />}>
-          <SetGallery setId={set.id} userId={profile?.id ?? null} />
+          <SetGallery
+            setId={set.id}
+            userId={profile?.id ?? null}
+            focusCardId={focusCardId ?? null}
+          />
         </Suspense>
       </section>
     </div>
@@ -143,7 +152,15 @@ async function SetProgressStats({
   );
 }
 
-async function SetGallery({ setId, userId }: { setId: string; userId: string | null }) {
+async function SetGallery({
+  setId,
+  userId,
+  focusCardId,
+}: {
+  setId: string;
+  userId: string | null;
+  focusCardId: string | null;
+}) {
   const [cards, ownedRows] = await Promise.all([
     getCardsForSet(setId),
     userId ? getOwnedCardCountsForSet(userId, setId) : Promise.resolve([]),
@@ -156,6 +173,11 @@ async function SetGallery({ setId, userId }: { setId: string; userId: string | n
 
   return (
     <SetCardGallery
+      initialCardId={
+        focusCardId && cards.some((c) => c.id === focusCardId)
+          ? focusCardId
+          : null
+      }
       cards={sortedCards.map((card) => ({
         id: card.id,
         name: card.name,

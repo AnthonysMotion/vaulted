@@ -56,7 +56,9 @@ function LoginForm() {
   const next = searchParams.get("next") ?? "/dashboard";
   const oauthError = searchParams.get("error") === "oauth";
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(
+    searchParams.get("mode") === "signup" ? "signup" : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");

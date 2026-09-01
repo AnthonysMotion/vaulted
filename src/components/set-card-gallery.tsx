@@ -53,7 +53,13 @@ function GalleryCell({ card }: { card: GalleryCard }) {
   );
 }
 
-export function SetCardGallery({ cards }: { cards: GalleryCard[] }) {
+export function SetCardGallery({
+  cards,
+  initialCardId = null,
+}: {
+  cards: GalleryCard[];
+  initialCardId?: string | null;
+}) {
   const listRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [scrollMargin, setScrollMargin] = useState(0);
@@ -85,7 +91,7 @@ export function SetCardGallery({ cards }: { cards: GalleryCard[] }) {
   });
 
   return (
-    <CardGallery cards={cards}>
+    <CardGallery cards={cards} initialCardId={initialCardId}>
       <div ref={listRef}>
         <div
           className="relative w-full"
