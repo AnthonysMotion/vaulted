@@ -12,6 +12,7 @@ import {
   userCards,
 } from "@/db/schema";
 import { and, asc, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { withDbRetry } from "@/lib/db/retry";
 import { rarityTier } from "@/lib/packs/rarity";
 
 export async function getProfileByUsername(username: string) {
@@ -211,20 +212,22 @@ export async function getUserActivityByDay(userId: string, weeks = 53) {
 
 /** Per-set owned counts joined with set totals for completion percentages. */
 export async function getSetProgress(userId: string) {
-  return db
-    .select({
-      set: {
-        id: sets.id,
-        name: sets.name,
-        total: sets.total,
-      },
-      uniqueOwned: collections.uniqueOwned,
-      completedAt: collections.completedAt,
-    })
-    .from(collections)
-    .innerJoin(sets, eq(collections.setId, sets.id))
-    .where(eq(collections.userId, userId))
-    .orderBy(desc(sql`${collections.uniqueOwned}::float / ${sets.total}`));
+  return withDbRetry(() =>
+    db
+      .select({
+        set: {
+          id: sets.id,
+          name: sets.name,
+          total: sets.total,
+        },
+        uniqueOwned: collections.uniqueOwned,
+        completedAt: collections.completedAt,
+      })
+      .from(collections)
+      .innerJoin(sets, eq(collections.setId, sets.id))
+      .where(eq(collections.userId, userId))
+      .orderBy(desc(sql`${collections.uniqueOwned}::float / ${sets.total}`)),
+  );
 }
 
 export async function getCollectionForSet(userId: string, setId: string) {
@@ -244,23 +247,25 @@ export async function getCollectionForSet(userId: string, setId: string) {
 // ---------------------------------------------------------------------------
 
 export async function getBinder(userId: string) {
-  return db.query.binders.findFirst({
-    where: eq(binders.userId, userId),
-    with: {
-      slots: {
-        with: {
-          card: {
-            columns: {
-              id: true,
-              name: true,
-              rarity: true,
-              imageSmall: true,
+  return withDbRetry(() =>
+    db.query.binders.findFirst({
+      where: eq(binders.userId, userId),
+      with: {
+        slots: {
+          with: {
+            card: {
+              columns: {
+                id: true,
+                name: true,
+                rarity: true,
+                imageSmall: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -365,54 +370,56 @@ export type FeedItemWithRelations = Awaited<ReturnType<typeof getGlobalFeed>>[nu
 // ---------------------------------------------------------------------------
 
 export async function getUserRecentPackOpenings(userId: string, limit = 12) {
-  const openings = await db.query.packOpenings.findMany({
-    where: eq(packOpenings.userId, userId),
-    orderBy: [desc(packOpenings.openedAt)],
-    limit,
-    with: { set: true },
-  });
+  return withDbRetry(async () => {
+    const openings = await db.query.packOpenings.findMany({
+      where: eq(packOpenings.userId, userId),
+      orderBy: [desc(packOpenings.openedAt)],
+      limit,
+      with: { set: true },
+    });
 
-  const cardIds = [
-    ...new Set(openings.flatMap((o) => o.cards.map((c) => c.cardId))),
-  ];
-  const cardRows =
-    cardIds.length > 0
-      ? await db.query.cards.findMany({
-          where: inArray(cards.id, cardIds),
-          columns: {
-            id: true,
-            name: true,
-            rarity: true,
-            imageSmall: true,
-          },
+    const cardIds = [
+      ...new Set(openings.flatMap((o) => o.cards.map((c) => c.cardId))),
+    ];
+    const cardRows =
+      cardIds.length > 0
+        ? await db.query.cards.findMany({
+            where: inArray(cards.id, cardIds),
+            columns: {
+              id: true,
+              name: true,
+              rarity: true,
+              imageSmall: true,
+            },
+          })
+        : [];
+    const byId = new Map(cardRows.map((c) => [c.id, c]));
+
+    return openings.map((opening) => {
+      const enriched = opening.cards
+        .map((c) => {
+          const card = byId.get(c.cardId) ?? null;
+          return {
+            cardId: c.cardId,
+            rarity: c.rarity,
+            reverseHolo: Boolean(c.reverseHolo),
+            tier: rarityTier(c.rarity),
+            card,
+          };
         })
-      : [];
-  const byId = new Map(cardRows.map((c) => [c.id, c]));
+        .sort((a, b) => b.tier - a.tier || a.cardId.localeCompare(b.cardId));
 
-  return openings.map((opening) => {
-    const enriched = opening.cards
-      .map((c) => {
-        const card = byId.get(c.cardId) ?? null;
-        return {
-          cardId: c.cardId,
-          rarity: c.rarity,
-          reverseHolo: Boolean(c.reverseHolo),
-          tier: rarityTier(c.rarity),
-          card,
-        };
-      })
-      .sort((a, b) => b.tier - a.tier || a.cardId.localeCompare(b.cardId));
-
-    return {
-      id: opening.id,
-      openedAt: opening.openedAt,
-      isGodPack: opening.isGodPack,
-      xpAwarded: opening.xpAwarded,
-      set: opening.set,
-      cardCount: opening.cards.length,
-      highlights: enriched.filter((c) => c.card).slice(0, 4),
-      bestTier: enriched[0]?.tier ?? 0,
-    };
+      return {
+        id: opening.id,
+        openedAt: opening.openedAt,
+        isGodPack: opening.isGodPack,
+        xpAwarded: opening.xpAwarded,
+        set: opening.set,
+        cardCount: opening.cards.length,
+        highlights: enriched.filter((c) => c.card).slice(0, 4),
+        bestTier: enriched[0]?.tier ?? 0,
+      };
+    });
   });
 }
 

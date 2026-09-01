@@ -10,6 +10,7 @@ import {
   getUserRecentPackOpenings,
 } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
+import { withDbRetry } from "@/lib/db/retry";
 import { SafeImage } from "@/components/safe-image";
 import { LinkButton, ProgressBar, SectionEyebrow } from "@/components/ui";
 import { BinderEditor } from "@/components/binder-editor";
@@ -25,17 +26,33 @@ export default async function ProfilePage({
   const profile = await getProfileByUsername(username);
   if (!profile) notFound();
 
-  const [progress, binder, unlocked, viewer, recentPacks] =
-    await Promise.all([
+  const viewer = await getOrCreateProfile().catch(() => null);
+
+  const [progressResult, binderResult, unlockedResult, recentPacksResult] =
+    await Promise.allSettled([
       getSetProgress(profile.id),
       getBinder(profile.id),
-      db.query.userAchievements.findMany({
-        where: eq(userAchievements.userId, profile.id),
-        with: { achievement: true },
-      }),
-      getOrCreateProfile().catch(() => null),
+      withDbRetry(() =>
+        db.query.userAchievements.findMany({
+          where: eq(userAchievements.userId, profile.id),
+          with: { achievement: true },
+        }),
+      ),
       getUserRecentPackOpenings(profile.id, 5),
     ]);
+
+  const progress =
+    progressResult.status === "fulfilled" ? progressResult.value : [];
+  const binder = binderResult.status === "fulfilled" ? binderResult.value : null;
+  const unlocked =
+    unlockedResult.status === "fulfilled" ? unlockedResult.value : [];
+  const recentPacks =
+    recentPacksResult.status === "fulfilled" ? recentPacksResult.value : [];
+  const partialLoad =
+    progressResult.status === "rejected" ||
+    binderResult.status === "rejected" ||
+    unlockedResult.status === "rejected" ||
+    recentPacksResult.status === "rejected";
 
   const cardsCollected = profile.totalCardsCollected;
   const isOwner = viewer?.id === profile.id;
@@ -64,6 +81,11 @@ export default async function ProfilePage({
 
   return (
     <div className="flex flex-col gap-16 md:gap-24">
+      {partialLoad ? (
+        <p className="border border-border bg-surface px-4 py-3 text-sm text-muted">
+          Some profile sections couldn&apos;t load — refresh to try again.
+        </p>
+      ) : null}
       {/* Full-bleed banner under fixed nav */}
       <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-[calc(var(--site-header-offset)+2rem)] sm:-mt-[calc(var(--site-header-offset)+2.5rem)]">
         <div className="relative isolate">

@@ -26,10 +26,10 @@ function getClient() {
     prepare: false, // required for Supabase transaction / pooler mode
     // Allow a few concurrent queries per request (Promise.all). The Supabase
     // transaction pooler multiplexes above us — keep this modest on serverless.
-    max: 5,
+    max: 8,
     idle_timeout: 20,
     max_lifetime: 60 * 5,
-    connect_timeout: 10,
+    connect_timeout: 20,
   });
 
   globalForDb.__visionPg = client;
