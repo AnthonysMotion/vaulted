@@ -221,10 +221,17 @@ export function SiteHeader({
   }
 
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--site-header-offset",
-      "5.25rem",
-    );
+    const root = document.documentElement;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const apply = () => {
+      root.style.setProperty(
+        "--site-header-offset",
+        mq.matches ? "5.25rem" : "4.5rem",
+      );
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
   }, []);
 
   useEffect(() => {
@@ -235,6 +242,15 @@ export function SiteHeader({
       document.body.style.overflow = previous;
     };
   }, [mobileOpen]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => {
+      if (mq.matches) setMobileOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -292,10 +308,10 @@ export function SiteHeader({
 
   return (
     <>
-      {/* Page scrim. Sits under the floating chrome, above page content */}
+      {/* Desktop-only page scrim. Sits under the floating chrome, above page content */}
       <div
         aria-hidden={!menuOpen}
-        className={`fixed inset-0 z-[250] bg-black/55 backdrop-blur-[6px] transition-[opacity,visibility] duration-200 ease-[var(--ease-sui)] ${
+        className={`fixed inset-0 z-[250] hidden bg-black/55 backdrop-blur-[6px] transition-[opacity,visibility] duration-200 ease-[var(--ease-sui)] lg:block ${
           menuOpen
             ? "visible opacity-100"
             : "invisible pointer-events-none opacity-0"
@@ -308,26 +324,35 @@ export function SiteHeader({
           <div
             className="pointer-events-auto relative mx-auto w-full max-w-[1600px]"
             onMouseEnter={clearCloseTimer}
-            onMouseLeave={scheduleClose}
+            onMouseLeave={() => {
+              if (mobileOpen) return;
+              scheduleClose();
+            }}
           >
             <div
-              className="relative z-[3] flex items-center justify-between px-[1.031em] py-[1.5em]"
+              className="relative z-[3] flex items-center justify-between gap-3 px-3 py-3 lg:px-[1.031em] lg:py-[1.5em]"
               style={{
                 backgroundColor: SURFACE,
               }}
             >
               <Link
                 href={homeHref}
-                className="group relative z-[1] shrink-0"
+                className="group relative z-[1] min-w-0 shrink"
                 onClick={() => {
                   setOpenGroup(null);
                   setMobileOpen(false);
                 }}
               >
                 <VisionWordmark
+                  logoSize={28}
+                  priority
+                  className="transition-colors duration-150 group-hover:text-accent lg:hidden"
+                  textClassName="text-[15px] font-semibold tracking-[-0.03em] text-current"
+                />
+                <VisionWordmark
                   logoSize={36}
                   priority
-                  className="transition-colors duration-150 group-hover:text-accent"
+                  className="hidden transition-colors duration-150 group-hover:text-accent lg:inline-flex"
                 />
               </Link>
 
@@ -372,17 +397,24 @@ export function SiteHeader({
                 )}
               </div>
 
-              <div className="relative z-[1] flex items-center gap-2 lg:hidden">
-                <CtaLink
+              <div className="relative z-[1] flex shrink-0 items-center gap-2 lg:hidden">
+                <Link
                   href={profile ? "/open-pack" : "/login?mode=signup"}
-                  label={profile ? "Open pack" : "Sign up"}
-                />
+                  className="inline-flex h-9 items-center justify-center px-3 text-[0.8125rem] font-normal tracking-[-0.01em] text-white"
+                  style={{ backgroundColor: BLUR }}
+                >
+                  {profile ? "Open pack" : "Sign up"}
+                </Link>
                 <button
                   type="button"
                   aria-label={mobileOpen ? "Close menu" : "Open menu"}
                   aria-expanded={mobileOpen}
-                  onClick={() => setMobileOpen((v) => !v)}
-                  className="grid h-9 w-9 place-items-center text-white"
+                  onClick={() => {
+                    setOpenGroup(null);
+                    setCtaOpen(false);
+                    setMobileOpen((open) => !open);
+                  }}
+                  className="grid h-9 w-9 shrink-0 place-items-center text-white"
                   style={{ backgroundColor: BORDER }}
                 >
                   <HamburgerIcon open={mobileOpen} />
@@ -390,10 +422,10 @@ export function SiteHeader({
               </div>
             </div>
 
-            {searchOpen ? (
+            {searchOpen && !mobileOpen ? (
               <div
                 key="search-panel"
-                className="absolute left-1/2 top-full z-[2] w-full max-w-[34em] -translate-x-1/2"
+                className="absolute left-1/2 top-full z-[2] hidden w-full max-w-[34em] -translate-x-1/2 lg:block"
               >
                 <div
                   className="vision-dd-bounce w-full overflow-hidden border-2"
@@ -408,10 +440,10 @@ export function SiteHeader({
             ) : null}
 
             {/* Panels sized to content only. No full-width invisible hover trap */}
-            {activeGroup ? (
+            {activeGroup && !mobileOpen ? (
               <div
                 key={activeGroup.id}
-                className="absolute left-1/2 top-full z-[2] w-full -translate-x-1/2"
+                className="absolute left-1/2 top-full z-[2] hidden w-full -translate-x-1/2 lg:block"
                 style={{
                   maxWidth:
                     columnCount >= 3
@@ -464,10 +496,10 @@ export function SiteHeader({
               </div>
             ) : null}
 
-            {profile && ctaOpen && !activeGroup ? (
+            {profile && ctaOpen && !activeGroup && !mobileOpen ? (
               <div
                 key="account-menu"
-                className="absolute right-0 top-full z-[2] w-full max-w-[22em]"
+                className="absolute right-0 top-full z-[2] hidden w-full max-w-[22em] lg:block"
               >
                 <div
                   className="vision-dd-bounce w-full overflow-hidden border-2"
@@ -513,56 +545,43 @@ export function SiteHeader({
       </div>
 
       {/* Spacer so page content clears the fixed floating bar */}
-      <div aria-hidden className="h-[5.25rem]" />
+      <div aria-hidden className="h-[4.5rem] lg:h-[5.25rem]" />
 
       {mobileOpen ? (
-        <div className="fixed inset-0 z-[255] flex flex-col bg-black lg:hidden">
-          <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
-            <Link
-              href={homeHref}
-              className="group"
-              onClick={() => setMobileOpen(false)}
-            >
-              <VisionWordmark
-                logoSize={36}
-                className="transition-colors duration-150 group-hover:text-accent"
-              />
-            </Link>
-            <button
-              type="button"
-              aria-label="Close menu"
-              onClick={() => setMobileOpen(false)}
-              className="grid h-9 w-9 place-items-center text-white"
-              style={{ backgroundColor: BORDER }}
-            >
-              <HamburgerIcon open />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-10 pt-4">
+        <div className="fixed inset-x-0 bottom-0 top-[4.5rem] z-[255] flex flex-col bg-black lg:hidden">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-2">
             {profile ? (
-              <Link
-                href="/account"
-                onClick={() => setMobileOpen(false)}
-                className="mb-6 flex items-center gap-3 border border-white/10 px-3 py-3"
-              >
-                <span className="relative grid h-10 w-10 place-items-center overflow-hidden bg-surface">
-                  <SafeImage
-                    src={profile.avatarUrl}
-                    alt=""
-                    fill
-                    sizes="40px"
-                    className="object-cover"
-                    fallback={<span className="h-2.5 w-2.5 bg-white" />}
-                  />
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-white">
-                    {profile.username}
-                  </p>
-                  <p className="text-xs text-muted-2">Manage your account</p>
-                </div>
-              </Link>
+              <div className="mb-6 border border-white/10">
+                <Link
+                  href={`/profile/${profile.username}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-3 py-3"
+                >
+                  <span className="relative grid h-10 w-10 place-items-center overflow-hidden bg-surface">
+                    <SafeImage
+                      src={profile.avatarUrl}
+                      alt=""
+                      fill
+                      sizes="40px"
+                      className="object-cover"
+                      fallback={<span className="h-2.5 w-2.5 bg-white" />}
+                    />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {profile.username}
+                    </p>
+                    <p className="text-xs text-muted-2">Your public trainer page</p>
+                  </div>
+                </Link>
+                <Link
+                  href="/account"
+                  onClick={() => setMobileOpen(false)}
+                  className="block border-t border-white/10 px-3 py-3 text-[15px] text-white"
+                >
+                  Edit account
+                </Link>
+              </div>
             ) : null}
 
             <div className="flex flex-col">
