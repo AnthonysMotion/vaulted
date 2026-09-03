@@ -19,13 +19,15 @@ export function ShuffleLabel({
   text,
   trigger,
   className = "",
-  /** Flash color for mid-scramble glyphs. Blue on dark; black on blue CTAs. */
+  /** Flash color for mid-scramble glyphs. Pass `false` to keep the inherited color. */
   accentColor = "var(--color-blur)",
+  align = "center",
 }: {
   text: string;
   trigger: number;
   className?: string;
-  accentColor?: string;
+  accentColor?: string | false;
+  align?: "left" | "center";
 }) {
   const [glyphs, setGlyphs] = useState<Glyph[]>(() =>
     text.split("").map((char) => ({ char, accent: false })),
@@ -120,9 +122,14 @@ export function ShuffleLabel({
   return (
     <span
       ref={spanRef}
-      className={`inline-block overflow-hidden whitespace-nowrap text-center ${className}`.trim()}
+      className={`${
+        align === "left"
+          ? "inline-block overflow-hidden whitespace-nowrap text-left"
+          : "inline-block overflow-hidden whitespace-nowrap text-center"
+      } ${className}`.trim()}
       style={{
         width: minWidth ? `${minWidth}px` : undefined,
+        minWidth: minWidth ? `${minWidth}px` : undefined,
         fontKerning: "none",
         fontVariantLigatures: "none",
       }}
@@ -130,9 +137,9 @@ export function ShuffleLabel({
         {glyphs.map((g, i) => (
           <span
             key={`${text}-${i}`}
-            style={g.accent ? { color: accentColor } : undefined}
+            style={g.accent && accentColor ? { color: accentColor } : undefined}
           >
-            {g.char}
+            {g.char === " " ? "\u00a0" : g.char}
           </span>
         ))}
     </span>

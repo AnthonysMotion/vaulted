@@ -52,7 +52,7 @@ type Profile = {
 
 /** Theme tokens — edit `--color-blur` / greys in `globals.css`. */
 const BLUR = "var(--color-blur)";
-const SURFACE = "var(--color-black)";
+const SURFACE = "var(--color-grey-900)";
 const SURFACE_2 = "var(--color-grey-800)";
 const BORDER = "var(--color-grey-700)";
 const MUTED = "var(--color-grey-400)";
@@ -265,11 +265,10 @@ export function SiteHeader({
     setCtaOpen(false);
   }, [clearCloseTimer]);
 
-  // Search stays put on mouse-out — losing a half-typed query would be hostile.
   const scheduleClose = () => {
     clearCloseTimer();
     closeTimer.current = setTimeout(() => {
-      setOpenGroup((current) => (current === "search" ? current : null));
+      setOpenGroup(null);
       setCtaOpen(false);
     }, CLOSE_DELAY_MS);
   };
@@ -303,9 +302,9 @@ export function SiteHeader({
       />
 
       <div className="pointer-events-none fixed inset-x-0 top-0 z-[260]">
-        <div className="pointer-events-none px-4 pt-3 sm:px-5">
+        <div className="pointer-events-none px-3 pt-3 sm:px-4">
           <div
-            className="pointer-events-auto relative mx-auto w-full max-w-[1400px]"
+            className="pointer-events-auto relative mx-auto w-full max-w-[1600px]"
             onMouseEnter={clearCloseTimer}
             onMouseLeave={scheduleClose}
           >
@@ -832,7 +831,7 @@ function MegaLink({ link }: { link: NavLink }) {
   const [trigger, setTrigger] = useState(0);
 
   const className =
-    "group flex w-full items-start gap-1.5 px-3 py-3 text-white transition-colors duration-150 hover:bg-white/[0.04] hover:text-[var(--color-blur)]";
+    "group flex w-full items-start gap-1.5 px-3 py-3 text-white transition-colors duration-150 hover:bg-[var(--color-blur)]";
 
   const body = (
     <span className="min-w-0 flex-1">
@@ -840,14 +839,16 @@ function MegaLink({ link }: { link: NavLink }) {
         <ShuffleLabel
           text={link.label}
           trigger={trigger}
-          className="block text-[1rem] font-normal leading-none tracking-[-0.01em]"
+          accentColor={false}
+          align="left"
+          className="block text-[1rem] font-normal leading-none tracking-[-0.01em] text-white"
         />
         {link.external ? (
           <svg
             aria-hidden
             viewBox="0 0 10 10"
             fill="none"
-            className="h-2.5 w-2.5 shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.215,0.61,0.355,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            className="h-2.5 w-2.5 shrink-0"
           >
             <path
               d="M1 9 9 1M9 1H3.4M9 1v5.6"
@@ -858,9 +859,13 @@ function MegaLink({ link }: { link: NavLink }) {
           </svg>
         ) : null}
       </span>
-      <span className="mt-1.5 block text-[0.8125rem] font-normal leading-snug tracking-[-0.01em] text-muted transition-colors duration-150 group-hover:text-[var(--color-blur)]">
-        {link.description}
-      </span>
+      <ShuffleLabel
+        text={link.description}
+        trigger={trigger}
+        accentColor={false}
+        align="left"
+        className="mt-1.5 block text-[0.8125rem] font-normal leading-snug tracking-[-0.01em] text-white"
+      />
     </span>
   );
 
@@ -894,17 +899,23 @@ function MegaSignOut() {
 
   return (
     <SignOutButton
-      className="group flex w-full cursor-pointer flex-col items-start px-3 py-3 text-left text-white transition-colors duration-150 hover:bg-white/[0.04] hover:text-[var(--color-blur)]"
+      className="group flex w-full cursor-pointer flex-col items-start px-3 py-3 text-left text-white transition-colors duration-150 hover:bg-[var(--color-blur)]"
       onMouseEnter={() => setTrigger((n) => n + 1)}
     >
       <ShuffleLabel
         text="Sign out"
         trigger={trigger}
-        className="block text-[1rem] font-normal leading-none tracking-[-0.01em]"
+        accentColor={false}
+        align="left"
+        className="block text-[1rem] font-normal leading-none tracking-[-0.01em] text-white"
       />
-      <span className="mt-1.5 block text-[0.8125rem] font-normal leading-snug tracking-[-0.01em] text-muted transition-colors duration-150 group-hover:text-[var(--color-blur)]">
-        End your session on this device
-      </span>
+      <ShuffleLabel
+        text="End your session on this device"
+        trigger={trigger}
+        accentColor={false}
+        align="left"
+        className="mt-1.5 block text-[0.8125rem] font-normal leading-snug tracking-[-0.01em] text-white"
+      />
     </SignOutButton>
   );
 }

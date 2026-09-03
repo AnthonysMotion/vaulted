@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CatalogImage } from "@/components/catalog-image";
 import { SafeImage } from "@/components/safe-image";
+import { ShuffleLabel } from "@/components/shuffle-label";
 import {
   MAX_SEARCH_LENGTH,
   MIN_SEARCH_LENGTH,
@@ -85,23 +86,40 @@ function ResultRow({
   title: string;
   meta: string;
 }) {
+  const [trigger, setTrigger] = useState(0);
+
   return (
     <Link
       href={href}
       onClick={onActivate}
-      onMouseEnter={onHover}
-      className="flex items-center gap-3 px-3 py-2.5 text-white transition-colors duration-150"
+      onMouseEnter={() => {
+        onHover();
+        setTrigger((n) => n + 1);
+      }}
+      className="group flex items-center gap-3 px-3 py-2.5 text-white transition-colors duration-150"
       style={{
         backgroundColor: active ? "rgba(255,255,255,0.06)" : "transparent",
       }}
     >
       {media}
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[0.9375rem] leading-tight tracking-[-0.01em]">
-          {title}
+      <span className="min-w-0 flex-1 overflow-hidden">
+        <span className="block">
+          <ShuffleLabel
+            text={title}
+            trigger={trigger}
+            accentColor={false}
+            align="left"
+            className="text-[0.9375rem] leading-tight tracking-[-0.01em] text-white"
+          />
         </span>
-        <span className="mt-1 block truncate text-[0.75rem] leading-tight tracking-[-0.01em] text-muted">
-          {meta}
+        <span className="mt-1 block">
+          <ShuffleLabel
+            text={meta}
+            trigger={trigger}
+            accentColor={false}
+            align="left"
+            className="text-[0.75rem] leading-tight tracking-[-0.01em] text-muted"
+          />
         </span>
       </span>
     </Link>
@@ -118,7 +136,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResponse>(EMPTY);
   const [loading, setLoading] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
   const term = query.trim();
   const ready = term.length >= MIN_SEARCH_LENGTH;
@@ -187,7 +205,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
           aria-label="Search trainers, cards, and sets"
           onChange={(e) => {
             setQuery(e.target.value);
-            setActiveIndex(0);
+            setActiveIndex(-1);
           }}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
@@ -195,8 +213,8 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
               setActiveIndex((i) => Math.min(i + 1, rows.length - 1));
             } else if (e.key === "ArrowUp") {
               e.preventDefault();
-              setActiveIndex((i) => Math.max(i - 1, 0));
-            } else if (e.key === "Enter" && rows[active]) {
+              setActiveIndex((i) => Math.max(i - 1, -1));
+            } else if (e.key === "Enter" && active >= 0 && rows[active]) {
               e.preventDefault();
               router.push(rows[active]);
               onNavigate();
@@ -237,8 +255,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
                   media={
                     <span
                       aria-hidden
-                      className="grid h-9 w-9 shrink-0 place-items-center text-muted"
-                      style={{ backgroundColor: SURFACE_2 }}
+                      className="grid h-9 w-9 shrink-0 place-items-center bg-surface-2 text-muted transition-colors duration-150 group-hover:bg-accent group-hover:text-white"
                     >
                       →
                     </span>
