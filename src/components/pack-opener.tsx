@@ -248,153 +248,164 @@ export function PackOpener({
         </div>
       )}
 
-      <AnimatePresence mode="wait">
-        {/* ------------------------------------------------ pack on table */}
-        {(phase === "idle" || phase === "shaking" || phase === "ripping") && (
-          <motion.div
-            key="pack"
-            className="flex flex-col items-center gap-8 py-8"
-            exit={{ opacity: 0, scale: 1.15 }}
-            transition={{ duration: 0.3 }}
-          >
-            <BoosterPackArt
-              set={set}
-              shaking={phase === "shaking"}
-              ripping={phase === "ripping"}
-              interactive={phase === "idle" && canOpen}
-              onClick={phase === "idle" && canOpen ? openPack : undefined}
-            />
-            {phase === "idle" && (
-              <div className="flex flex-col items-center gap-3">
-                <Button onClick={openPack} disabled={!canOpen} className="px-8 py-3 text-base">
-                  {canOpen ? "Open Pack" : "No packs left today"}
-                </Button>
-                {canOpen ? (
-                  <p className="text-xs text-muted">Press Space / Enter to open</p>
-                ) : null}
-                {mode === "trainer" && Number.isFinite(packsRemaining) && (
-                  <p className="text-sm text-muted">
-                    {packsRemaining} pack{packsRemaining === 1 ? "" : "s"} remaining today
-                  </p>
-                )}
+      <div className="flex min-h-[40rem] w-full flex-col items-center justify-center sm:min-h-[44rem]">
+        <AnimatePresence mode="wait">
+          {/* ------------------------------------------------ pack on table */}
+          {(phase === "idle" || phase === "shaking" || phase === "ripping") && (
+            <motion.div
+              key="pack"
+              className="flex w-full flex-col items-center gap-6"
+              exit={{ opacity: 0, scale: 1.15 }}
+              transition={{ duration: 0.3 }}
+            >
+              <StageHeader />
+              <div className="relative pb-10">
+                <BoosterPackArt
+                  set={set}
+                  shaking={phase === "shaking"}
+                  ripping={phase === "ripping"}
+                  interactive={phase === "idle" && canOpen}
+                  onClick={phase === "idle" && canOpen ? openPack : undefined}
+                />
               </div>
-            )}
-            {phase === "shaking" && (
-              <p className="animate-pulse text-sm text-muted">Shuffling fate...</p>
-            )}
-          </motion.div>
-        )}
+              <StageControls>
+                {phase === "idle" && (
+                  <>
+                    <Button onClick={openPack} disabled={!canOpen} className="px-8 py-3 text-base">
+                      {canOpen ? "Open Pack" : "No packs left today"}
+                    </Button>
+                    {canOpen ? (
+                      <p className="text-xs text-muted">Press Space / Enter to open</p>
+                    ) : null}
+                    {mode === "trainer" && Number.isFinite(packsRemaining) && (
+                      <p className="text-sm text-muted">
+                        {packsRemaining} pack{packsRemaining === 1 ? "" : "s"} remaining today
+                      </p>
+                    )}
+                  </>
+                )}
+                {phase === "shaking" && (
+                  <p className="animate-pulse text-sm text-muted">Shuffling fate...</p>
+                )}
+              </StageControls>
+            </motion.div>
+          )}
 
-        {/* ------------------------------------------------ card reveals */}
-        {phase === "revealing" && pack && (
-          <motion.div
-            key="reveal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center gap-6 py-4"
-          >
-            {pack.isGodPack && (
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="border border-yellow-400/50 bg-yellow-400/10 px-6 py-2 text-lg font-black text-yellow-300"
-              >
-                ✨ GOD PACK ✨
-              </motion.div>
-            )}
-            <div className="text-sm text-muted">
-              Card {revealIndex + 1} of {pack.cards.length}
-            </div>
+          {/* ------------------------------------------------ card reveals */}
+          {phase === "revealing" && pack && (
+            <motion.div
+              key="reveal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex w-full flex-col items-center gap-6"
+            >
+              <StageHeader>
+                {pack.isGodPack && (
+                  <motion.div
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="border border-yellow-400/50 bg-yellow-400/10 px-6 py-2 text-lg font-black text-yellow-300"
+                  >
+                    ✨ GOD PACK ✨
+                  </motion.div>
+                )}
+                <div className="text-sm text-muted">
+                  Card {revealIndex + 1} of {pack.cards.length}
+                </div>
+              </StageHeader>
 
-            <RevealStack
-              cards={pack.cards}
-              revealIndex={revealIndex}
-              onReveal={skipping ? undefined : revealNext}
-              cornerRadius={cardCornerRadius}
-            />
+              <div className="relative pb-10">
+                <RevealStack
+                  cards={pack.cards}
+                  revealIndex={revealIndex}
+                  onReveal={skipping ? undefined : revealNext}
+                  cornerRadius={cardCornerRadius}
+                />
+              </div>
 
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-xs text-muted">
-                {skipping
-                  ? "Finishing rare pulls…"
-                  : "Tap the card or press Space / Enter"}
-              </p>
-              {!skipping && revealIndex + 1 < pack.cards.length ? (
-                <Button
-                  variant="ghost"
-                  onClick={() => void skipToSummary()}
-                  className="text-xs uppercase tracking-widest text-muted hover:text-white"
-                >
-                  Skip to summary
-                </Button>
-              ) : null}
-            </div>
-          </motion.div>
-        )}
+              <StageControls>
+                <p className="text-xs text-muted">
+                  {skipping
+                    ? "Finishing rare pulls…"
+                    : "Tap the card or press Space / Enter"}
+                </p>
+                {!skipping && revealIndex + 1 < pack.cards.length ? (
+                  <Button
+                    variant="ghost"
+                    onClick={() => void skipToSummary()}
+                    className="text-xs uppercase tracking-widest text-muted hover:text-white"
+                  >
+                    Skip to summary
+                  </Button>
+                ) : null}
+              </StageControls>
+            </motion.div>
+          )}
 
-        {/* ------------------------------------------------ summary */}
-        {phase === "summary" && pack && (
-          <motion.div
-            key="summary"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex w-full flex-col items-center gap-6"
-          >
-            <h2 className="text-2xl font-bold">
-              {bestTier >= 6
-                ? "🌈 INSANE PULLS!"
-                : bestTier >= 5
-                  ? "🔥 Great pack!"
-                  : bestTier >= 4
-                    ? "✨ Nice hit!"
-                    : "Pack opened"}
-            </h2>
+          {/* ------------------------------------------------ summary */}
+          {phase === "summary" && pack && (
+            <motion.div
+              key="summary"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex w-full flex-col items-center gap-6"
+            >
+              <h2 className="text-2xl font-bold">
+                {bestTier >= 6
+                  ? "🌈 INSANE PULLS!"
+                  : bestTier >= 5
+                    ? "🔥 Great pack!"
+                    : bestTier >= 4
+                      ? "✨ Nice hit!"
+                      : "Pack opened"}
+              </h2>
 
-            {meta && (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <Badge color="gold">+{meta.xpAwarded} XP</Badge>
-                <Badge color="blue">🔥 {meta.streak} day streak</Badge>
-                {meta.leveledUp && <Badge color="green">⬆️ Level {meta.newLevel}!</Badge>}
-                {meta.completedSet && <Badge color="pink">🏆 Set completed!</Badge>}
-                {meta.newAchievements.map((a) => (
-                  <Badge key={a.id} color="purple">
-                    {a.icon} {a.name}
-                  </Badge>
+              {meta && (
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Badge color="gold">+{meta.xpAwarded} XP</Badge>
+                  <Badge color="blue">🔥 {meta.streak} day streak</Badge>
+                  {meta.leveledUp && <Badge color="green">⬆️ Level {meta.newLevel}!</Badge>}
+                  {meta.completedSet && <Badge color="pink">🏆 Set completed!</Badge>}
+                  {meta.newAchievements.map((a) => (
+                    <Badge key={a.id} color="purple">
+                      {a.icon} {a.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex flex-wrap justify-center gap-3">
+                {pack.cards.map((card, i) => (
+                  <motion.div
+                    key={`${card.id}-${i}`}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                    className="relative"
+                  >
+                    <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
+                    {meta?.newCardIds.includes(card.id) && (
+                      <span className="absolute -left-1 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                        NEW
+                      </span>
+                    )}
+                  </motion.div>
                 ))}
               </div>
-            )}
 
-            <div className="flex flex-wrap justify-center gap-3">
-              {pack.cards.map((card, i) => (
-                <motion.div
-                  key={`${card.id}-${i}`}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  className="relative"
-                >
-                  <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
-                  {meta?.newCardIds.includes(card.id) && (
-                    <span className="absolute -left-1 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
-                      NEW
-                    </span>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="flex gap-3">
-              <Button onClick={reset} disabled={!canOpen}>
-                {canOpen ? "Open another" : "Come back tomorrow"}
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <div className="flex gap-3">
+                <Button onClick={reset} disabled={!canOpen}>
+                  {canOpen ? "Open another" : "Come back tomorrow"}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* ------------------------------------------------ session history */}
-      {history.length > 0 && phase !== "revealing" && (
+      {history.length > 0 && (
         <div className="mt-8 w-full">
           <h3 className="mwg-label mb-3 text-muted">
             Session history · {history.length} pack{history.length === 1 ? "" : "s"}
@@ -443,6 +454,22 @@ export function PackOpener({
 }
 
 // ---------------------------------------------------------------------------
+
+function StageHeader({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="flex min-h-[4.5rem] w-full flex-col items-center justify-center gap-1">
+      {children}
+    </div>
+  );
+}
+
+function StageControls({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="flex min-h-[6.75rem] flex-col items-center justify-center gap-3">
+      {children}
+    </div>
+  );
+}
 
 function PackCrimp({ edge }: { edge: "top" | "bottom" }) {
   return (
@@ -668,7 +695,7 @@ function RevealStack({
 
   return (
     <div
-      className={`relative h-[22rem] w-64 sm:h-[26rem] sm:w-72 ${
+      className={`relative h-[22.5rem] w-64 sm:h-[26rem] sm:w-72 ${
         onReveal ? "cursor-pointer" : "cursor-default"
       }`}
       onClick={onReveal}
