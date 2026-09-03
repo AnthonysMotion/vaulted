@@ -40,8 +40,8 @@ function NavbarFallback() {
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 top-0 z-[260]">
-        <div className="px-4 pt-3 sm:px-5">
-          <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between bg-black px-4">
+        <div className="px-3 pt-3 sm:px-4">
+          <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between bg-surface px-4">
             <div className="h-5 w-28 animate-pulse bg-surface-2" />
             <div className="hidden h-5 w-80 animate-pulse bg-surface-2/70 lg:block" />
             <div className="h-9 w-28 animate-pulse bg-accent" />

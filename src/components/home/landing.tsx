@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LinkButton, SectionEyebrow, Card } from "@/components/ui";
+import { CursorGrid } from "@/components/home/cursor-grid";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -17,10 +18,10 @@ const STATS = [
 
 /**
  * Match SiteHeader chrome:
- * outer `px-4 sm:px-5` + `max-w-[1400px]` + bar `px-[1.031em]`.
+ * outer `px-3 sm:px-4` + `max-w-[1600px]` + bar `px-[1.031em]`.
  */
 const CONTAINER =
-  "mx-auto w-full max-w-[1400px] px-[calc(1rem+1.031em)] sm:px-[calc(1.25rem+1.031em)]";
+  "mx-auto w-full max-w-[1600px] px-[calc(0.75rem+1.031em)] sm:px-[calc(1rem+1.031em)]";
 
 export function LandingExperience({ signedIn }: { signedIn: boolean }) {
   const heroRef = useRef<HTMLElement>(null);
@@ -69,7 +70,24 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
         ref={heroRef}
         className="hero relative flex min-h-[100svh] -mt-[var(--site-header-offset)] items-center justify-center overflow-hidden bg-black pt-[var(--site-header-offset)]"
       >
-        <div className={`${CONTAINER} relative`}>
+        <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
+          <CursorGrid
+            color="#298dff"
+            fadeDuration={1150}
+            pulseSpeed={2000}
+            fillOpacity={0.02}
+            radius={60}
+            lineWidth={1}
+            holdTime={100}
+            cellSize={90}
+            clickPulse={false}
+          />
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-gradient-to-t from-black to-transparent"
+        />
+        <div className={`${CONTAINER} relative z-10`}>
           <div
             ref={heroCopyRef}
             className="mx-auto flex w-full max-w-[1000px] flex-col items-center text-center will-change-transform"
@@ -95,11 +113,6 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
                 </LinkButton>
               )}
             </div>
-            {!signedIn ? (
-              <p className="hero-anim mt-6 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
-                No account required to start
-              </p>
-            ) : null}
           </div>
         </div>
       </section>
