@@ -27,10 +27,10 @@ function buildSteps(dailyPackLimit: number): Step[] {
       id: "modes",
       eyebrow: "Modes",
       title: "Sandbox or Trainer.",
-      body: "Two ways to open packs — pick based on whether you want the cards saved.",
+      body: "Two ways to open packs. Pick based on whether you want the cards saved.",
       points: [
-        "Sandbox — unlimited packs, no account needed, nothing is saved.",
-        "Trainer — packs count toward your collection, XP, streaks, and achievements.",
+        "Sandbox: unlimited packs, no account needed, nothing is saved.",
+        "Trainer: packs count toward your collection, XP, streaks, and achievements.",
       ],
     },
     {
@@ -39,7 +39,7 @@ function buildSteps(dailyPackLimit: number): Step[] {
       title: `${dailyPackLimit} Trainer packs a day.`,
       body: "The limit resets at midnight UTC. Opening on consecutive days builds a streak, which adds a little XP bonus.",
       points: [
-        "Use them when you want — they don't roll over.",
+        "Use them when you want. They don't roll over.",
         "Sandbox is always there if you just want to rip packs.",
       ],
     },
@@ -47,7 +47,7 @@ function buildSteps(dailyPackLimit: number): Step[] {
       id: "binder",
       eyebrow: "Collection & binder",
       title: "Keep cards. Show a few off.",
-      body: "Every Trainer pull lands in your collection. Your binder is a public 3×3 page — put your favourite hits front and centre.",
+      body: "Every Trainer pull lands in your collection. Your binder is a public 3×3 page. Put your favourite hits front and centre.",
       points: [
         "Browse and filter your collection anytime.",
         "Only cards you own can go in the binder.",

@@ -168,7 +168,7 @@ export function ProgressBar({
 }
 
 export function EmptyState({
-  icon = "—",
+  icon = "-",
   title,
   children,
 }: {

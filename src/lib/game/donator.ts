@@ -1,4 +1,4 @@
-/** Default Donator badge — emerald green. */
+/** Default Donator badge: emerald green. */
 export const DEFAULT_DONATOR_BADGE_COLOR = "#22c55e";
 
 /** Usernames granted donator on first profile create. */

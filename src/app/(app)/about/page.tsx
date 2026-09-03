@@ -28,20 +28,20 @@ export default function AboutPage() {
         </h2>
         <ul className="space-y-4 text-muted leading-relaxed">
           <li>
-            <span className="font-medium text-white">Sandbox</span> — open as many
+            <span className="font-medium text-white">Sandbox</span>: open as many
             packs as you want. Nothing is saved.
           </li>
           <li>
-            <span className="font-medium text-white">Trainer</span> —{" "}
+            <span className="font-medium text-white">Trainer</span>:{" "}
             {DAILY_PACK_LIMIT} packs a day, cards go into your collection, XP
             and streaks count.
           </li>
           <li>
-            <span className="font-medium text-white">Binder &amp; profile</span> —
+            <span className="font-medium text-white">Binder &amp; profile</span>:
             pin favourites on a public 3×3 page and share your trainer link.
           </li>
           <li>
-            <span className="font-medium text-white">Friends &amp; feed</span> —
+            <span className="font-medium text-white">Friends &amp; feed</span>:
             compare collections, react to pulls, see what other people hit.
           </li>
         </ul>
@@ -52,8 +52,8 @@ export default function AboutPage() {
           How packs work
         </h2>
         <p className="text-muted leading-relaxed">
-          Packs follow era-specific slot layouts — commons, reverses, rares, and
-          the rest — instead of drawing random cards from the whole set. Odds are
+          Packs follow era-specific slot layouts (commons, reverses, rares, and
+          the rest) instead of drawing random cards from the whole set. Odds are
           based on community pack studies (Elite Fourum samples, TCGplayer Infinite
           work, ThePriceDex models, and similar sources). Configs live in code so
           you can inspect and simulate them.
@@ -91,7 +91,7 @@ export default function AboutPage() {
           GAME FREAK inc. Vision is an unofficial fan project and is not
           affiliated with, endorsed by, or connected to The Pokémon Company,
           Nintendo, or related rights holders. No real money packs, gambling, or
-          card sales here — just a simulator.
+          card sales here. This is just a simulator.
         </p>
       </section>
 

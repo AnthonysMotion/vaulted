@@ -7,7 +7,7 @@ config({ path: ".env.local" });
  * drizzle-kit push/pull introspects CHECK constraints and breaks on the
  * Supabase transaction pooler (port 6543). Use a dedicated migrate URL, or
  * the same pooler host in session mode (5432). The app keeps DATABASE_URL on
- * 6543 — see src/db/index.ts.
+ * 6543. See src/db/index.ts.
  */
 function drizzleKitDatabaseUrl() {
   const explicit = process.env.DATABASE_URL_MIGRATE;

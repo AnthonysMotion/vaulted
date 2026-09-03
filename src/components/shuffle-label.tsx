@@ -7,7 +7,7 @@ const SCRAMBLE_CHARS =
 
 type Glyph = {
   char: string;
-  /** Accent blue while scrambling — matches Sui’s mid-shuffle tint. */
+  /** Accent blue while scrambling. Matches Sui’s mid-shuffle tint. */
   accent: boolean;
 };
 

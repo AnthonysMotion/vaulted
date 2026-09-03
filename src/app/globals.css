@@ -2,7 +2,7 @@
 
 /*
   Sui-inspired visual language:
-  https://www.sui.io/ — black stage, grey-900 chrome, primary blue accents, sharp edges.
+  https://www.sui.io/: black stage, grey-900 chrome, primary blue accents, sharp edges.
 
   Theme knobs (change once → updates everywhere):
     --color-blur   brand / accent / CTA / banner blue
@@ -10,7 +10,7 @@
 */
 
 :root {
-  /* ——— change this to retheme the brand blue everywhere ——— */
+  /* --- change this to retheme the brand blue everywhere --- */
   --color-blur: #298dff;
 
   --color-black: #000000;
@@ -96,7 +96,7 @@
   box-sizing: border-box;
 }
 
-/* Sui hard corners — kill soft radius project-wide */
+/* Sui hard corners: kill soft radius project-wide */
 *,
 *::before,
 *::after {
@@ -108,7 +108,7 @@
   border-radius: 9999px !important;
 }
 
-/* Card silhouettes — era radius via --card-corner-radius (see lib/cards/corners) */
+/* Card silhouettes: era radius via --card-corner-radius (see lib/cards/corners) */
 .card-corners {
   border-radius: var(--card-corner-radius, 4.25%) !important;
 }

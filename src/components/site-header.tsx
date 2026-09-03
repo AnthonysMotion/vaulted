@@ -50,7 +50,7 @@ type Profile = {
   avatarUrl: string | null;
 };
 
-/** Theme tokens — edit `--color-blur` / greys in `globals.css`. */
+/** Theme tokens. Edit `--color-blur` / greys in `globals.css`. */
 const BLUR = "var(--color-blur)";
 const SURFACE = "var(--color-grey-900)";
 const SURFACE_2 = "var(--color-grey-800)";
@@ -73,7 +73,7 @@ function buildNavItems(profile: Profile | null): NavItem[] {
             label: "Open a pack",
             description: profile
               ? "Spend a daily pack, or switch to sandbox"
-              : "Free sandbox pulls — no account needed",
+              : "Free sandbox pulls. No account needed",
           },
           {
             href: "/sets",
@@ -290,7 +290,7 @@ export function SiteHeader({
 
   return (
     <>
-      {/* Page scrim — sits under the floating chrome, above page content */}
+      {/* Page scrim. Sits under the floating chrome, above page content */}
       <div
         aria-hidden={!menuOpen}
         className={`fixed inset-0 z-[250] bg-black/55 backdrop-blur-[6px] transition-[opacity,visibility] duration-200 ease-[var(--ease-sui)] ${
@@ -405,7 +405,7 @@ export function SiteHeader({
               </div>
             ) : null}
 
-            {/* Panels sized to content only — no full-width invisible hover trap */}
+            {/* Panels sized to content only. No full-width invisible hover trap */}
             {activeGroup ? (
               <div
                 key={activeGroup.id}

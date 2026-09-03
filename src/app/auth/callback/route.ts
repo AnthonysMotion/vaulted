@@ -60,7 +60,7 @@ export async function GET(request: Request) {
         : `${origin}${next}`;
   } catch (err) {
     console.error("[auth/callback] profile lookup failed", err);
-    // Session is valid — send them somewhere safe even if the flag query failed.
+    // Session is valid. Send them somewhere safe even if the flag query failed.
     destination = `${origin}${next}`;
   }
 

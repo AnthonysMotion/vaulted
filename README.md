@@ -19,10 +19,10 @@ A free, social Pokémon TCG pack-opening simulator. Rip boosters with researched
 
 Most pack simulators are either pure RNG toys or paywalled gacha. Vision aims for the middle:
 
-- **Era-correct boosters** — slot structures and rarity weights per set, not “random card from the whole set”
-- **Two ways to play** — unlimited Sandbox for vibes, Trainer Mode for a real collection
-- **Social by default** — binders, friends, compare, and a live pull feed
-- **Transparent odds** — configs in code, validated with a built-in simulator
+- **Era-correct boosters:** slot structures and rarity weights per set, not “random card from the whole set”
+- **Two ways to play:** unlimited Sandbox for vibes, Trainer Mode for a real collection
+- **Social by default:** binders, friends, compare, and a live pull feed
+- **Transparent odds:** configs in code, validated with a built-in simulator
 
 ---
 
@@ -34,7 +34,7 @@ Most pack simulators are either pure RNG toys or paywalled gacha. Vision aims fo
 | **Trainer** | 5 packs/day (UTC reset), permanent collection, XP, levels, streaks, achievements. |
 | **Pull engine** | Per-set layouts, companion pools (TG / Shiny Vault / etc.), god packs, Basic Energy fallbacks. |
 | **Collection** | Filter by set / rarity / type, search, completion %, rarity breakdown. |
-| **Binder** | Public 3×3 showcase — drag-and-drop, only cards you own. |
+| **Binder** | Public 3×3 showcase. Drag-and-drop, only cards you own. |
 | **Social** | Friend requests, collection compare, activity feed with 👍 🔥 🍀 💀 reactions. |
 | **Onboarding** | Short walkthrough: modes → daily limit → binder → profile. |
 | **Images** | Optimized card art via `next/image` + CDN preloads so flips aren’t blank. |
@@ -63,8 +63,8 @@ Weights and slot layouts are sourced from community datasets (TCGplayer Infinite
 ### 1. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **Authentication → Providers** — enable **Email**, and optionally **Google** + **Discord**.
-3. **Authentication → URL Configuration** — add redirect URLs:
+2. **Authentication → Providers:** enable **Email**, and optionally **Google** + **Discord**.
+3. **Authentication → URL Configuration:** add redirect URLs:
    - `http://localhost:3000/auth/callback`
    - your production `https://…/auth/callback`
 4. For each OAuth provider, set the provider callback to:
@@ -83,7 +83,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 # Use the Transaction pooler (port 6543), NOT session mode (5432).
 DATABASE_URL=postgresql://postgres.YOUR-PROJECT:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres
 
-# Optional — market prices
+# Optional: market prices
 # POKEMONTCG_API_KEY=...
 ```
 
@@ -119,7 +119,7 @@ npm run db:prices -- sv3pt5
 | `npm run db:prices` | Enrich market prices |
 | `npm run simulate -- <setId> <n>` | CLI pull-rate validation |
 
-Example — 100k packs of Scarlet & Violet 151:
+Example: 100k packs of Scarlet & Violet 151:
 
 ```bash
 npm run simulate -- sv3pt5 100000
@@ -161,7 +161,7 @@ Or open `/dev/simulator` (developer accounts only).
 src/lib/packs/configs.ts   ← edit this to change pack odds
 src/lib/packs/engine.ts    ← slot draw logic
 src/lib/packs/companions.ts← TG / Shiny Vault / etc.
-set_pull_rates (DB)        ← seeded mirror only — not read at runtime
+set_pull_rates (DB)        ← seeded mirror only, not read at runtime
 ```
 
 - Era defaults live in `ERA_BY_SERIES`
@@ -221,7 +221,7 @@ vision/
 - Prefer editing **`configs.ts`** over the database when tuning odds.
 - After pack-config changes you care about mirroring, re-run `npm run db:seed` (or only refresh the rates mirror if you add a targeted script).
 - Validate big odds changes with `npm run simulate -- <setId> 100000` before shipping.
-- Card images are remote — keep `images.pokemontcg.io` in `next.config.ts` `remotePatterns`.
+- Card images are remote. Keep `images.pokemontcg.io` in `next.config.ts` `remotePatterns`.
 
 ---
 

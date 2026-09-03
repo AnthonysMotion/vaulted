@@ -146,9 +146,9 @@ export const profiles = pgTable(
      * New profiles insert with false (see getOrCreateProfile).
      */
     onboardingCompleted: boolean("onboarding_completed").notNull().default(true),
-    /** Site developer — can access /dev tools. */
+    /** Site developer. Can access /dev tools. */
     isDeveloper: boolean("is_developer").notNull().default(false),
-    /** Granted donator — shows a Donator badge on the public profile. */
+    /** Granted donator. Shows a Donator badge on the public profile. */
     isDonator: boolean("is_donator").notNull().default(false),
     /** Optional custom Donator badge color (`#rrggbb`). Null uses default green. */
     donatorBadgeColor: text("donator_badge_color"),

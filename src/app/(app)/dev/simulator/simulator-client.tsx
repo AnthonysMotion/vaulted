@@ -79,7 +79,7 @@ function GradeBadge({ grade }: { grade: RarityAccuracy["grade"] }) {
 }
 
 function formatOneIn(value: number) {
-  if (!isFinite(value) || value <= 0) return "—";
+  if (!isFinite(value) || value <= 0) return "-";
   return value >= 100 ? value.toFixed(0) : value.toFixed(1);
 }
 
@@ -157,7 +157,7 @@ export function SimulatorClient({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h2 className="font-bold">
-                  {data.set.name} — {data.result.packs.toLocaleString()} packs (
+                  {data.set.name}: {data.result.packs.toLocaleString()} packs (
                   {data.era} era)
                 </h2>
                 <p className="mt-1 text-xs text-muted">{data.sourceNotes}</p>
@@ -293,7 +293,7 @@ export function SimulatorClient({
                     <td className="py-1.5 text-right">{r.percent.toFixed(2)}%</td>
                     <td className="py-1.5 text-right">
                       {r.oneIn === null || !isFinite(r.oneIn)
-                        ? "—"
+                        ? "-"
                         : r.oneIn.toFixed(1)}
                     </td>
                   </tr>

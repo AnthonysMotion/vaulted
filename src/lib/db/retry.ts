@@ -38,7 +38,7 @@ function collectErrorMessages(error: unknown): string[] {
   return messages;
 }
 
-/** True for pooler blips — worth retrying before surfacing a 500. */
+/** True for pooler blips. Worth retrying before surfacing a 500. */
 export function isTransientDbError(error: unknown): boolean {
   const haystack = collectErrorMessages(error).join(" ").toLowerCase();
 

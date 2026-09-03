@@ -117,7 +117,7 @@ export function PackOpener({
       ]);
       setPhase("revealing");
     } catch {
-      setError("Network error — try again");
+      setError("Network error. Try again");
       setPhase("idle");
     }
   }, [mode, set.id]);
@@ -185,7 +185,7 @@ export function PackOpener({
 
   const canOpen = mode === "sandbox" || packsRemaining > 0;
 
-  // Space / Enter: open, reveal next, or open another — never while typing or in lightbox.
+  // Space / Enter: open, reveal next, or open another. Never while typing or in lightbox.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== " " && e.key !== "Enter") return;
@@ -557,7 +557,7 @@ function BoosterPackArt({
       />
 
       <div className="absolute inset-0 overflow-hidden rounded-[3px] border border-white/20 shadow-[0_28px_70px_rgba(0,0,0,0.55)]">
-        {/* Pack body — black / white only */}
+        {/* Pack body: black / white only */}
         <div
           aria-hidden
           className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-black to-[#0a0a0a]"
@@ -701,7 +701,7 @@ function RevealStack({
       onClick={onReveal}
       style={{ perspective: 1200, ...cornerStyle }}
     >
-      {/* face-down stack behind — era-matched corners */}
+      {/* face-down stack behind. Era-matched corners */}
       {cards.length - revealIndex > 1 && (
         <>
           <div className="card-corners absolute inset-0 translate-x-2 translate-y-2 border border-border bg-surface-2" />

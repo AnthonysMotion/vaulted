@@ -49,8 +49,8 @@ const rareSlot = (outcomes: SlotOutcome[]): SlotConfig => ({
 });
 
 // ---------------------------------------------------------------------------
-// ERA 1 — Base Set → Neo Destiny (1999–2002)
-// 5C / 2 Energy / 3U / 1 Rare   — no reverse
+// ERA 1: Base Set → Neo Destiny (1999–2002)
+// 5C / 2 Energy / 3U / 1 Rare. No reverse.
 // ---------------------------------------------------------------------------
 
 const VINTAGE: PackConfig = {
@@ -75,7 +75,7 @@ const VINTAGE: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 2 — Legendary Collection
+// ERA 2: Legendary Collection
 // 5C / 2 Energy / 3U / 1 Reverse / 1 Rare
 // ---------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ const LEGENDARY_COLLECTION: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 3 — e-Reader (Expedition / Aquapolis / Skyridge)
+// ERA 3: e-Reader (Expedition / Aquapolis / Skyridge)
 // 5C / 2U / 1 Reverse / 1 Rare (+ Crystal in rare slot)
 // ---------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ const ECARD_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 4 — EX Series
+// ERA 4: EX Series
 // 5C / 2U / 1 Reverse / 1 Rare (ex / Gold Star)
 // ---------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ const EX_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 5 — Diamond & Pearl
+// ERA 5: Diamond & Pearl
 // 5C / 3U / 1 Reverse / 1 Rare (LV.X / Secret)
 // ---------------------------------------------------------------------------
 
@@ -192,7 +192,7 @@ const DP_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 6 — Platinum (same layout; SP in rare slot)
+// ERA 6: Platinum (same layout; SP in rare slot)
 // ---------------------------------------------------------------------------
 
 const PLATINUM_ERA: PackConfig = {
@@ -221,7 +221,7 @@ const PLATINUM_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 7 — HeartGold SoulSilver (Prime / LEGEND)
+// ERA 7: HeartGold SoulSilver (Prime / LEGEND)
 // ---------------------------------------------------------------------------
 
 const HGSS_ERA: PackConfig = {
@@ -252,7 +252,7 @@ const HGSS_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 8 — Black & White
+// ERA 8: Black & White
 // ---------------------------------------------------------------------------
 
 const BW_ERA: PackConfig = {
@@ -282,7 +282,7 @@ const BW_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 9 — XY
+// ERA 9: XY
 // ---------------------------------------------------------------------------
 
 const XY_ERA: PackConfig = {
@@ -314,7 +314,7 @@ const XY_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 10 — Sun & Moon
+// ERA 10: Sun & Moon
 // 5C / 1 Energy / 3U / 1 Reverse / 1 Rare
 // ---------------------------------------------------------------------------
 
@@ -356,7 +356,7 @@ const SM_ERA: PackConfig = {
 };
 
 // ---------------------------------------------------------------------------
-// ERA 11 — Sword & Shield
+// ERA 11: Sword & Shield
 // 5C / 1 Energy / 3U / 1 Reverse / 1 Rare
 // Trainer Gallery replaces Reverse only. Radiant / Amazing / V sit in Rare.
 // ---------------------------------------------------------------------------
@@ -426,7 +426,7 @@ function makeSwshConfig(
 const SWSH_ERA = makeSwshConfig(null);
 
 // ---------------------------------------------------------------------------
-// ERA 12 — Scarlet & Violet
+// ERA 12: Scarlet & Violet
 // 4C / 3U / Reverse1 / Reverse2 / Rare / Energy
 //
 // Reverse 1: reverse holos (+ ACE SPEC / Baby Shiny where set overrides say)
@@ -524,11 +524,11 @@ const SV_151 = makeSvConfig(
       rarities: ["Illustration Rare", "Special Illustration Rare", "Hyper Rare"],
     },
     sourceNotes:
-      "SV 151: standard SV layout. TCGplayer CI — DR 13.28%, UR 6.44%, IR 8.50%, SIR 3.11%, Hyper 1.94%. God pack ~1:2000.",
+      "SV 151: standard SV layout. TCGplayer CI: DR 13.28%, UR 6.44%, IR 8.50%, SIR 3.11%, Hyper 1.94%. God pack ~1:2000.",
   },
 );
 
-/** Paldean Fates — Baby Shiny (Shiny Rare) in reverse slots. */
+/** Paldean Fates: Baby Shiny (Shiny Rare) in reverse slots. */
 const PALDEAN_FATES = makeSvConfig(
   [
     { weight: 70, rarities: REVERSE_POOL, reverseHolo: true, label: "Reverse Holo" },
@@ -549,7 +549,7 @@ const PALDEAN_FATES = makeSvConfig(
   },
 );
 
-/** Crown Zenith — Galarian Gallery replaces Reverse slot only. */
+/** Crown Zenith: Galarian Gallery replaces Reverse slot only. */
 function crownZenith(): PackConfig {
   const companions = companionSetIdsFor("swsh12pt5");
   return makeSwshConfig("swsh12pt5", {
@@ -573,7 +573,7 @@ function crownZenith(): PackConfig {
   });
 }
 
-/** Shining Fates — Shiny Vault feeds reverse upgrades. */
+/** Shining Fates: Shiny Vault feeds reverse upgrades. */
 function shiningFates(): PackConfig {
   const companions = companionSetIdsFor("swsh45");
   return makeSwshConfig("swsh45", {
@@ -607,7 +607,7 @@ function shiningFates(): PackConfig {
   });
 }
 
-/** Hidden Fates — Shiny Vault in reverse. */
+/** Hidden Fates: Shiny Vault in reverse. */
 function hiddenFates(): PackConfig {
   const companions = companionSetIdsFor("sm115");
   return {
@@ -719,7 +719,7 @@ const SET_OVERRIDES: Record<string, PackConfig> = {
   swsh12pt5: crownZenith(),
   swsh45: shiningFates(),
   sm115: hiddenFates(),
-  // Trainer Gallery parent sets — reverse can upgrade to gallery
+  // Trainer Gallery parent sets. Reverse can upgrade to gallery.
   swsh9: makeSwshConfig("swsh9"),
   swsh10: makeSwshConfig("swsh10"),
   swsh11: makeSwshConfig("swsh11"),
@@ -730,7 +730,7 @@ for (const id of ACE_SPEC_SETS) {
   SET_OVERRIDES[id] = withAceSpec();
 }
 
-/** Black Bolt / White Flare — Black White Rare in Reverse Slot 2. */
+/** Black Bolt / White Flare: Black White Rare in Reverse Slot 2. */
 for (const id of ["zsv10pt5", "rsv10pt5"]) {
   SET_OVERRIDES[id] = makeSvConfig(
     SV_REVERSE_1,

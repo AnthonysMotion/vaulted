@@ -50,7 +50,7 @@ export function VisionLogo({
   );
 }
 
-/** Logo + wordmark — mark sized to read as a peer of the text. */
+/** Logo + wordmark. Mark sized to read as a peer of the text. */
 export function VisionWordmark({
   logoSize = 36,
   priority = false,

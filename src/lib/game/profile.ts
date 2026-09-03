@@ -82,7 +82,7 @@ async function createProfileForUser(user: User): Promise<Profile> {
         .onConflictDoNothing();
       return created;
     } catch {
-      // Navbar + page can race on first OAuth login — if the row exists, use it.
+      // Navbar + page can race on first OAuth login. If the row exists, use it.
       const raced = await db.query.profiles.findFirst({
         where: eq(profiles.id, user.id),
       });

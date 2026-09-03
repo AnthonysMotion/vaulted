@@ -326,7 +326,7 @@ function gradeRelativeError(rel: number): RarityAccuracy["grade"] {
 
 /**
  * Compare simulated pack rates to config-implied targets for this set's pools.
- * Skips rarities with tiny targets (<0.05%) — too noisy to grade usefully.
+ * Skips rarities with tiny targets (<0.05%). Too noisy to grade usefully.
  */
 export function compareSimulationAccuracy(
   result: SimulationResult,

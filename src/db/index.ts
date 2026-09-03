@@ -25,7 +25,7 @@ function getClient() {
   const client = postgres(connectionString, {
     prepare: false, // required for Supabase transaction / pooler mode
     // Allow a few concurrent queries per request (Promise.all). The Supabase
-    // transaction pooler multiplexes above us — keep this modest on serverless.
+    // transaction pooler multiplexes above us. Keep this modest on serverless.
     max: 8,
     idle_timeout: 20,
     max_lifetime: 60 * 5,

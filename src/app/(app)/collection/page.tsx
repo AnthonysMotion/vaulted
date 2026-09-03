@@ -116,7 +116,7 @@ async function CollectionIntro({
             .map((r) => (
               <Link key={r.rarity ?? "none"} href={buildUrl(sp, { rarity: r.rarity ?? undefined, page: undefined })}>
                 <Badge color={rarityTier(r.rarity) >= 6 ? "pink" : rarityTier(r.rarity) >= 5 ? "gold" : rarityTier(r.rarity) >= 4 ? "purple" : "default"}>
-                  {r.rarity ?? "—"} · {r.unique}
+                  {r.rarity ?? "-"} · {r.unique}
                 </Badge>
               </Link>
             ))}

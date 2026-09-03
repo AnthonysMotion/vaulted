@@ -25,7 +25,7 @@ export async function getProfileByUsername(username: string) {
   });
 }
 
-/** Catalog rarely changes — cache across requests on Vercel. */
+/** Catalog rarely changes. Cache across requests on Vercel. */
 export const getAllSets = unstable_cache(
   async () =>
     db.query.sets.findMany({
@@ -343,7 +343,7 @@ export async function compareCollections(
     theirOwned: theirSet.size,
     myMissing: setCards.filter((c) => !mySet.has(c.id)),
     theirMissing: setCards.filter((c) => !theirSet.has(c.id)),
-    /** Cards I have that they're missing — trade bait. */
+    /** Cards I have that they're missing (trade bait). */
     iHaveTheyNeed: setCards.filter((c) => mySet.has(c.id) && !theirSet.has(c.id)),
   };
 }

@@ -25,7 +25,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Vision — Pokémon Pack Opening Simulator",
+    default: "Vision: Pokémon Pack Opening Simulator",
     template: "%s · Vision",
   },
   description:

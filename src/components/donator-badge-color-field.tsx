@@ -28,7 +28,7 @@ export function DonatorBadgeColorField({
             Donator badge
           </div>
           <p className="mt-2 max-w-md text-sm text-muted-2">
-            Shown on your public profile. Green by default — pick any color you
+            Shown on your public profile. Green by default. Pick any color you
             like.
           </p>
         </div>

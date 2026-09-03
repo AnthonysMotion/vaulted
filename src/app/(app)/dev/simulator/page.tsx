@@ -15,7 +15,7 @@ export default async function SimulatorPage() {
     <div className="mx-auto max-w-3xl">
       <h1 className="text-3xl font-black">Pull rate simulator</h1>
       <p className="mt-1 text-muted">
-        Internal testing tool — open thousands of virtual packs and validate the
+        Internal testing tool. Open thousands of virtual packs and validate the
         engine against researched pull rates.
       </p>
       <div className="mt-6">

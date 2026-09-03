@@ -11,7 +11,7 @@ export function CardGallery({
 }: {
   cards: CardTileData[];
   children: ReactNode;
-  /** Deep link (`?card=…`) — opens straight into the lightbox. */
+  /** Deep link (`?card=…`). Opens straight into the lightbox. */
   initialCardId?: string | null;
 }) {
   const [openId, setOpenId] = useState<string | null>(initialCardId);

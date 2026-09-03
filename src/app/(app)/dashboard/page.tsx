@@ -139,7 +139,7 @@ function DashboardDaily({ profile }: { profile: Profile }) {
         <p className="mt-6 max-w-md text-base leading-relaxed text-muted-2 sm:text-lg">
           {packsLeft > 0
             ? profile.currentStreak > 0
-              ? `${profile.currentStreak}-day streak — open one to keep it going.`
+              ? `${profile.currentStreak}-day streak. Open one to keep it going.`
               : `${DAILY_PACK_LIMIT} trainer packs per day. Sandbox is unlimited.`
             : `Resets in ${hoursToReset}h ${minsToReset}m. Sandbox is still open.`}
         </p>

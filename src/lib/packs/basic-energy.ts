@@ -5,7 +5,7 @@ import type { Card } from "@/db/schema";
  *
  * Modern SWSH/SV boosters still contain a Basic Energy card, but
  * pokemon-tcg-data often only lists chase foil Energy prints (Hyper Rare /
- * Secret) — or omits Energy entirely. Those chase prints must not fill the
+ * Secret) or omits Energy entirely. Those chase prints must not fill the
  * Energy slot, so we fall back to these shared commons for pack display.
  *
  * IDs are synthetic (`__energy-*`) and must not be persisted to collections.

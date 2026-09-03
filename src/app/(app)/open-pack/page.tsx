@@ -49,8 +49,8 @@ export default async function OpenPackPage({
           </h1>
           <p className="mt-6 text-muted-2 leading-relaxed font-medium">
             {mode === "sandbox"
-              ? "Sandbox mode — test your luck with unlimited packs. No cards are saved to your collection."
-              : `Trainer mode — earn real progress. You have ${packsLeft} of ${DAILY_PACK_LIMIT} packs remaining for today.`}
+              ? "Sandbox mode. Test your luck with unlimited packs. No cards are saved to your collection."
+              : `Trainer mode. Earn real progress. You have ${packsLeft} of ${DAILY_PACK_LIMIT} packs remaining for today.`}
           </p>
         </div>
         <div className="flex w-full border border-border bg-black p-1 shadow-2xl sm:w-auto">

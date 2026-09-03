@@ -59,7 +59,7 @@ export function SafeImage({
 
   const handleError = (event: SyntheticEvent<HTMLImageElement, Event>) => {
     if (useOptimizer) {
-      // Optimizer payload failed — serve the original remote URL before
+      // Optimizer payload failed. Serve the original remote URL before
       // declaring the art dead (Safari often trips on Next-encoded AVIF/WebP).
       setLoad({ src: active, direct: true, dead: false });
       return;
