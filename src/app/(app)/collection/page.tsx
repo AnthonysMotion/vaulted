@@ -13,6 +13,7 @@ import {
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
 import { CollectionCardGallery } from "@/components/collection-card-gallery";
+import { SelectMenu } from "@/components/select-menu";
 import { Badge, EmptyState, ProgressBar, SectionEyebrow } from "@/components/ui";
 import { GallerySkeleton, SectionSkeleton } from "@/components/skeletons";
 
@@ -141,41 +142,38 @@ async function CollectionIntro({
         </div>
       )}
 
-      <div className="sticky top-4 z-20 border border-border bg-black/80 p-4 shadow-2xl backdrop-blur-xl md:top-28 md:p-6">
-        <form className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4" action="/collection" method="get">
+      <div className="sticky top-4 z-20 border border-border bg-black/80 p-4 backdrop-blur-xl md:top-28 md:p-6">
+        <form className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3" action="/collection" method="get">
           <div className="min-w-[200px] flex-1">
             <input
               name="q"
               defaultValue={sp.q ?? ""}
               placeholder="Search by card name..."
-              className="w-full border border-border bg-surface-2/50 px-4 py-2 text-sm text-white outline-none transition-colors focus:border-white/20"
+              className="h-12 w-full border border-border bg-surface px-4 text-sm text-white outline-none transition-colors placeholder:text-muted-2 focus:border-zinc-600"
             />
           </div>
-          <select
+          <SelectMenu
             name="set"
             defaultValue={sp.set ?? ""}
-            className="w-full border border-border bg-surface-2/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-muted outline-none sm:w-auto"
-          >
-            <option value="">All Sets</option>
-            {allSets.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-          <select
+            emptyLabel="All sets"
+            className="w-full sm:w-56"
+            options={allSets.map((s) => ({ value: s.id, label: s.name }))}
+          />
+          <SelectMenu
             name="rarity"
             defaultValue={sp.rarity ?? ""}
-            className="w-full border border-border bg-surface-2/50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-muted outline-none sm:w-auto"
+            emptyLabel="All rarities"
+            className="w-full sm:w-48"
+            options={RARITY_OPTIONS.map((r) => ({ value: r, label: r }))}
+          />
+          <button
+            type="submit"
+            className="h-12 bg-white px-6 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-zinc-200"
           >
-            <option value="">All Rarities</option>
-            {RARITY_OPTIONS.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-          <button className="h-10 cursor-pointer bg-white px-6 text-xs font-black uppercase tracking-widest text-black transition-colors hover:bg-zinc-200 sm:h-9">
             Filter
           </button>
           {(sp.set || sp.rarity || sp.type || sp.q) && (
-            <Link href="/collection" className="text-[10px] font-black uppercase tracking-widest text-muted-2 hover:text-white transition-colors">
+            <Link href="/collection" className="text-[10px] font-bold uppercase tracking-widest text-muted-2 transition-colors hover:text-white">
               Clear
             </Link>
           )}

@@ -10,6 +10,7 @@ import {
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
 import { Card, EmptyState, ProgressBar } from "@/components/ui";
+import { SelectMenu } from "@/components/select-menu";
 import { SectionSkeleton } from "@/components/skeletons";
 import { CompareMissingList } from "@/components/compare-missing-list";
 
@@ -63,19 +64,20 @@ export default async function ComparePage({
         <p className="mt-1 text-muted">Set completion head-to-head.</p>
       </div>
 
-      <form action={`/compare/${them.username}`} method="get" className="flex items-center gap-2">
-        <select
+      <form action={`/compare/${them.username}`} method="get" className="flex flex-wrap items-center gap-3">
+        <SelectMenu
           name="set"
           defaultValue={selectedSet.id}
-          className="border border-border bg-surface-2 px-3 py-2 text-sm"
+          className="w-full sm:w-64"
+          options={allSets.map((s) => ({
+            value: s.id,
+            label: `${s.name} (${s.series})`,
+          }))}
+        />
+        <button
+          type="submit"
+          className="h-12 bg-white px-6 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-zinc-200"
         >
-          {allSets.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name} ({s.series})
-            </option>
-          ))}
-        </select>
-        <button className="cursor-pointer bg-primary px-4 py-2 text-sm font-semibold text-slate-900">
           Compare
         </button>
       </form>

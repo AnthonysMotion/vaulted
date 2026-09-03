@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, Card, Spinner } from "@/components/ui";
+import { SelectMenu } from "@/components/select-menu";
 
 type RarityAccuracy = {
   rarity: string;
@@ -115,19 +116,17 @@ export function SimulatorClient({
   return (
     <div className="flex flex-col gap-6">
       <Card className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1 text-xs text-muted">
+        <label className="flex min-w-0 flex-col gap-1 text-xs text-muted">
           Set
-          <select
+          <SelectMenu
             value={setId}
-            onChange={(e) => setSetId(e.target.value)}
-            className="max-w-60 border border-border bg-surface-2 px-3 py-2 text-sm text-foreground"
-          >
-            {sets.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.series})
-              </option>
-            ))}
-          </select>
+            onChange={setSetId}
+            className="w-full sm:w-64"
+            options={sets.map((s) => ({
+              value: s.id,
+              label: `${s.name} (${s.series})`,
+            }))}
+          />
         </label>
         <label className="flex flex-col gap-1 text-xs text-muted">
           Packs
