@@ -50,7 +50,7 @@ Weights and slot layouts are sourced from community datasets (TCGplayer Infinite
 | Layer | Choice |
 |---|---|
 | App | **Next.js 16** (App Router) · **React 19** · **TypeScript** |
-| UI | **Tailwind CSS v4** · **Framer Motion** · **ogl** (landing WebGL grain) |
+| UI | **Tailwind CSS v4** · **Framer Motion** · **GSAP** |
 | Auth + DB | **Supabase** (Email, Google, Discord) · **PostgreSQL** |
 | ORM | **Drizzle ORM** + drizzle-kit |
 | Images | **sharp** · Next Image Optimization · `images.pokemontcg.io` |
