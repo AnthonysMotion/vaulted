@@ -9,6 +9,8 @@ export type CardTileData = {
   reverseHolo?: boolean;
   rarityTier: number;
   quantity?: number;
+  /** Cached TCGplayer market USD for this finish. Refreshed in the lightbox. */
+  marketPrice?: number | null;
 };
 
 export function CardTile({

@@ -19,6 +19,7 @@ import { ProfileActivityFeed } from "@/components/profile-activity-feed";
 import { ProfileShowcaseCard } from "@/components/profile-showcase-card";
 import { ProfileRoleBadge } from "@/components/profile-role-badge";
 import { donatorBadgeColor } from "@/lib/game/donator";
+import { pickMarketPrice } from "@/lib/game/card-price";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
 
 export default async function ProfilePage({
@@ -297,6 +298,7 @@ export default async function ProfilePage({
                         imageSmall: profile.favouriteCard.imageSmall,
                         imageLarge: profile.favouriteCard.imageLarge,
                         setName: profile.favouriteCard.set?.name ?? null,
+                        marketPrice: pickMarketPrice(profile.favouriteCard.prices),
                       }
                     : null
                 }

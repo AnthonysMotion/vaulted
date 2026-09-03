@@ -76,6 +76,7 @@ export const getCardsForSet = unstable_cache(
         number: true,
         rarity: true,
         imageSmall: true,
+        prices: true,
       },
       orderBy: [asc(cards.number), asc(cards.name)],
     }),
@@ -130,6 +131,7 @@ export async function getUserCollection(userId: string, filters: CollectionFilte
           number: cards.number,
           rarity: cards.rarity,
           imageSmall: cards.imageSmall,
+          prices: cards.prices,
         },
       })
       .from(userCards)

@@ -15,6 +15,7 @@ type ShowcaseCard = {
   imageSmall: string | null;
   imageLarge?: string | null;
   setName?: string | null;
+  marketPrice?: number | null;
 };
 
 export function ProfileShowcaseCard({
@@ -37,6 +38,7 @@ export function ProfileShowcaseCard({
         imageSmall: card.imageSmall,
         imageLarge: card.imageLarge,
         rarityTier: rarityTier(card.rarity),
+        marketPrice: card.marketPrice ?? null,
       }
     : null;
 

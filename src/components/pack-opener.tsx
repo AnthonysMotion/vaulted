@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { SerialisedPack, SerialisedPulledCard } from "@/lib/game/open-pack";
 import { CARD_IMAGE, preloadCardArt } from "@/lib/images";
+import { formatMarketPrice } from "@/lib/game/card-price";
 import { SafeImage } from "@/components/safe-image";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
@@ -18,6 +19,25 @@ function packArtUrls(pack: SerialisedPack): string[] {
     if (card.imageSmall) urls.push(card.imageSmall);
   }
   return urls;
+}
+
+type PriceRow = { market: number | null; reverseMarket: number | null };
+
+function applyPackPrices(
+  pack: SerialisedPack,
+  prices: Record<string, PriceRow>,
+): SerialisedPack {
+  return {
+    ...pack,
+    cards: pack.cards.map((card) => {
+      const row = prices[card.id];
+      if (!row) return card;
+      return {
+        ...card,
+        marketPrice: card.reverseHolo ? row.reverseMarket : row.market,
+      };
+    }),
+  };
 }
 
 /**
@@ -67,10 +87,14 @@ export function PackOpener({
   const [packsRemaining, setPacksRemaining] = useState(initialPacksRemaining ?? Infinity);
   const [lightboxCard, setLightboxCard] = useState<SerialisedPulledCard | null>(null);
   const [skipping, setSkipping] = useState(false);
+  const packGen = useRef(0);
 
   const bestTier = useMemo(
     () => (pack ? Math.max(...pack.cards.map((c) => c.rarityTier)) : 0),
     [pack],
+  );
+  const revealPrice = formatMarketPrice(
+    phase === "revealing" && pack ? pack.cards[revealIndex]?.marketPrice : null,
   );
 
   const cardCornerRadius = useMemo(
@@ -101,7 +125,30 @@ export function PackOpener({
         return;
       }
       const nextPack = data.pack as SerialisedPack;
+      const gen = ++packGen.current;
       setPack(nextPack);
+      void (async () => {
+        try {
+          const priceRes = await fetch("/api/cards/prices", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ids: [...new Set(nextPack.cards.map((card) => card.id))],
+            }),
+            cache: "no-store",
+          });
+          if (!priceRes.ok || packGen.current !== gen) return;
+          const priceData = (await priceRes.json()) as {
+            prices?: Record<string, PriceRow>;
+          };
+          if (!priceData.prices || packGen.current !== gen) return;
+          setPack((current) =>
+            current ? applyPackPrices(current, priceData.prices!) : current,
+          );
+        } catch {
+          // Keep cached prices if the refresh fails.
+        }
+      })();
       if (mode === "trainer") {
         setMeta(data as TrainerMeta);
         setPacksRemaining(data.packsRemainingToday);
@@ -325,6 +372,11 @@ export function PackOpener({
               </div>
 
               <StageControls>
+                {revealPrice && (
+                  <p className="font-mono text-sm tabular-nums text-white">
+                    {revealPrice}
+                  </p>
+                )}
                 <p className="text-xs text-muted">
                   {skipping
                     ? "Finishing rare pulls…"
@@ -376,22 +428,30 @@ export function PackOpener({
               )}
 
               <div className="flex flex-wrap justify-center gap-3">
-                {pack.cards.map((card, i) => (
-                  <motion.div
-                    key={`${card.id}-${i}`}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.06 }}
-                    className="relative"
-                  >
-                    <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
-                    {meta?.newCardIds.includes(card.id) && (
-                      <span className="absolute -left-1 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
-                        NEW
-                      </span>
-                    )}
-                  </motion.div>
-                ))}
+                {pack.cards.map((card, i) => {
+                  const price = formatMarketPrice(card.marketPrice);
+                  return (
+                    <motion.div
+                      key={`${card.id}-${i}`}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      className="relative flex flex-col items-center gap-1"
+                    >
+                      <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
+                      {price && (
+                        <span className="font-mono text-[10px] tabular-nums text-muted">
+                          {price}
+                        </span>
+                      )}
+                      {meta?.newCardIds.includes(card.id) && (
+                        <span className="absolute -left-1 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                          NEW
+                        </span>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
 
               <div className="flex gap-3">

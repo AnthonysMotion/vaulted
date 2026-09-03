@@ -13,6 +13,7 @@ import {
   getSetById,
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
+import { pickMarketPrice } from "@/lib/game/card-price";
 
 export default async function SetDetailPage({
   params,
@@ -186,6 +187,7 @@ async function SetGallery({
         imageSmall: card.imageSmall,
         rarityTier: rarityTier(card.rarity),
         quantity: ownedByCardId.get(card.id),
+        marketPrice: pickMarketPrice(card.prices),
       }))}
     />
   );

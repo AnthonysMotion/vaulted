@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { CardGallery } from "./card-gallery";
 import { CardTile, type CardTileData } from "./card-tile";
+import { formatMarketPrice } from "@/lib/game/card-price";
 
 type GalleryCard = CardTileData & { number: string };
 
@@ -27,6 +28,7 @@ function estimateRowHeight(containerWidth: number, columns: number) {
 }
 
 function GalleryCell({ card }: { card: GalleryCard }) {
+  const price = formatMarketPrice(card.marketPrice);
   return (
     <button
       type="button"
@@ -42,11 +44,18 @@ function GalleryCell({ card }: { card: GalleryCard }) {
           <div className="text-[10px] font-black uppercase tracking-widest text-zinc-700">
             #{card.number}
           </div>
-          {card.rarity && (
-            <div className="text-[9px] font-bold uppercase text-muted-2">
-              {card.rarity.split(" ").pop()}
-            </div>
-          )}
+          <div className="flex min-w-0 items-center gap-2">
+            {price && (
+              <div className="font-mono text-[10px] tabular-nums text-muted">
+                {price}
+              </div>
+            )}
+            {card.rarity && (
+              <div className="truncate text-[9px] font-bold uppercase text-muted-2">
+                {card.rarity.split(" ").pop()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </button>

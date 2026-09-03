@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import {
   openTrainerPack,
-  serialisePack,
+  serialisePackWithCachedPrices,
   PackLimitError,
 } from "@/lib/game/open-pack";
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     const result = await openTrainerPack(profile, body.data.setId);
     return NextResponse.json({
-      pack: serialisePack(result.pack),
+      pack: await serialisePackWithCachedPrices(result.pack),
       xpAwarded: result.xpAwarded,
       newLevel: result.newLevel,
       leveledUp: result.leveledUp,

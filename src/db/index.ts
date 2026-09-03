@@ -38,4 +38,11 @@ function getClient() {
 
 export const db = drizzle(getClient(), { schema });
 
+export async function closeDb() {
+  const client = globalForDb.__visionPg;
+  if (!client) return;
+  globalForDb.__visionPg = undefined;
+  await client.end({ timeout: 5 });
+}
+
 export type Db = typeof db;

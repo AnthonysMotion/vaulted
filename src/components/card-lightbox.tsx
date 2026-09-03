@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsClient } from "@/lib/use-is-client";
 import { createPortal } from "react-dom";
 import {
@@ -12,6 +12,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { SafeImage } from "@/components/safe-image";
+import { formatMarketPrice } from "@/lib/game/card-price";
 import { hiresCardImageUrl } from "@/lib/images";
 import type { CardTileData } from "./card-tile";
 
@@ -31,6 +32,10 @@ export function CardLightbox({
   const glareX = useTransform(springY, [-12, 12], ["30%", "70%"]);
   const glareY = useTransform(springX, [-12, 12], ["65%", "35%"]);
   const glarePosition = useMotionTemplate`${glareX} ${glareY}`;
+  const cardId = card?.id ?? null;
+  const reverseHolo = Boolean(card?.reverseHolo);
+  const cachedPrice = card?.marketPrice ?? null;
+  const [livePrice, setLivePrice] = useState<number | null>(null);
 
   useEffect(() => {
     if (!card) return;
@@ -64,7 +69,41 @@ export function CardLightbox({
     };
   }, [card, onClose, rotateX, rotateY]);
 
+  useEffect(() => {
+    if (!cardId) {
+      setLivePrice(null);
+      return;
+    }
+    setLivePrice(cachedPrice);
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        const res = await fetch("/api/cards/prices", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: [cardId] }),
+          cache: "no-store",
+          signal: ac.signal,
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          prices?: Record<
+            string,
+            { market: number | null; reverseMarket: number | null }
+          >;
+        };
+        const row = data.prices?.[cardId];
+        if (!row) return;
+        setLivePrice(reverseHolo ? row.reverseMarket : row.market);
+      } catch {
+        // Keep the cached value if the refresh fails or is aborted.
+      }
+    })();
+    return () => ac.abort();
+  }, [cardId, reverseHolo, cachedPrice]);
+
   const glow = card && card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
+  const priceLabel = formatMarketPrice(livePrice);
 
   if (!mounted) return null;
 
@@ -134,6 +173,9 @@ export function CardLightbox({
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-2">
                   {card.rarity}
                 </p>
+              )}
+              {priceLabel && (
+                <p className="mt-1 font-mono text-sm tabular-nums text-white">{priceLabel}</p>
               )}
             </div>
             <p className="text-[10px] uppercase tracking-widest text-zinc-700">

@@ -10,6 +10,7 @@ import {
   userAchievements,
   userCards,
   type Card,
+  type CardPrices,
   type FeedPayload,
   type Profile,
 } from "@/db/schema";
@@ -27,6 +28,8 @@ import {
 } from "@/lib/packs/rarity";
 import type { OpenedPack } from "@/lib/packs/types";
 import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
+import { pickMarketPrice } from "@/lib/game/card-price";
+import { readCardPrices } from "@/lib/game/prices";
 
 export { DAILY_PACK_LIMIT };
 const XP_PER_PACK = 25;
@@ -381,7 +384,10 @@ async function checkAchievements(userId: string, ctx: AchievementContext) {
 }
 
 /** Serialisable card payload sent to the client after opening. */
-export function serialisePack(pack: OpenedPack) {
+export function serialisePack(
+  pack: OpenedPack,
+  priceById?: Map<string, CardPrices | null>,
+) {
   return {
     setId: pack.setId,
     isGodPack: pack.isGodPack,
@@ -397,8 +403,18 @@ export function serialisePack(pack: OpenedPack) {
       reverseHolo: p.reverseHolo,
       slotName: p.slotName,
       rarityTier: p.rarityTier,
+      marketPrice: pickMarketPrice(
+        priceById?.get(p.card.id) ?? p.card.prices,
+        p.reverseHolo,
+      ),
     })),
   };
+}
+
+export async function serialisePackWithCachedPrices(pack: OpenedPack) {
+  const ids = pack.cards.map((p) => p.card.id);
+  const cached = await readCardPrices(ids);
+  return serialisePack(pack, cached);
 }
 
 export type SerialisedPack = ReturnType<typeof serialisePack>;

@@ -12,6 +12,7 @@ import {
   type CollectionFilters,
 } from "@/lib/game/queries";
 import { rarityTier } from "@/lib/packs/rarity";
+import { pickMarketPrice } from "@/lib/game/card-price";
 import { CollectionCardGallery } from "@/components/collection-card-gallery";
 import { SelectMenu } from "@/components/select-menu";
 import { Badge, EmptyState, ProgressBar, SectionEyebrow } from "@/components/ui";
@@ -211,6 +212,7 @@ async function CollectionResults({
           quantity: row.quantity,
           setCode: row.card.id.split("-")[0].toUpperCase(),
           number: row.card.number,
+          marketPrice: pickMarketPrice(row.card.prices),
         }))}
       />
 
