@@ -114,6 +114,7 @@ export default async function ProfilePage({
           Some profile sections couldn&apos;t load. Refresh to try again.
         </p>
       ) : null}
+      <div className="flex flex-col gap-6 md:gap-8">
       {/* Full-bleed banner under fixed nav */}
       <section className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -mt-[calc(var(--site-header-offset)+2rem)] sm:-mt-[calc(var(--site-header-offset)+2.5rem)]">
         <div className="relative isolate">
@@ -142,7 +143,7 @@ export default async function ProfilePage({
           </div>
 
           <div className="mx-auto max-w-[1200px] px-4 sm:px-8 md:px-10">
-            <div className="relative -mt-16 pb-12 sm:-mt-20 md:-mt-24 md:pb-16">
+            <div className="relative -mt-16 grid gap-8 pb-4 sm:-mt-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-end lg:gap-16 md:-mt-24 md:pb-6">
               <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-end sm:gap-8">
                 <div className="relative z-10 grid h-28 w-28 shrink-0 place-items-center overflow-hidden border border-border bg-surface sm:h-32 sm:w-32 md:h-36 md:w-36">
                   <SafeImage
@@ -159,69 +160,69 @@ export default async function ProfilePage({
                   />
                 </div>
 
-                <div className="flex min-w-0 flex-1 flex-col gap-5 pb-1 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
-                  <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 pb-1">
+                  <div className="flex flex-wrap items-center gap-3">
                     <h1 className="title-m truncate text-white">
                       {profile.username}
                     </h1>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
-                      <span>Level {profile.level}</span>
-                      <span aria-hidden className="text-border">
-                        /
-                      </span>
-                      <span>Joined {joinedLabel}</span>
-                      {profile.favouritePokemon ? (
-                        <>
-                          <span aria-hidden className="text-border">
-                            /
-                          </span>
-                          <span>{profile.favouritePokemon}</span>
-                        </>
-                      ) : null}
-                    </div>
-
-                    {profile.bio ? (
-                      <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-2 sm:text-lg">
-                        {profile.bio}
-                      </p>
-                    ) : isOwner ? (
-                      <p className="mt-5 text-sm text-muted-2">
-                        No bio yet.{" "}
-                        <Link
-                          href="/account"
-                          className="text-category underline underline-offset-4 transition-colors hover:text-white"
-                        >
-                          Add one
-                        </Link>
-                      </p>
-                    ) : null}
-                  </div>
-
-                  <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
                     {profile.isDeveloper || profile.isDonator ? (
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex shrink-0 items-center gap-2">
                         {roleBadges}
                       </div>
                     ) : null}
-                    {isOwner ? (
-                      <Link
-                        href="/account"
-                        className="text-center font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white sm:text-right"
-                      >
-                        Edit profile →
-                      </Link>
-                    ) : viewer ? (
-                      <LinkButton
-                        href={`/friends?add=${profile.username}`}
-                        variant="dark"
-                        className="h-12 w-full px-8 text-sm sm:w-auto"
-                      >
-                        Add friend
-                      </LinkButton>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
+                    <span>Level {profile.level}</span>
+                    <span aria-hidden className="text-border">
+                      /
+                    </span>
+                    <span>Joined {joinedLabel}</span>
+                    {profile.favouritePokemon ? (
+                      <>
+                        <span aria-hidden className="text-border">
+                          /
+                        </span>
+                        <span>{profile.favouritePokemon}</span>
+                      </>
                     ) : null}
                   </div>
+
+                  {profile.bio ? (
+                    <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-2 sm:text-lg">
+                      {profile.bio}
+                    </p>
+                  ) : isOwner ? (
+                    <p className="mt-5 text-sm text-muted-2">
+                      No bio yet.{" "}
+                      <Link
+                        href="/account"
+                        className="text-category underline underline-offset-4 transition-colors hover:text-white"
+                      >
+                        Add one
+                      </Link>
+                    </p>
+                  ) : null}
                 </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col lg:items-end">
+                {isOwner ? (
+                  <Link
+                    href="/account"
+                    className="text-center font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-category transition-colors hover:text-white lg:text-right"
+                  >
+                    Edit profile →
+                  </Link>
+                ) : viewer ? (
+                  <LinkButton
+                    href={`/friends?add=${profile.username}`}
+                    variant="dark"
+                    className="h-12 w-full px-8 text-sm sm:w-auto"
+                  >
+                    Add friend
+                  </LinkButton>
+                ) : null}
               </div>
             </div>
           </div>
@@ -245,6 +246,7 @@ export default async function ProfilePage({
           ))}
         </div>
       </section>
+      </div>
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start lg:gap-6">
         <div className="flex min-w-0 flex-col gap-6">
