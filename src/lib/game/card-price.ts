@@ -46,3 +46,18 @@ export function formatMarketPrice(value: number | null | undefined): string | nu
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
   return `$${value.toFixed(2)}`;
 }
+
+/** Sum known market prices. Cards with no price are skipped. */
+export function sumMarketPrices(
+  values: Array<number | null | undefined>,
+): number | null {
+  let total = 0;
+  let any = false;
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      total += value;
+      any = true;
+    }
+  }
+  return any ? total : null;
+}

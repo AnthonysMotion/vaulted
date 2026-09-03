@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { SerialisedPack, SerialisedPulledCard } from "@/lib/game/open-pack";
 import { CARD_IMAGE, preloadCardArt } from "@/lib/images";
-import { formatMarketPrice } from "@/lib/game/card-price";
+import { formatMarketPrice, sumMarketPrices } from "@/lib/game/card-price";
 import { SafeImage } from "@/components/safe-image";
 import { Badge, Button, rarityBadgeColor } from "./ui";
 import { CardTile } from "./card-tile";
@@ -95,6 +95,9 @@ export function PackOpener({
   );
   const revealPrice = formatMarketPrice(
     phase === "revealing" && pack ? pack.cards[revealIndex]?.marketPrice : null,
+  );
+  const packTotal = formatMarketPrice(
+    pack ? sumMarketPrices(pack.cards.map((card) => card.marketPrice)) : null,
   );
 
   const cardCornerRadius = useMemo(
@@ -413,6 +416,12 @@ export function PackOpener({
                       : "Pack opened"}
               </h2>
 
+              {packTotal && (
+                <p className="font-mono text-sm tabular-nums text-white">
+                  Pack value {packTotal}
+                </p>
+              )}
+
               {meta && (
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <Badge color="gold">+{meta.xpAwarded} XP</Badge>
@@ -427,7 +436,12 @@ export function PackOpener({
                 </div>
               )}
 
-              <div className="flex flex-wrap justify-center gap-3">
+              <div
+                className="grid w-full gap-1.5 sm:gap-2"
+                style={{
+                  gridTemplateColumns: `repeat(${pack.cards.length}, minmax(0, 1fr))`,
+                }}
+              >
                 {pack.cards.map((card, i) => {
                   const price = formatMarketPrice(card.marketPrice);
                   return (
@@ -436,16 +450,21 @@ export function PackOpener({
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.06 }}
-                      className="relative flex flex-col items-center gap-1"
+                      className="relative flex min-w-0 flex-col items-center gap-1"
                     >
-                      <CardTile card={card} size="sm" onClick={() => setLightboxCard(card)} />
+                      <CardTile
+                        card={card}
+                        size="lg"
+                        priority
+                        onClick={() => setLightboxCard(card)}
+                      />
                       {price && (
-                        <span className="font-mono text-[10px] tabular-nums text-muted">
+                        <span className="max-w-full truncate font-mono text-[10px] tabular-nums text-muted">
                           {price}
                         </span>
                       )}
                       {meta?.newCardIds.includes(card.id) && (
-                        <span className="absolute -left-1 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
+                        <span className="absolute -left-0.5 -top-1 bg-emerald-500 px-1 text-[9px] font-bold text-white">
                           NEW
                         </span>
                       )}
