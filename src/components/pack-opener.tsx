@@ -670,16 +670,13 @@ function RevealStack({
   const cardKey = `${card.id}-${revealIndex}`;
   const isBig = card.rarityTier >= 4;
   const [readyFor, setReadyFor] = useState<string | null>(null);
-  const artReady = readyFor === cardKey;
+  const artReady = !artSrc || readyFor === cardKey;
   const cornerStyle = {
     ["--card-corner-radius" as string]: cornerRadius,
   };
 
   useEffect(() => {
-    if (!artSrc) {
-      setReadyFor(cardKey);
-      return;
-    }
+    if (!artSrc) return;
     // Dead/slow URLs shouldn't stall the flip forever.
     const failSafe = window.setTimeout(() => setReadyFor(cardKey), 1200);
     return () => window.clearTimeout(failSafe);

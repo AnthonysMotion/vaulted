@@ -62,10 +62,7 @@ export function CursorGrid({
 }: CursorGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const propsRef = useRef<GridConfig>({} as GridConfig);
-  const wakeRef = useRef<(() => void) | null>(null);
-
-  propsRef.current = {
+  const propsRef = useRef<GridConfig>({
     cellSize,
     color,
     radius,
@@ -79,7 +76,40 @@ export function CursorGrid({
     cellRadius,
     clickPulse,
     pulseSpeed,
-  };
+  });
+  const wakeRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    propsRef.current = {
+      cellSize,
+      color,
+      radius,
+      falloff,
+      holdTime,
+      fadeDuration,
+      lineWidth,
+      maxOpacity,
+      fillOpacity,
+      gridOpacity,
+      cellRadius,
+      clickPulse,
+      pulseSpeed,
+    };
+  }, [
+    cellSize,
+    color,
+    radius,
+    falloff,
+    holdTime,
+    fadeDuration,
+    lineWidth,
+    maxOpacity,
+    fillOpacity,
+    gridOpacity,
+    cellRadius,
+    clickPulse,
+    pulseSpeed,
+  ]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -308,8 +338,6 @@ export function CursorGrid({
       window.removeEventListener("pointerdown", onPointerDown);
       wakeRef.current = null;
     };
-    // Grid lattice is rebuilt when cell size changes; other props are live.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellSize]);
 
   useEffect(() => {

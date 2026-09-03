@@ -32,6 +32,11 @@ export function ShuffleLabel({
   const [glyphs, setGlyphs] = useState<Glyph[]>(() =>
     text.split("").map((char) => ({ char, accent: false })),
   );
+  const [glyphSource, setGlyphSource] = useState(text);
+  if (glyphSource !== text) {
+    setGlyphSource(text);
+    setGlyphs(text.split("").map((char) => ({ char, accent: false })));
+  }
   const [minWidth, setMinWidth] = useState<number | undefined>(undefined);
   const spanRef = useRef<HTMLSpanElement | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -42,10 +47,6 @@ export function ShuffleLabel({
       "(prefers-reduced-motion: reduce)",
     ).matches;
   }, []);
-
-  useEffect(() => {
-    setGlyphs(text.split("").map((char) => ({ char, accent: false })));
-  }, [text]);
 
   useLayoutEffect(() => {
     const el = spanRef.current;

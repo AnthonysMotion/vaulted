@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Badge, Button, rarityBadgeColor } from "@/components/ui";
 import { SafeImage } from "@/components/safe-image";
 import { rarityTier } from "@/lib/packs/rarity";
+import { useIsClient } from "@/lib/use-is-client";
 
 export type CollectionOwnedCard = {
   id: string;
@@ -96,15 +97,11 @@ function PickerDialog({
 }) {
   const titleId = useId();
   const searchRef = useRef<HTMLInputElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CollectionOwnedCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<CollectionOwnedCard | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const previous = document.body.style.overflow;

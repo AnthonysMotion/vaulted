@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useIsClient } from "@/lib/use-is-client";
 import { createPortal } from "react-dom";
 import {
   AnimatePresence,
@@ -21,7 +22,7 @@ export function CardLightbox({
   card: CardTileData | null;
   onClose: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const cardRef = useRef<HTMLDivElement>(null);
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -30,10 +31,6 @@ export function CardLightbox({
   const glareX = useTransform(springY, [-12, 12], ["30%", "70%"]);
   const glareY = useTransform(springX, [-12, 12], ["65%", "35%"]);
   const glarePosition = useMotionTemplate`${glareX} ${glareY}`;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!card) return;

@@ -181,12 +181,6 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
   const active = rows.length > 0 ? Math.min(activeIndex, rows.length - 1) : -1;
   const showEmpty = ready && !loading && rows.length === 0;
 
-  let cursor = -1;
-  const nextIndex = () => {
-    cursor += 1;
-    return cursor;
-  };
-
   return (
     <div className="flex flex-col">
       <div
@@ -241,9 +235,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
               username, cards by name, or sets by name and series.
             </p>
             <CategoryChip label="Browse/" />
-            {QUICK_LINKS.map((link) => {
-              const index = nextIndex();
-              return (
+            {QUICK_LINKS.map((link, index) => (
                 <ResultRow
                   key={link.href}
                   href={link.href}
@@ -261,8 +253,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
                     </span>
                   }
                 />
-              );
-            })}
+            ))}
           </>
         ) : null}
 
@@ -275,9 +266,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
         {ready && results.trainers.length > 0 ? (
           <>
             <CategoryChip label="Trainers/" />
-            {results.trainers.map((trainer) => {
-              const index = nextIndex();
-              return (
+            {results.trainers.map((trainer, index) => (
                 <ResultRow
                   key={trainer.username}
                   href={`/profile/${trainer.username}`}
@@ -303,16 +292,15 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
                     </span>
                   }
                 />
-              );
-            })}
+            ))}
           </>
         ) : null}
 
         {ready && results.cards.length > 0 ? (
           <>
             <CategoryChip label="Cards/" />
-            {results.cards.map((card) => {
-              const index = nextIndex();
+            {results.cards.map((card, i) => {
+              const index = results.trainers.length + i;
               return (
                 <ResultRow
                   key={card.id}
@@ -345,8 +333,8 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
         {ready && results.sets.length > 0 ? (
           <>
             <CategoryChip label="Sets/" />
-            {results.sets.map((set) => {
-              const index = nextIndex();
+            {results.sets.map((set, i) => {
+              const index = results.trainers.length + results.cards.length + i;
               return (
                 <ResultRow
                   key={set.id}

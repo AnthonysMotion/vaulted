@@ -210,7 +210,15 @@ export function SiteHeader({
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [ctaOpen, setCtaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuPath, setMenuPath] = useState(pathname);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
+    setOpenGroup(null);
+    setCtaOpen(false);
+    setMobileOpen(false);
+  }
 
   useEffect(() => {
     document.documentElement.style.setProperty(
@@ -218,12 +226,6 @@ export function SiteHeader({
       "5.25rem",
     );
   }, []);
-
-  useEffect(() => {
-    setOpenGroup(null);
-    setCtaOpen(false);
-    setMobileOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     if (!mobileOpen) return;

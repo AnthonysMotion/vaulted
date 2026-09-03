@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -70,11 +70,13 @@ function LoginForm() {
   const [oauthLoading, setOauthLoading] = useState<"google" | "discord" | null>(
     null,
   );
-  const [lastMethod, setLastMethod] = useState<AuthMethod | null>(null);
-
-  useEffect(() => {
-    setLastMethod(getLastAuthMethod());
-  }, []);
+  const storedMethod = useSyncExternalStore(
+    () => () => {},
+    getLastAuthMethod,
+    () => null,
+  );
+  const [chosenMethod, setLastMethod] = useState<AuthMethod | null>(null);
+  const lastMethod = chosenMethod ?? storedMethod;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
