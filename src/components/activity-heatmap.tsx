@@ -1,18 +1,9 @@
-const LEVEL_CLASS = [
-  "bg-surface-2",
-  "bg-zinc-700",
-  "bg-zinc-500",
-  "bg-zinc-300",
-  "bg-white",
-] as const;
+"use client";
 
-function levelForCount(count: number): number {
-  if (count <= 0) return 0;
-  if (count === 1) return 1;
-  if (count === 2) return 2;
-  if (count === 3) return 3;
-  return 4;
-}
+import { useRef, useState } from "react";
+import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
+
+export type ActivityDay = { date: string; count: number };
 
 function formatDayLabel(date: string): string {
   return new Date(`${date}T00:00:00.000Z`).toLocaleDateString(undefined, {
@@ -24,146 +15,105 @@ function formatDayLabel(date: string): string {
   });
 }
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+function packsLabel(count: number): string {
+  if (count <= 0) return "No packs opened";
+  return `${count} pack${count === 1 ? "" : "s"} opened`;
+}
 
-const CELL = 11;
-const GAP = 3;
-const STEP = CELL + GAP;
-const LABEL_WIDTH = 28;
+function cellColor(count: number): string {
+  if (count <= 0) return "var(--color-black)";
+  const level = Math.min(count, DAILY_PACK_LIMIT);
+  const pct = Math.round(18 + (level / DAILY_PACK_LIMIT) * 82);
+  return `color-mix(in srgb, var(--color-blur) ${pct}%, var(--color-black))`;
+}
 
-export function ActivityHeatmap({
-  days,
-}: {
-  days: { date: string; count: number }[];
-}) {
+export function ActivityHeatmap({ days }: { days: ActivityDay[] }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<{
+    day: ActivityDay;
+    x: number;
+    y: number;
+  } | null>(null);
+
   if (days.length === 0) return null;
 
-  const weeks: { date: string; count: number }[][] = [];
+  const weeks: (ActivityDay | undefined)[][] = [];
   for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7));
+    const week: (ActivityDay | undefined)[] = days.slice(i, i + 7);
+    while (week.length < 7) week.push(undefined);
+    weeks.push(week);
   }
 
-  const monthLabels: { weekIndex: number; label: string }[] = [];
-  let lastMonth = -1;
-  weeks.forEach((week, weekIndex) => {
-    const first = week[0];
-    if (!first) return;
-    const month = new Date(`${first.date}T00:00:00.000Z`).getUTCMonth();
-    if (month !== lastMonth) {
-      // Skip label if this week is too close to the previous label
-      const prev = monthLabels[monthLabels.length - 1];
-      if (!prev || weekIndex - prev.weekIndex >= 2) {
-        monthLabels.push({ weekIndex, label: MONTHS[month] });
-      }
-      lastMonth = month;
-    }
-  });
-
-  const activeDays = days.filter((d) => d.count > 0).length;
-  const totalPacks = days.reduce((sum, d) => sum + d.count, 0);
+  const activeDays = days.filter((d) => Number(d.count) > 0).length;
+  const totalPacks = days.reduce((sum, d) => sum + (Number(d.count) || 0), 0);
 
   return (
-    <div className="w-full min-w-0">
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-muted">
-          Opening activity
-        </h2>
-        <p className="text-xs text-muted-2">
-          <span className="font-medium text-category">{totalPacks}</span> packs
-          across{" "}
-          <span className="font-medium text-category">{activeDays}</span> days
-        </p>
-      </div>
+    <div
+      ref={wrapRef}
+      className="relative"
+      onMouseLeave={() => setHover(null)}
+    >
+      <div
+        className="grid grid-flow-col grid-rows-7 gap-1"
+        style={{
+          gridTemplateColumns: `repeat(${weeks.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {weeks.flatMap((week, wi) =>
+          week.map((day, di) => {
+            if (!day) {
+              return <div key={`${wi}-${di}`} className="aspect-square" />;
+            }
 
-      <div className="overflow-x-auto pb-1">
-        <div
-          className="relative"
-          style={{
-            width: LABEL_WIDTH + weeks.length * STEP - GAP,
-            minWidth: "100%",
-          }}
-        >
-          <div className="relative mb-1 h-3" style={{ marginLeft: LABEL_WIDTH }}>
-            {monthLabels.map((m) => (
-              <span
-                key={`${m.label}-${m.weekIndex}`}
-                className="absolute text-[9px] leading-none text-muted-2"
-                style={{ left: m.weekIndex * STEP }}
-              >
-                {m.label}
-              </span>
-            ))}
-          </div>
-
-          <div className="flex" style={{ gap: GAP }}>
-            <div
-              className="flex shrink-0 flex-col text-[9px] text-muted-2"
-              style={{ width: LABEL_WIDTH - GAP, gap: GAP }}
-            >
-              {["", "Mon", "", "Wed", "", "Fri", ""].map((label, i) => (
-                <span
-                  key={i}
-                  className="flex items-center"
-                  style={{ height: CELL }}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-
-            {weeks.map((week, wi) => (
-              <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
-                {Array.from({ length: 7 }).map((_, di) => {
-                  const day = week[di];
-                  if (!day) {
-                    return (
-                      <div
-                        key={di}
-                        style={{ width: CELL, height: CELL }}
-                        className=""
-                      />
-                    );
-                  }
-                  const level = levelForCount(day.count);
-                  return (
-                    <div
-                      key={day.date}
-                      title={`${formatDayLabel(day.date)}: ${day.count} pack${day.count === 1 ? "" : "s"}`}
-                      style={{ width: CELL, height: CELL }}
-                      className={` ${LEVEL_CLASS[level]}`}
-                    />
+            const count = Number(day.count) || 0;
+            return (
+              <div
+                key={day.date}
+                role="img"
+                aria-label={`${formatDayLabel(day.date)}: ${packsLabel(count)}`}
+                className="aspect-square cursor-default transition-opacity duration-150 hover:opacity-80"
+                style={{ backgroundColor: cellColor(count) }}
+                onMouseEnter={(event) => {
+                  const wrap = wrapRef.current;
+                  if (!wrap) return;
+                  const wr = wrap.getBoundingClientRect();
+                  const cr = event.currentTarget.getBoundingClientRect();
+                  const x = Math.min(
+                    Math.max(cr.left - wr.left + cr.width / 2, 84),
+                    wr.width - 84,
                   );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+                  setHover({
+                    day: { date: day.date, count },
+                    x,
+                    y: cr.top - wr.top,
+                  });
+                }}
+              />
+            );
+          }),
+        )}
       </div>
 
-      <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-muted-2">
-        <span>Less</span>
-        {LEVEL_CLASS.map((cls, i) => (
-          <div
-            key={i}
-            style={{ width: CELL, height: CELL }}
-            className={` ${cls}`}
-          />
-        ))}
-        <span>More</span>
-      </div>
+      <p className="mt-4 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
+        <span className="text-category">{totalPacks}</span> packs
+        <span className="text-border"> / </span>
+        <span className="text-category">{activeDays}</span> days
+      </p>
+
+      {hover ? (
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute z-20 w-max max-w-[14rem] -translate-x-1/2 -translate-y-[calc(100%+10px)] border border-border bg-background px-3 py-2"
+          style={{ left: hover.x, top: hover.y }}
+        >
+          <p className="font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
+            {formatDayLabel(hover.day.date)}
+          </p>
+          <p className="mt-1 text-sm font-medium tracking-[-0.02em] text-white">
+            {packsLabel(hover.day.count)}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

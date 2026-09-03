@@ -7,6 +7,7 @@ import {
   getBinder,
   getProfileByUsername,
   getSetProgress,
+  getUserActivityByDay,
   getUserRecentPackOpenings,
 } from "@/lib/game/queries";
 import { getOrCreateProfile } from "@/lib/game/profile";
@@ -18,6 +19,7 @@ import { ProfileActivityFeed } from "@/components/profile-activity-feed";
 import { ProfileShowcaseCard } from "@/components/profile-showcase-card";
 import { ProfileRoleBadge } from "@/components/profile-role-badge";
 import { donatorBadgeColor } from "@/lib/game/donator";
+import { ActivityHeatmap } from "@/components/activity-heatmap";
 
 export default async function ProfilePage({
   params,
@@ -30,18 +32,24 @@ export default async function ProfilePage({
 
   const viewer = await getOrCreateProfile().catch(() => null);
 
-  const [progressResult, binderResult, unlockedResult, recentPacksResult] =
-    await Promise.allSettled([
-      getSetProgress(profile.id),
-      getBinder(profile.id),
-      withDbRetry(() =>
-        db.query.userAchievements.findMany({
-          where: eq(userAchievements.userId, profile.id),
-          with: { achievement: true },
-        }),
-      ),
-      getUserRecentPackOpenings(profile.id, 5),
-    ]);
+  const [
+    progressResult,
+    binderResult,
+    unlockedResult,
+    recentPacksResult,
+    activityResult,
+  ] = await Promise.allSettled([
+    getSetProgress(profile.id),
+    getBinder(profile.id),
+    withDbRetry(() =>
+      db.query.userAchievements.findMany({
+        where: eq(userAchievements.userId, profile.id),
+        with: { achievement: true },
+      }),
+    ),
+    getUserRecentPackOpenings(profile.id, 5),
+    withDbRetry(() => getUserActivityByDay(profile.id, 26)),
+  ]);
 
   const progress =
     progressResult.status === "fulfilled" ? progressResult.value : [];
@@ -50,11 +58,14 @@ export default async function ProfilePage({
     unlockedResult.status === "fulfilled" ? unlockedResult.value : [];
   const recentPacks =
     recentPacksResult.status === "fulfilled" ? recentPacksResult.value : [];
+  const activityDays =
+    activityResult.status === "fulfilled" ? activityResult.value.days : [];
   const partialLoad =
     progressResult.status === "rejected" ||
     binderResult.status === "rejected" ||
     unlockedResult.status === "rejected" ||
-    recentPacksResult.status === "rejected";
+    recentPacksResult.status === "rejected" ||
+    activityResult.status === "rejected";
 
   const cardsCollected = profile.totalCardsCollected;
   const isOwner = viewer?.id === profile.id;
@@ -282,6 +293,19 @@ export default async function ProfilePage({
                     : null
                 }
               />
+            </div>
+          </div>
+
+          <div className={sectionPanel}>
+            <h2 className="title-s text-white">Activity History</h2>
+            <div className="mt-8">
+              {activityDays.length > 0 ? (
+                <ActivityHeatmap days={activityDays} />
+              ) : (
+                <p className="text-sm text-muted-2">
+                  Activity couldn&apos;t load.
+                </p>
+              )}
             </div>
           </div>
 

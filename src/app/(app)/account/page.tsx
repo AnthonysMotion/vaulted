@@ -4,6 +4,7 @@ import { getOrCreateProfile } from "@/lib/game/profile";
 import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { Button, Card } from "@/components/ui";
 import { DonatorBadgeColorField } from "@/components/donator-badge-color-field";
+import { AccountImageFields } from "@/components/account-image-fields";
 import { parseBadgeColor } from "@/lib/game/donator";
 import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -161,31 +162,10 @@ export default async function AccountPage({
             />
           </label>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
-                Avatar image URL
-              </span>
-              <input
-                name="avatarUrl"
-                type="url"
-                defaultValue={profile.avatarUrl ?? ""}
-                className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors focus:border-zinc-600"
-              />
-            </label>
-
-            <label className="flex flex-col gap-2 text-sm">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-2">
-                Banner image URL
-              </span>
-              <input
-                name="bannerUrl"
-                type="url"
-                defaultValue={profile.bannerUrl ?? ""}
-                className="h-12 border border-border bg-surface px-4 text-white outline-none transition-colors focus:border-zinc-600"
-              />
-            </label>
-          </div>
+          <AccountImageFields
+            initialAvatarUrl={profile.avatarUrl ?? ""}
+            initialBannerUrl={profile.bannerUrl ?? ""}
+          />
 
           {profile.isDonator ? (
             <DonatorBadgeColorField storedColor={profile.donatorBadgeColor} />

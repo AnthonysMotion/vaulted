@@ -10,7 +10,7 @@ import {
 import { ShuffleLabel } from "@/components/shuffle-label";
 
 const baseBtn =
-  "inline-flex h-10 items-center justify-center gap-2 px-4 text-sm font-medium tracking-[-0.01em] transition-opacity focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
+  "inline-flex h-10 cursor-pointer items-center justify-center gap-2 px-4 text-sm font-medium tracking-[-0.01em] transition-opacity focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
 
 const variants = {
   primary: "bg-accent text-white hover:opacity-90",

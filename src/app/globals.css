@@ -120,6 +120,29 @@ button {
   border-radius: 0;
 }
 
+@layer base {
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for],
+  select:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="color"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 html {
   overflow-x: clip;
   background: var(--color-background);
