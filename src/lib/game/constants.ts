@@ -1,1 +1,1 @@
-export const DAILY_PACK_LIMIT = 3;
+export const DAILY_PACK_LIMIT = 5;

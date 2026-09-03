@@ -7,11 +7,35 @@ export function VisionLogo({
   size = 22,
   className = "",
   priority = false,
+  currentColor = false,
 }: {
   size?: number;
   className?: string;
   priority?: boolean;
+  /** Fill the mark with `currentColor` (for hover tints). */
+  currentColor?: boolean;
 }) {
+  if (currentColor) {
+    return (
+      <span
+        aria-hidden
+        className={`inline-block shrink-0 bg-current ${className}`.trim()}
+        style={{
+          width: size,
+          height: size,
+          maskImage: `url(${VISION_LOGO_SRC})`,
+          WebkitMaskImage: `url(${VISION_LOGO_SRC})`,
+          maskSize: "contain",
+          WebkitMaskSize: "contain",
+          maskRepeat: "no-repeat",
+          WebkitMaskRepeat: "no-repeat",
+          maskPosition: "center",
+          WebkitMaskPosition: "center",
+        }}
+      />
+    );
+  }
+
   return (
     <Image
       src={VISION_LOGO_SRC}
@@ -19,6 +43,7 @@ export function VisionLogo({
       width={size}
       height={size}
       priority={priority}
+      loading={priority ? "eager" : "lazy"}
       className={`shrink-0 object-contain ${className}`.trim()}
       aria-hidden
     />
@@ -31,7 +56,7 @@ export function VisionWordmark({
   priority = false,
   className = "",
   label = "Vision",
-  textClassName = "text-[17px] font-semibold tracking-[-0.03em] text-white",
+  textClassName = "text-[17px] font-semibold tracking-[-0.03em] text-current",
 }: {
   logoSize?: number;
   priority?: boolean;
@@ -40,8 +65,10 @@ export function VisionWordmark({
   textClassName?: string;
 }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`.trim()}>
-      <VisionLogo size={logoSize} priority={priority} />
+    <span
+      className={`inline-flex items-center gap-2.5 text-white ${className}`.trim()}
+    >
+      <VisionLogo size={logoSize} priority={priority} currentColor />
       <span className={textClassName}>{label}</span>
     </span>
   );

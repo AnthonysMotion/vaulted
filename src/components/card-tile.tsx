@@ -15,14 +15,20 @@ export function CardTile({
   card,
   size = "md",
   onClick,
+  priority = false,
 }: {
   card: CardTileData;
   size?: "sm" | "md" | "lg";
   onClick?: () => void;
+  priority?: boolean;
 }) {
   const glow = card.rarityTier >= 3 ? `glow-tier-${Math.min(card.rarityTier, 6)}` : "";
   const sizes = { sm: "w-24", md: "w-36", lg: "w-full max-w-56" };
-  const className = `relative ${sizes[size]} shrink-0 [content-visibility:auto] [contain-intrinsic-size:auto_280px] transition-transform duration-200 hover:scale-105 ${onClick ? "cursor-pointer" : ""}`;
+  const className = `relative ${sizes[size]} shrink-0 ${
+    priority
+      ? ""
+      : "[content-visibility:auto] [contain-intrinsic-size:auto_280px]"
+  } transition-transform duration-200 hover:scale-105 ${onClick ? "cursor-pointer" : ""}`;
 
   const body = (
     <>
@@ -31,6 +37,8 @@ export function CardTile({
           src={card.imageSmall}
           alt={card.name}
           fill
+          priority={priority}
+          loading={priority ? "eager" : undefined}
           sizes={
             size === "lg"
               ? "(max-width: 640px) 45vw, 224px"

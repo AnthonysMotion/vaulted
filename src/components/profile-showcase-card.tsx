@@ -55,9 +55,9 @@ export function ProfileShowcaseCard({
   }
 
   return (
-    <div className="border border-border bg-background p-6 sm:p-8">
+    <div className="relative border border-border bg-background p-6 sm:p-8">
       {isOwner && card ? (
-        <div className="mb-5 flex items-center justify-end gap-4">
+        <div className="absolute right-6 top-6 z-10 flex items-center gap-4 sm:right-8 sm:top-8">
           <button
             type="button"
             disabled={pending}
@@ -78,10 +78,11 @@ export function ProfileShowcaseCard({
       ) : null}
 
       {card && tileCard ? (
-        <div className="flex items-center gap-5">
+        <div className="flex min-h-[10.5rem] items-center gap-5">
           <CardTile
             card={tileCard}
             size="sm"
+            priority
             onClick={() => setLightbox(tileCard)}
           />
           <div className="min-w-0 flex-1">

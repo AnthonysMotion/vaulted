@@ -148,6 +148,10 @@ export const profiles = pgTable(
     onboardingCompleted: boolean("onboarding_completed").notNull().default(true),
     /** Site developer — can access /dev tools. */
     isDeveloper: boolean("is_developer").notNull().default(false),
+    /** Granted donator — shows a Donator badge on the public profile. */
+    isDonator: boolean("is_donator").notNull().default(false),
+    /** Optional custom Donator badge color (`#rrggbb`). Null uses default green. */
+    donatorBadgeColor: text("donator_badge_color"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

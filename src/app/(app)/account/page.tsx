@@ -3,6 +3,8 @@ import { profiles } from "@/db/schema";
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { redirectIfNeedsOnboarding } from "@/lib/game/onboarding";
 import { Button, Card } from "@/components/ui";
+import { DonatorBadgeColorField } from "@/components/donator-badge-color-field";
+import { parseBadgeColor } from "@/lib/game/donator";
 import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -20,6 +22,9 @@ async function updateAccount(formData: FormData) {
   const bannerUrl = String(formData.get("bannerUrl") ?? "").trim();
   const favouritePokemon = String(formData.get("favouritePokemon") ?? "").trim();
   const bio = String(formData.get("bio") ?? "").trim();
+  const donatorBadgeColorRaw = String(
+    formData.get("donatorBadgeColor") ?? "",
+  ).trim();
 
   if (!/^[a-z0-9_]{3,20}$/.test(username)) {
     redirect("/account?error=username");
@@ -33,6 +38,14 @@ async function updateAccount(formData: FormData) {
     redirect("/account?error=taken");
   }
 
+  const donatorBadgeColor = profile.isDonator
+    ? parseBadgeColor(donatorBadgeColorRaw)
+    : profile.donatorBadgeColor;
+
+  if (profile.isDonator && donatorBadgeColorRaw && !donatorBadgeColor) {
+    redirect("/account?error=color");
+  }
+
   await db
     .update(profiles)
     .set({
@@ -41,6 +54,7 @@ async function updateAccount(formData: FormData) {
       bannerUrl: bannerUrl || null,
       favouritePokemon: favouritePokemon || null,
       bio: bio || null,
+      ...(profile.isDonator ? { donatorBadgeColor } : {}),
     })
     .where(eq(profiles.id, profile.id));
 
@@ -71,9 +85,11 @@ export default async function AccountPage({
       ? "That username is already taken."
       : params.error === "username"
         ? "Username must be 3-20 characters and use only lowercase letters, numbers, or underscores."
-        : params.saved
-          ? "Account updated."
-          : null;
+        : params.error === "color"
+          ? "Pick a valid hex color for your Donator badge."
+          : params.saved
+            ? "Account updated."
+            : null;
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
@@ -170,6 +186,10 @@ export default async function AccountPage({
               />
             </label>
           </div>
+
+          {profile.isDonator ? (
+            <DonatorBadgeColorField storedColor={profile.donatorBadgeColor} />
+          ) : null}
 
           <div className="flex items-center justify-end">
             <Button type="submit" className="px-6">

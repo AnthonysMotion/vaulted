@@ -12,10 +12,12 @@ import {
 import { getOrCreateProfile } from "@/lib/game/profile";
 import { withDbRetry } from "@/lib/db/retry";
 import { SafeImage } from "@/components/safe-image";
-import { LinkButton, ProgressBar, SectionEyebrow } from "@/components/ui";
+import { LinkButton, ProgressBar } from "@/components/ui";
 import { BinderEditor } from "@/components/binder-editor";
 import { ProfileActivityFeed } from "@/components/profile-activity-feed";
 import { ProfileShowcaseCard } from "@/components/profile-showcase-card";
+import { ProfileRoleBadge } from "@/components/profile-role-badge";
+import { donatorBadgeColor } from "@/lib/game/donator";
 
 export default async function ProfilePage({
   params,
@@ -79,6 +81,8 @@ export default async function ProfilePage({
     { label: "Sets completed", value: String(completedSets.length) },
   ];
 
+  const sectionPanel = "bg-surface p-6 sm:p-8 md:p-10";
+
   return (
     <div className="flex flex-col gap-16 md:gap-24">
       {partialLoad ? (
@@ -136,11 +140,18 @@ export default async function ProfilePage({
                     <h1 className="title-m truncate text-white">
                       {profile.username}
                     </h1>
-                    {profile.isDeveloper && (
-                      <span className="border border-accent/40 bg-accent/10 px-2.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-accent">
-                        Dev
-                      </span>
-                    )}
+                    {profile.isDeveloper ? (
+                      <ProfileRoleBadge
+                        label="Dev"
+                        color="var(--color-blur)"
+                      />
+                    ) : null}
+                    {profile.isDonator ? (
+                      <ProfileRoleBadge
+                        label="Donator"
+                        color={donatorBadgeColor(profile.donatorBadgeColor)}
+                      />
+                    ) : null}
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.625rem] uppercase tracking-[-0.01em] text-muted">
@@ -178,15 +189,6 @@ export default async function ProfilePage({
               </div>
 
               <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col lg:items-end">
-                <LinkButton
-                  href={`/binder/${profile.username}`}
-                  className="h-12 w-full px-8 text-sm sm:w-auto"
-                >
-                  View binder{" "}
-                  <span aria-hidden className="ml-2 font-normal opacity-70">
-                    →
-                  </span>
-                </LinkButton>
                 {isOwner ? (
                   <Link
                     href="/account"
@@ -227,10 +229,9 @@ export default async function ProfilePage({
         </div>
       </section>
 
-      <section className="grid gap-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start lg:gap-20">
-        <div className="flex min-w-0 flex-col gap-16">
-          <div>
-            <SectionEyebrow>Activity</SectionEyebrow>
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start lg:gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
+          <div className={sectionPanel}>
             <h2 className="title-s text-white">Recent packs</h2>
             <div className="mt-8">
               <ProfileActivityFeed
@@ -240,16 +241,10 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          <div>
+          <div className={sectionPanel}>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <SectionEyebrow>Binder</SectionEyebrow>
                 <h2 className="title-s text-white">Showcase binder</h2>
-                <p className="mt-3 max-w-md text-sm text-muted-2">
-                  {isOwner
-                    ? "Arrange the cards you want people to see first."
-                    : `Cards ${profile.username} chose to put on display.`}
-                </p>
               </div>
               <Link
                 href={`/binder/${profile.username}`}
@@ -268,9 +263,8 @@ export default async function ProfilePage({
           </div>
         </div>
 
-        <aside className="flex min-w-0 flex-col gap-10">
-          <div>
-            <SectionEyebrow>Showcase</SectionEyebrow>
+        <aside className="flex min-w-0 flex-col gap-6">
+          <div className={sectionPanel}>
             <h2 className="title-s text-white">Favourite pull</h2>
             <div className="mt-8">
               <ProfileShowcaseCard
@@ -291,8 +285,7 @@ export default async function ProfilePage({
             </div>
           </div>
 
-          <div>
-            <SectionEyebrow>Progress</SectionEyebrow>
+          <div className={sectionPanel}>
             <h2 className="title-s text-white">Set completion</h2>
             {topProgress.length === 0 ? (
               <p className="mt-6 text-sm text-muted-2">No progress yet.</p>
@@ -325,8 +318,7 @@ export default async function ProfilePage({
             </Link>
           </div>
 
-          <div>
-            <SectionEyebrow>Milestones</SectionEyebrow>
+          <div className={sectionPanel}>
             <h2 className="title-s text-white">
               Achievements{" "}
               <span className="text-muted-2">· {unlocked.length}</span>
@@ -340,7 +332,7 @@ export default async function ProfilePage({
                     key={u.achievementId}
                     className="flex items-center gap-3 py-4"
                   >
-                    <span className="grid h-10 w-10 shrink-0 place-items-center border border-border bg-surface text-lg">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center border border-border bg-background text-lg">
                       {u.achievement.icon}
                     </span>
                     <div className="min-w-0">

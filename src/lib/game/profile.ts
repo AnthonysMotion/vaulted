@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { binders, profiles, type Profile } from "@/db/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isBootstrapDeveloperUsername } from "@/lib/game/developer";
+import { isBootstrapDonatorUsername } from "@/lib/game/donator";
 import {
   parseVisionUserId,
   VISION_USER_ID_HEADER,
@@ -72,6 +73,7 @@ async function createProfileForUser(user: User): Promise<Profile> {
           avatarUrl,
           onboardingCompleted: false,
           isDeveloper: isBootstrapDeveloperUsername(username),
+          isDonator: isBootstrapDonatorUsername(username),
         })
         .returning();
       await db

@@ -171,7 +171,7 @@ function buildNavItems(profile: Profile | null): NavItem[] {
     ],
   };
 
-  return collection ? [play, collection, search, about] : [play, search, about];
+  return collection ? [play, collection, search] : [play, search, about];
 }
 
 function PlusIcon({ open }: { open: boolean }) {
@@ -316,13 +316,17 @@ export function SiteHeader({
             >
               <Link
                 href={homeHref}
-                className="relative z-[1] shrink-0 text-white"
+                className="group relative z-[1] shrink-0"
                 onClick={() => {
                   setOpenGroup(null);
                   setMobileOpen(false);
                 }}
               >
-                <VisionWordmark logoSize={36} priority />
+                <VisionWordmark
+                  logoSize={36}
+                  priority
+                  className="transition-colors duration-150 group-hover:text-accent"
+                />
               </Link>
 
               <nav className="pointer-events-none absolute inset-0 hidden items-center justify-center lg:flex">
@@ -514,10 +518,13 @@ export function SiteHeader({
           <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
             <Link
               href={homeHref}
-              className="text-white"
+              className="group"
               onClick={() => setMobileOpen(false)}
             >
-              <VisionWordmark logoSize={36} />
+              <VisionWordmark
+                logoSize={36}
+                className="transition-colors duration-150 group-hover:text-accent"
+              />
             </Link>
             <button
               type="button"

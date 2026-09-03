@@ -6,13 +6,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LinkButton, SectionEyebrow, Card } from "@/components/ui";
 import { CursorGrid } from "@/components/home/cursor-grid";
+import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const STATS = [
   { value: 20, suffix: "k+", label: "Cards in the database" },
   { value: 174, suffix: "", label: "Sets to open" },
-  { value: 3, suffix: "", label: "Packs a day" },
+  { value: DAILY_PACK_LIMIT, suffix: "", label: "Packs a day" },
   { value: 0, suffix: "", label: "Sandbox packs", display: "∞" },
 ];
 
@@ -252,7 +253,7 @@ export function LandingExperience({ signedIn }: { signedIn: boolean }) {
                 </h3>
                 <ul className="space-y-4">
                   {[
-                    "A few packs each day",
+                    `${DAILY_PACK_LIMIT} packs each day`,
                     "XP and levels",
                     "Cards saved to your collection",
                     "Share pulls with friends",

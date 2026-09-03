@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LinkButton, SectionEyebrow } from "@/components/ui";
 import { VisionWordmark } from "@/components/vision-logo";
+import { DAILY_PACK_LIMIT } from "@/lib/game/constants";
 
 export const metadata = { title: "About" };
 
@@ -31,8 +32,9 @@ export default function AboutPage() {
             packs as you want. Nothing is saved.
           </li>
           <li>
-            <span className="font-medium text-white">Trainer</span> — a few packs a
-            day, cards go into your collection, XP and streaks count.
+            <span className="font-medium text-white">Trainer</span> —{" "}
+            {DAILY_PACK_LIMIT} packs a day, cards go into your collection, XP
+            and streaks count.
           </li>
           <li>
             <span className="font-medium text-white">Binder &amp; profile</span> —

@@ -6,7 +6,7 @@ A free, social Pokémon TCG pack-opening simulator. Rip boosters with researched
 
 ```
   ┌─────────────────────────────────────────────────────────┐
-  │  20k+ cards  ·  174 sets  ·  3 packs/day  ·  ∞ sandbox  │
+  │  20k+ cards  ·  174 sets  ·  5 packs/day  ·  ∞ sandbox  │
   │              Coverage: Base Set (1999) → today          │
   └─────────────────────────────────────────────────────────┘
 ```
@@ -31,7 +31,7 @@ Most pack simulators are either pure RNG toys or paywalled gacha. Vision aims fo
 | Mode / area | What you get |
 |---|---|
 | **Sandbox** | Unlimited packs, no account, session history. Nothing is saved. |
-| **Trainer** | 3 packs/day (UTC reset), permanent collection, XP, levels, streaks, achievements. |
+| **Trainer** | 5 packs/day (UTC reset), permanent collection, XP, levels, streaks, achievements. |
 | **Pull engine** | Per-set layouts, companion pools (TG / Shiny Vault / etc.), god packs, Basic Energy fallbacks. |
 | **Collection** | Filter by set / rarity / type, search, completion %, rarity breakdown. |
 | **Binder** | Public 3×3 showcase — drag-and-drop, only cards you own. |
@@ -145,7 +145,7 @@ Or open `/dev/simulator` (developer accounts only).
 
 | Mechanic | Detail |
 |---|---|
-| Daily limit | **3** Trainer packs per UTC day |
+| Daily limit | **5** Trainer packs per UTC day |
 | XP | Base + rarity bonuses + streak (`min(streak, 30)`) + god-pack bonus |
 | God packs | Rare whole-pack chase (e.g. SV 151 ≈ 1:2000) |
 | Ultra-rare feed | Rarity tier ≥ 4 posts to the activity feed |
