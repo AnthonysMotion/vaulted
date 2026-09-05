@@ -3,11 +3,19 @@ import { desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { cards, profiles, sets } from "@/db/schema";
-import { MAX_SEARCH_LENGTH, MIN_SEARCH_LENGTH } from "@/lib/search";
+import {
+  MAX_SEARCH_LENGTH,
+  MIN_SEARCH_LENGTH,
+  type SearchResponse,
+} from "@/lib/search";
 
 const TRAINER_LIMIT = 5;
 const SET_LIMIT = 5;
 const CARD_LIMIT = 8;
+
+/** Short in-process cache so repeat queries (typing back, reopen) feel instant. */
+const CACHE_TTL_MS = 30_000;
+const responseCache = new Map<string, { at: number; body: SearchResponse }>();
 
 /** `%` and `_` are LIKE wildcards, so a raw query would match far too much. */
 function likePattern(term: string) {
@@ -29,6 +37,13 @@ export async function GET(request: Request) {
 
   if (q.length < MIN_SEARCH_LENGTH) {
     return NextResponse.json({ q, trainers: [], sets: [], cards: [] });
+  }
+
+  const cached = responseCache.get(q);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
+    return NextResponse.json(cached.body, {
+      headers: { "Cache-Control": "private, max-age=15" },
+    });
   }
 
   const pattern = likePattern(q);
@@ -84,10 +99,21 @@ export async function GET(request: Request) {
       .limit(CARD_LIMIT),
   ]);
 
-  return NextResponse.json({
+  const body: SearchResponse = {
     q,
     trainers: trainerRows,
     sets: setRows,
     cards: cardRows,
+  };
+
+  responseCache.set(q, { at: Date.now(), body });
+  // Bound memory if the process stays warm.
+  if (responseCache.size > 200) {
+    const oldest = responseCache.keys().next().value;
+    if (oldest !== undefined) responseCache.delete(oldest);
+  }
+
+  return NextResponse.json(body, {
+    headers: { "Cache-Control": "private, max-age=15" },
   });
 }

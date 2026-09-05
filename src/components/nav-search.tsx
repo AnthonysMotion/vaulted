@@ -13,10 +13,11 @@ import {
   type SearchResponse,
 } from "@/lib/search";
 
-const DEBOUNCE_MS = 200;
+const DEBOUNCE_MS = 180;
 const SURFACE_2 = "var(--color-grey-800)";
 const BORDER = "var(--color-grey-700)";
 const CATEGORY = "var(--color-grey-300)";
+const CLIENT_CACHE_LIMIT = 40;
 
 const EMPTY: SearchResponse = { q: "", trainers: [], sets: [], cards: [] };
 
@@ -55,6 +56,15 @@ function SearchIcon() {
         strokeLinecap="round"
       />
     </svg>
+  );
+}
+
+function SearchSpinner() {
+  return (
+    <span
+      aria-hidden
+      className="keep-round inline-block h-3.5 w-3.5 shrink-0 animate-spin border-2 border-white/15 border-t-accent"
+    />
   );
 }
 
@@ -126,6 +136,22 @@ function ResultRow({
   );
 }
 
+function ResultSkeleton() {
+  return (
+    <div className="space-y-1 pt-2" aria-hidden>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+          <div className="h-9 w-9 shrink-0 animate-pulse bg-surface-2" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-3.5 w-2/3 animate-pulse bg-surface-2" />
+            <div className="h-2.5 w-1/2 animate-pulse bg-surface-2/70" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /**
  * Public search across trainers, cards, and sets. Card hits deep-link into the
  * set gallery, which pops the lightbox for that card.
@@ -133,6 +159,7 @@ function ResultRow({
 export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cacheRef = useRef(new Map<string, SearchResponse>());
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResponse>(EMPTY);
   const [loading, setLoading] = useState(false);
@@ -140,22 +167,50 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
 
   const term = query.trim();
   const ready = term.length >= MIN_SEARCH_LENGTH;
+  const resultsFresh = results.q === term;
+  const hasHits =
+    results.trainers.length + results.cards.length + results.sets.length > 0;
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
   useEffect(() => {
-    if (term.length < MIN_SEARCH_LENGTH) return;
+    if (term.length < MIN_SEARCH_LENGTH) {
+      setLoading(false);
+      setResults(EMPTY);
+      return;
+    }
+
+    const cached = cacheRef.current.get(term);
+    if (cached) {
+      setResults(cached);
+      setLoading(false);
+      return;
+    }
+
+    // Immediate feedback while debounce waits — input stays fully editable.
+    setLoading(true);
 
     const controller = new AbortController();
     const timer = setTimeout(() => {
-      setLoading(true);
       fetch(`/api/search?q=${encodeURIComponent(term)}`, {
         signal: controller.signal,
       })
-        .then((res) => (res.ok ? (res.json() as Promise<SearchResponse>) : EMPTY))
-        .then(setResults)
+        .then((res) =>
+          res.ok
+            ? (res.json() as Promise<SearchResponse>)
+            : { ...EMPTY, q: term },
+        )
+        .then((data) => {
+          const map = cacheRef.current;
+          map.set(term, data);
+          if (map.size > CLIENT_CACHE_LIMIT) {
+            const oldest = map.keys().next().value;
+            if (oldest !== undefined) map.delete(oldest);
+          }
+          setResults(data);
+        })
         .catch(() => undefined)
         .finally(() => {
           if (!controller.signal.aborted) setLoading(false);
@@ -179,7 +234,10 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
   }, [ready, results]);
 
   const active = rows.length > 0 ? Math.min(activeIndex, rows.length - 1) : -1;
-  const showEmpty = ready && !loading && rows.length === 0;
+  // Cold query: skeleton. Refining: keep prior hits visible under the spinner.
+  const showSkeleton = ready && loading && !hasHits;
+  const showEmpty = ready && !loading && resultsFresh && !hasHits;
+  const showResults = ready && hasHits;
 
   return (
     <div className="flex flex-col">
@@ -197,6 +255,8 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
           maxLength={MAX_SEARCH_LENGTH}
           placeholder="Search trainers, cards, and sets"
           aria-label="Search trainers, cards, and sets"
+          aria-busy={loading || undefined}
+          aria-controls="nav-search-results"
           onChange={(e) => {
             setQuery(e.target.value);
             setActiveIndex(-1);
@@ -217,15 +277,17 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
           className="w-full bg-transparent text-[0.9375rem] tracking-[-0.01em] text-white outline-none placeholder:text-muted-2 [&::-webkit-search-cancel-button]:appearance-none"
         />
         {loading ? (
-          <span className="shrink-0 font-mono text-[0.625rem] uppercase text-muted-2">
-            …
+          <span role="status" className="shrink-0" aria-live="polite">
+            <span className="sr-only">Searching</span>
+            <SearchSpinner />
           </span>
         ) : null}
       </div>
 
       <div
+        id="nav-search-results"
         className={`max-h-[24rem] overflow-y-auto px-2 pb-3 transition-opacity duration-150 ${
-          loading ? "opacity-60" : "opacity-100"
+          loading && showResults && !resultsFresh ? "opacity-60" : "opacity-100"
         }`}
       >
         {!ready ? (
@@ -236,26 +298,28 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
             </p>
             <CategoryChip label="Browse/" />
             {QUICK_LINKS.map((link, index) => (
-                <ResultRow
-                  key={link.href}
-                  href={link.href}
-                  active={index === active}
-                  onActivate={onNavigate}
-                  onHover={() => setActiveIndex(index)}
-                  title={link.title}
-                  meta={link.meta}
-                  media={
-                    <span
-                      aria-hidden
-                      className="grid h-9 w-9 shrink-0 place-items-center bg-surface-2 text-muted transition-colors duration-150 group-hover:bg-accent group-hover:text-white"
-                    >
-                      →
-                    </span>
-                  }
-                />
+              <ResultRow
+                key={link.href}
+                href={link.href}
+                active={index === active}
+                onActivate={onNavigate}
+                onHover={() => setActiveIndex(index)}
+                title={link.title}
+                meta={link.meta}
+                media={
+                  <span
+                    aria-hidden
+                    className="grid h-9 w-9 shrink-0 place-items-center bg-surface-2 text-muted transition-colors duration-150 group-hover:bg-accent group-hover:text-white"
+                  >
+                    →
+                  </span>
+                }
+              />
             ))}
           </>
         ) : null}
+
+        {showSkeleton ? <ResultSkeleton /> : null}
 
         {showEmpty ? (
           <p className="px-3 py-6 text-[0.8125rem] text-muted">
@@ -263,40 +327,40 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
           </p>
         ) : null}
 
-        {ready && results.trainers.length > 0 ? (
+        {showResults && results.trainers.length > 0 ? (
           <>
             <CategoryChip label="Trainers/" />
             {results.trainers.map((trainer, index) => (
-                <ResultRow
-                  key={trainer.username}
-                  href={`/profile/${trainer.username}`}
-                  active={index === active}
-                  onActivate={onNavigate}
-                  onHover={() => setActiveIndex(index)}
-                  title={trainer.username}
-                  meta={`Level ${trainer.level} · ${trainer.totalCardsCollected.toLocaleString()} cards`}
-                  media={
-                    <span className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden bg-surface">
-                      <SafeImage
-                        src={trainer.avatarUrl}
-                        alt=""
-                        fill
-                        sizes="36px"
-                        className="object-cover"
-                        fallback={
-                          <span className="text-[0.6875rem] uppercase text-muted">
-                            {trainer.username.slice(0, 1)}
-                          </span>
-                        }
-                      />
-                    </span>
-                  }
-                />
+              <ResultRow
+                key={trainer.username}
+                href={`/profile/${trainer.username}`}
+                active={index === active}
+                onActivate={onNavigate}
+                onHover={() => setActiveIndex(index)}
+                title={trainer.username}
+                meta={`Level ${trainer.level} · ${trainer.totalCardsCollected.toLocaleString()} cards`}
+                media={
+                  <span className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden bg-surface">
+                    <SafeImage
+                      src={trainer.avatarUrl}
+                      alt=""
+                      fill
+                      sizes="36px"
+                      className="object-cover"
+                      fallback={
+                        <span className="text-[0.6875rem] uppercase text-muted">
+                          {trainer.username.slice(0, 1)}
+                        </span>
+                      }
+                    />
+                  </span>
+                }
+              />
             ))}
           </>
         ) : null}
 
-        {ready && results.cards.length > 0 ? (
+        {showResults && results.cards.length > 0 ? (
           <>
             <CategoryChip label="Cards/" />
             {results.cards.map((card, i) => {
@@ -330,7 +394,7 @@ export function NavSearch({ onNavigate }: { onNavigate: () => void }) {
           </>
         ) : null}
 
-        {ready && results.sets.length > 0 ? (
+        {showResults && results.sets.length > 0 ? (
           <>
             <CategoryChip label="Sets/" />
             {results.sets.map((set, i) => {
